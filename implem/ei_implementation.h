@@ -39,6 +39,34 @@ typedef struct ei_impl_widget_t {
 	ei_rect_t*		content_rect;	///< See ei_widget_get_content_rect. By defaults, points to the screen_location.
 } ei_impl_widget_t;
 
+/**
+ * @brief   Implementation of the frame type of widget.
+ *      Contains this self attributes :
+ *          - ei_relief_t frame_relief: an enumerate specifying the type of relief of the widget
+ *          - ei_color_t frame_color: color type defining the bg color of the frame
+ *          - char* text : the text of the frame
+ *          - ei_font_t text_font : define font
+ *          - int text_size : define the size of the font
+ *          - ei_color_t text_color : define color of text
+ *          - ei_anchor_t text_anchor : define position of anchor
+ *          - file* image : tell if there is supposed to be an image on the surface of the widget
+ *          - ei_anchor_t image_anchor : define anchor of the image
+ *          - ei_surface_t rect_image : give the surface of the image to use.
+ */
+typedef struct ei_impl_frame_t {
+    ei_impl_widget_t widget;
+    ei_relief_t frame_relief;
+    ei_color_t frame_color;
+    char* text;
+    ei_font_t text_font;
+    int text_size;
+    ei_color_t text_color;
+    ei_anchor_t text_anchor;
+    ei_const_string_t image;
+    ei_anchor_t image_anchor;
+    ei_surface_t rec_image;
+} ei_impl_frame_t;
+
 
 
 /**
@@ -81,5 +109,29 @@ typedef struct ei_impl_geom_param_t {
 	ei_geometrymanager_t*		manager;	///< The geometry managers that manages this widget.
 } ei_impl_geom_param_t;
 
+//================================================================================================
+/**
+ *  \brief fonction pour alloué un espace pour un widget frame.
+ *
+ * @return un espace assez grand pour stocker un widget de classe frame.
+ */
+ei_widget_t ei_impl_alloc_frame();
+
+
+/**
+ * \brief Fonction pour free un espace alloué a un widget frame.
+ *
+ */
+void ei_impl_release_frame(ei_widget_t);
+
+/**
+ * \brief Fonction pour dessiner un widget frame.
+ */
+void ei_impl_draw_frame(ei_widget_t widget,ei_surface_t surface,ei_surface_t pick_surface,ei_rect_t* clipper);
+
+/**
+ * \brief Fonction pour mettre les valeurs par defauts d'un widget frame
+ */
+void ei_impl_setdefaults_frame(ei_widget_t);
 
 #endif
