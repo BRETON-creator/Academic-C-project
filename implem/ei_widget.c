@@ -9,7 +9,7 @@
 
 
 #include "ei_widget.h"
-
+#include "ei_implementation.h"
 
 
 /**
@@ -64,7 +64,18 @@ typedef bool		(*ei_callback_t)		(ei_widget_t		widget,
 ei_widget_t		ei_widget_create		(ei_const_string_t	class_name,
 							 ei_widget_t		parent,
 							 ei_user_param_t	user_data,
-							 ei_widget_destructor_t destructor){}
+							 ei_widget_destructor_t destructor){
+    ei_widget_t new_widget = ei_widgetclass_from_name(class_name)->allocfunc();
+    ei_widgetclass_from_name(class_name)->setdefaultsfunc(new_widget);
+    new_widget->parent=parent;
+    ei_widget_t tmp = parent->children_head;
+    parent->children_head=new_widget;
+    new_widget->next_sibling=tmp;
+    if (tmp==NULL) parent->children_tail=new_widget;
+    new_widget->user_data=user_data;
+    new_widget->destructor=destructor;
+    return new_widget;
+}
 
 /**
  * @brief	Destroys a widget.
