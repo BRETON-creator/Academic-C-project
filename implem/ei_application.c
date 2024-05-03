@@ -78,7 +78,7 @@ void ei_app_run(void){
     ei_widget_t current=ei_app_root_widget();
     ei_widget_t stack[MAXAPP];
     stack[0]=NULL;
-    ei_widget_t child;
+    ei_widget_t child=NULL;
     int stack_size=0;
     // TODO : gerer les differentes surfaces, pick_surface et clipper !
     ei_surface_t surface=ei_app_root_surface();
@@ -88,7 +88,7 @@ void ei_app_run(void){
         while (current) {
             current->wclass->drawfunc(current, surface, pick_surface, &clipper);
             if (current->children_head) child = current->children_head->next_sibling;
-            while (child!=current->children_tail) {
+            while (child) {
                 stack[stack_size] = child;
                 stack_size++;
                 child = child->next_sibling;
