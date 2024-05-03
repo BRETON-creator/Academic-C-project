@@ -11,7 +11,8 @@
 
 
 #include "ei_placer.h"
-
+#include "ei_types.h"
+#include "ei_widget.h"
 
 
 
@@ -56,4 +57,11 @@ void		ei_place	(ei_widget_t		widget,
 				 float*			rel_x,
 				 float*			rel_y,
 				 float*			rel_width,
-				 float*			rel_height){}
+				 float*			rel_height){
+
+        ei_size_t size = (ei_size_t){(int) *width, (int) *height};
+        ei_surface_t draw_surface = hw_surface_create (root, size, true);
+
+        widget->wclass->drawfunc(widget, draw_surface, pick_surface, clip_rect);
+}
+
