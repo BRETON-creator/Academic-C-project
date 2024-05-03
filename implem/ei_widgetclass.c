@@ -10,7 +10,7 @@
 
 #include "ei_widgetclass.h"
 
-
+ei_widgetclass_t* tete=NULL;
 
 /**
  * \brief	Returns the size of the opaque struct that is pointed to by \ref ei_widget_t
@@ -91,7 +91,12 @@ typedef void	(*ei_widgetclass_geomnotifyfunc_t)	(ei_widget_t		widget);
  *
  * @param	widgetclass	The structure describing the class.
  */
-void			ei_widgetclass_register		(ei_widgetclass_t* widgetclass){}
+void			ei_widgetclass_register		(ei_widgetclass_t* widgetclass){
+    //On ajoute en tete de la liste chainée des widgetclass le widget qu'on vient de creer.
+    ei_widgetclass_t * tmp = tete;
+    tete=widgetclass;
+    widgetclass->next=tmp;
+}
 
 
 /**
@@ -101,7 +106,14 @@ void			ei_widgetclass_register		(ei_widgetclass_t* widgetclass){}
  *
  * @return			The structure describing the class.
  */
-ei_widgetclass_t*	ei_widgetclass_from_name	(ei_const_string_t name){}
+ei_widgetclass_t*	ei_widgetclass_from_name	(ei_const_string_t name){
+    ei_widgetclass_t* current = tete;
+    while (current->next){
+        if (strcmp(current->name,name)==0) return current;
+        current=current->next;
+    }
+    return NULL;
+}
 
 
 

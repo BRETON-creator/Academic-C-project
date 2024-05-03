@@ -9,6 +9,8 @@
 #include <stdio.h>
 #include "ei_application.h"
 #include "ei_widgetclass.h"
+#include "ei_implementation.h"
+#include "ei_draw.h"
 
 /**
  * \brief	Creates an application.
@@ -32,13 +34,15 @@ void ei_app_create(ei_size_t main_window_size, bool fullscreen){
     // initializes the hardware (calls \ref hw_init)
     hw_init();
     // registers all classes of widget and all geometry managers
-    ei_widgetclass_register((ei_widgetclass_t *) { (ei_widgetclass_name_t){"root window\0"},
-                                                   (ei_widgetclass_allocfunc_t)ei_app_root_widget,
-                                                   (ei_widgetclass_releasefunc_t) ei_app_free,
-                                                   (ei_widgetclass_drawfunc_t) NULL,
-                                                   (ei_widgetclass_setdefaultsfunc_t) NULL,
-                                                   (ei_widgetclass_geomnotifyfunc_t) NULL,
-                                                   (struct ei_widgetclass_t *) NULL});
+    ei_widgetclass_t* frameclass=malloc(sizeof(ei_widgetclass_t*));
+    frameclass->allocfunc = ei_impl_alloc_frame;
+    frameclass->releasefunc = ei_impl_release_frame;
+    frameclass->drawfunc = ei_impl_draw_frame;
+    frameclass->setdefaultsfunc = ei_impl_setdefaults_frame;
+    frameclass->geomnotifyfunc = NULL;
+    frameclass->next = NULL;
+    strcpy(frameclass->name,(ei_widgetclass_name_t){"frame\0"});
+    ei_widgetclass_register(frameclass);
     // creates the root window (either in a system window, or the entire screen
     size = main_window_size;
     hw_create_window(size,fullscreen);
