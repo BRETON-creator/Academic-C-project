@@ -59,14 +59,24 @@ void		ei_place	(ei_widget_t		widget,
 				 float*			rel_y,
 				 float*			rel_width,
 				 float*			rel_height){
+        /*
+        if (x == NULL) *x=0;
+        if (y == NULL) *y=0;
+        //if (anchor == NULL) *anchor = ei_anc_northwest;
+        if (width == NULL);
+        if (height == NULL);
+        //if (rel_x == NULL) *rel_x=0.0;
+        //if (rel_y == NULL) *rel_y=0.0;
+        //if (rel_width == NULL) *rel_width=0.0;
+        //if (rel_height == NULL) *rel_height=0.0;
 
-        ei_size_t size = (ei_size_t){(int) *width, (int) *height};
+        ei_size_t size = (ei_size_t){(int) 10, (int) 10};
         ei_point_t point = (ei_point_t){*x, *y};
         ei_rect_t rect = {point, size};
 
         widget->geom_params = NULL;
         widget->requested_size = size;
         widget->screen_location = rect;
-        widget->content_rect = NULL;
+        widget->content_rect = NULL;*/
 }
 
