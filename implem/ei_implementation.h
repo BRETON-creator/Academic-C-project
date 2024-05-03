@@ -16,6 +16,7 @@
 
 
 
+
 /**
  * \brief	Fields common to all types of widget. Every widget classes specializes this base
  *		class by adding its own fields.

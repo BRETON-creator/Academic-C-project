@@ -7,7 +7,7 @@
 
 
 #include "ei_implementation.h"
-
+#include "ei_draw.h"
 
 
 
@@ -74,7 +74,7 @@ void ei_impl_draw_frame(ei_widget_t widget,ei_surface_t surface,ei_surface_t pic
                                  {rect.top_left.x + size.width, rect.top_left.y},
                                  {rect.top_left.x + size.width, rect.top_left.y + size.height},
                                  {rect.top_left.x, rect.top_left.y + size.height}};
-    ei_draw_polygon		(surface,point_array,4,((ei_impl_frame_t*)widget)->frame_color,clipper);
+    ei_draw_polygon(surface,point_array,4,((ei_impl_frame_t*)widget)->frame_color,clipper);
     hw_surface_update_rects(surface,NULL);
     hw_surface_lock(surface);
 }
