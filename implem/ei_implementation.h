@@ -66,7 +66,7 @@ typedef struct ei_impl_frame_t {
     ei_anchor_t text_anchor;
     ei_const_string_t image;
     ei_anchor_t image_anchor;
-    ei_surface_t rec_image;
+    ei_surface_t rect_image;
 } ei_impl_frame_t;
 
 

@@ -75,6 +75,11 @@ void ei_impl_draw_frame(ei_widget_t widget,ei_surface_t surface,ei_surface_t pic
                                  {rect.top_left.x + size.width, rect.top_left.y + size.height},
                                  {rect.top_left.x, rect.top_left.y + size.height}};
     ei_draw_polygon(surface,point_array,4,((ei_impl_frame_t*)widget)->frame_color,clipper);
+    ei_surface_t surfacetext;
+    ei_point_t* where;
+    ei_rect_t* clippertext;
+    ei_draw_text(surfacetext,where,((ei_impl_frame_t*)widget)->text,((ei_impl_frame_t*)widget)->text_font,
+                 ((ei_impl_frame_t*)widget)->text_color,clippertext);
     hw_surface_update_rects(surface,NULL);
     hw_surface_lock(surface);
 }
@@ -102,5 +107,16 @@ void ei_impl_setdefaults_frame(ei_widget_t widget){
     //frame->widget.requested_size;	///< See \ref ei_widget_get_requested_size.
     //frame->widget.screen_location;///< See \ref ei_widget_get_screen_location.
     //frame->widget.content_rect;	///< See ei_widget_get_content_rect. By defaults, points to the screen_location.
+
+    frame->frame_relief=0;
+    frame->frame_color=ei_default_background_color; //default : noir
+    frame->text=NULL;
+    frame->text_font=ei_default_font;
+    frame->text_size=ei_font_default_size;
+    frame->text_color=ei_font_default_color;
+    frame->text_anchor=ei_anc_center;
+    frame->image=NULL;
+    frame->image_anchor=ei_anc_center;
+    //frame->rect_image;
 }
 

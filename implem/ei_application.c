@@ -12,6 +12,8 @@
 #include "ei_implementation.h"
 #include "ei_draw.h"
 
+ei_impl_widget_t* root;
+
 /**
  * \brief	Creates an application.
  *		<ul>
@@ -34,7 +36,7 @@ void ei_app_create(ei_size_t main_window_size, bool fullscreen){
     // initializes the hardware (calls \ref hw_init)
     hw_init();
     // registers all classes of widget and all geometry managers
-    ei_widgetclass_t* frameclass=malloc(sizeof(ei_widgetclass_t*));
+    ei_widgetclass_t* frameclass=malloc(sizeof(ei_widgetclass_t));
     frameclass->allocfunc = ei_impl_alloc_frame;
     frameclass->releasefunc = ei_impl_release_frame;
     frameclass->drawfunc = ei_impl_draw_frame;
@@ -51,7 +53,10 @@ void ei_app_create(ei_size_t main_window_size, bool fullscreen){
     //hw_surface_update_rects(main_window,NULL);
 
     // creates the root widget to access the root window.
-    ei_widget_t root = ei_app_root_widget();
+    root = ei_impl_alloc_frame();
+    ei_impl_setdefaults_frame(root);
+    root->parent=NULL;
+
 }
 
 /**S
@@ -65,6 +70,15 @@ void ei_app_free(void){}
  *		\ref ei_app_quit_request is called.
  */
 void ei_app_run(void){
+    //dessin des widgets dans l'arbre
+    ei_widget_t current=root;
+    ei_surface_t surface;
+    ei_surface_t pick_surface;
+    ei_rect_t* clipper;
+    while (current){
+        current->wclass->drawfunc(current,surface,pick_surface,clipper);
+
+    }
     getchar();
 }
 
