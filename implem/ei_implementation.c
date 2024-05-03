@@ -51,7 +51,7 @@ uint32_t	ei_impl_map_rgba(ei_surface_t surface, ei_color_t color);
  * @return un espace assez grand pour stocker un widget de classe frame.
  */
 ei_widget_t ei_impl_alloc_frame(){
-    return malloc(sizeof(ei_impl_frame_t));
+    return calloc(1,sizeof(ei_impl_frame_t));
 }
 
 
@@ -76,22 +76,21 @@ void ei_impl_draw_frame(ei_widget_t widget,ei_surface_t surface,ei_surface_t pic
                                  {rect.top_left.x, rect.top_left.y + size.height}};
     ei_draw_polygon(surface,point_array,4,((ei_impl_frame_t*)widget)->frame_color,clipper);
     ei_surface_t surfacetext;
-    ei_point_t* where;
-    ei_rect_t* clippertext;
-    ei_draw_text(surfacetext,where,((ei_impl_frame_t*)widget)->text,((ei_impl_frame_t*)widget)->text_font,
-                 ((ei_impl_frame_t*)widget)->text_color,clippertext);
+    //surfacetext = hw_text_create_surface(((ei_impl_frame_t*)widget)->text,((ei_impl_frame_t*)widget)->text_font,((ei_impl_frame_t*)widget)->text_color);
     hw_surface_update_rects(surface,NULL);
+    //hw_surface_update_rects(surfacetext,NULL);
     hw_surface_lock(surface);
 }
 
-
+//(surfacetext,where,((ei_impl_frame_t*)widget)->text,((ei_impl_frame_t*)widget)->text_font,
+//                 ((ei_impl_frame_t*)widget)->text_color,clippertext)
 
 /**
  * \brief Fonction pour mettre les valeurs par defauts d'un widget frame
  */
 void ei_impl_setdefaults_frame(ei_widget_t widget){
     ei_impl_frame_t* frame = (ei_impl_frame_t*)widget;
-    frame->widget.wclass = ei_widgetclass_from_name((ei_const_string_t){"frame"});
+    frame->widget.wclass = ei_widgetclass_from_name((ei_const_string_t){"frame\0"});
     //frame->widget.pick_id;
     //frame->widget.pick_color;
     frame->widget.user_data = NULL;
