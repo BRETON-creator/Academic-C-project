@@ -108,7 +108,7 @@ void			ei_widgetclass_register		(ei_widgetclass_t* widgetclass){
  */
 ei_widgetclass_t*	ei_widgetclass_from_name	(ei_const_string_t name){
     ei_widgetclass_t* current = tete;
-    while (current->next){
+    while (current){
         if (strcmp(current->name,name)==0) return current;
         current=current->next;
     }

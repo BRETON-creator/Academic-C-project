@@ -12,7 +12,12 @@
 #include "ei_implementation.h"
 #include "ei_draw.h"
 
+#define MAXAPP 500
+
+
 ei_impl_widget_t* root;
+ei_surface_t root_surface;
+
 
 /**
  * \brief	Creates an application.
@@ -46,16 +51,15 @@ void ei_app_create(ei_size_t main_window_size, bool fullscreen){
     strcpy(frameclass->name,(ei_widgetclass_name_t){"frame\0"});
     ei_widgetclass_register(frameclass);
     // creates the root window (either in a system window, or the entire screen
-    size = main_window_size;
-    hw_create_window(size,fullscreen);
-    //ei_surface_t main_window= hw_create_window(size,fullscreen);
+    ei_surface_t main_window= hw_create_window(main_window_size,fullscreen);
     //hw_surface_unlock(main_window);
     //hw_surface_update_rects(main_window,NULL);
 
     // creates the root widget to access the root window.
-    root = ei_impl_alloc_frame();
+    root= ei_impl_alloc_frame();
     ei_impl_setdefaults_frame(root);
     root->parent=NULL;
+    root_surface = main_window;
 
 }
 
@@ -71,14 +75,33 @@ void ei_app_free(void){}
  */
 void ei_app_run(void){
     //dessin des widgets dans l'arbre
-    ei_widget_t current=root;
-    ei_surface_t surface;
-    ei_surface_t pick_surface;
-    ei_rect_t* clipper;
-    while (current){
-        current->wclass->drawfunc(current,surface,pick_surface,clipper);
-
+    ei_widget_t current=ei_app_root_widget();
+    ei_widget_t stack[MAXAPP];
+    stack[0]=NULL;
+    ei_widget_t child;
+    int stack_size=0;
+    // TODO : gerer les differentes surfaces, pick_surface et clipper !
+    ei_surface_t surface=ei_app_root_surface();
+    ei_surface_t pick_surface=ei_app_root_surface();
+    ei_rect_t clipper = hw_surface_get_rect(ei_app_root_surface());
+    while (stack_size || current){
+        while (current) {
+            current->wclass->drawfunc(current, surface, pick_surface, &clipper);
+            if (current->children_head) child = current->children_head->next_sibling;
+            while (child!=current->children_tail) {
+                stack[stack_size] = child;
+                stack_size++;
+                child = child->next_sibling;
+            }
+            current = current->children_head;
+        }
+        if (stack_size){
+            stack_size--;
+            current=stack[stack_size];
+            stack[stack_size]=NULL;
+        }
     }
+
     getchar();
 }
 
@@ -103,7 +126,9 @@ void ei_app_quit_request(void){}
  *
  * @return 			The root widget.
  */
-ei_widget_t ei_app_root_widget(void){}
+ei_widget_t ei_app_root_widget(void){
+    return root;
+}
 
 /**
  * \brief	Returns the surface of the root window. Can be used to create surfaces with similar
@@ -112,7 +137,7 @@ ei_widget_t ei_app_root_widget(void){}
  * @return 			The surface of the root window.
  */
 ei_surface_t ei_app_root_surface(void){
-
+    return root_surface;
 }
 
 
