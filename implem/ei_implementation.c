@@ -75,12 +75,32 @@ void ei_impl_draw_frame(ei_widget_t widget,ei_surface_t surface,ei_surface_t pic
                                  {rect.top_left.x + size.width, rect.top_left.y + size.height},
                                  {rect.top_left.x, rect.top_left.y + size.height}};
     ei_draw_polygon		(surface,point_array,4,((ei_impl_frame_t*)widget)->frame_color,clipper);
+    hw_surface_update_rects(surface,NULL);
+    hw_surface_lock(surface);
 }
+
+
 
 /**
  * \brief Fonction pour mettre les valeurs par defauts d'un widget frame
  */
 void ei_impl_setdefaults_frame(ei_widget_t widget){
     ei_impl_frame_t* frame = (ei_impl_frame_t*)widget;
+    frame->widget.wclass = ei_widgetclass_from_name((ei_const_string_t){"frame"});
+    //frame->widget.pick_id;
+    //frame->widget.pick_color;
+    frame->widget.user_data = NULL;
+    frame->widget.destructor = NULL;
+    /* Widget Hierachy Management */
+    frame->widget.parent = ei_app_root_widget();		///< Pointer to the parent of this widget.
+    frame->widget.children_head=NULL;	///< Pointer to the first child of this widget.	Children are chained with the "next_sibling" field.
+    frame->widget.children_tail=NULL;	///< Pointer to the last child of this widget.
+    frame->widget.next_sibling=NULL;	///< Pointer to the next child of this widget's parent widget.
+
+    /* Geometry Management */
+    frame->widget.geom_params = NULL;	///< Pointer to the geometry management parameters for this widget. If NULL, the widget is not currently managed and thus, is not displayed on the screen.
+    //frame->widget.requested_size;	///< See \ref ei_widget_get_requested_size.
+    //frame->widget.screen_location;///< See \ref ei_widget_get_screen_location.
+    //frame->widget.content_rect;	///< See ei_widget_get_content_rect. By defaults, points to the screen_location.
 }
 
