@@ -10,6 +10,9 @@
 
 #include "ei_widgetclass.h"
 
+/**
+ * on implémente une liste de toutes les widgetclass.
+ */
 ei_widgetclass_t* tete=NULL;
 
 /**

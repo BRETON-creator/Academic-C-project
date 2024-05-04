@@ -59,9 +59,25 @@ void		ei_place	(ei_widget_t		widget,
 				 float*			rel_width,
 				 float*			rel_height){
 
-        //ei_size_t size = (ei_size_t){(int) *width, (int) *height};
-        //ei_surface_t draw_surface = hw_surface_create (root, size, true);
+        /**
+         * ce qu'on veut de cette fonction : Qu'elle mette a jour correctement ces champs la de notre widget .
+         * ei_size_t		requested_size;	///< See \ref ei_widget_get_requested_size.
+         * ei_rect_t		screen_location;///< See \ref ei_widget_get_screen_location.
+	     * ei_rect_t*		content_rect;	///< See ei_widget_get_content_rect. By defaults, points to the screen_location.
+         *
+         * pour :
+         *  - requested_size : la taille de notre widget d'apres width et height ?
+         *  - screen_location : le rectangle definissant l'emplacement de notre widget: possede deux champs :
+         *      - top_left : ei_point_t {x,y} : coin haut gauche du rectangle
+         *      - size : {width, height} : taille du rectangle
+         *  - content_rect : g pas compris =QUESTION POUR LES ENCADRANTS!
+         *
+         *  place le widget:  - soit relativement a ses parents :widget->parent (avec les parametre rel)
+         *                    - soit avec les valeurs absolue (x, y, etc)
+         *
+         *  cette fonction sera appelée dans les drawfunc (fonction a refaire au passage).
+         */
 
-        //widget->wclass->drawfunc(widget, draw_surface, pick_surface, clip_rect);
+
 }
 
