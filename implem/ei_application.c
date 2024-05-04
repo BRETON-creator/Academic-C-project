@@ -15,7 +15,7 @@
 #define MAXAPP 500
 
 
-ei_impl_widget_t* root;
+ei_impl_widget_t* root = NULL;
 ei_surface_t root_surface;
 
 
@@ -103,6 +103,17 @@ void ei_app_run(void){
     }
 
     getchar();
+}
+
+/**
+ * \brief	Change the color of the background window (root widget) with the given color in parameters.
+ *
+ * @param	widget (the root widget)	, color (the structure representing a color)
+ *
+ */
+void ei_frame_set_bg_color(ei_widget_t* widget , ei_color_t color){
+    ei_impl_frame_t* frame = (ei_impl_frame_t*)widget;
+    frame->frame_color = color;
 }
 
 /**
