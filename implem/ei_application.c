@@ -52,8 +52,8 @@ void ei_app_create(ei_size_t main_window_size, bool fullscreen){
     ei_widgetclass_register(frameclass);
     // creates the root window (either in a system window, or the entire screen
     ei_surface_t main_window= hw_create_window(main_window_size,fullscreen);
-    //hw_surface_unlock(main_window);
-    //hw_surface_update_rects(main_window,NULL);
+    hw_surface_lock(main_window);
+
 
     // creates the root widget to access the root window.
     root= ei_impl_alloc_frame();
