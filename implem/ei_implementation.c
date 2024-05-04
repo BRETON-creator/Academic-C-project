@@ -68,8 +68,9 @@ void ei_impl_release_frame(ei_widget_t frame){
  */
 void ei_impl_draw_frame(ei_widget_t widget,ei_surface_t surface,ei_surface_t pick_surface,ei_rect_t* clipper){
     hw_surface_unlock(surface);
-    ei_size_t size= hw_surface_get_size(surface);
+    ei_size_t size= widget->requested_size;
     ei_rect_t rect= hw_surface_get_rect(surface);
+    //top_left = ei_place(... ?)
     ei_point_t point_array[4] = {rect.top_left,
                                  {rect.top_left.x + size.width, rect.top_left.y},
                                  {rect.top_left.x + size.width, rect.top_left.y + size.height},
@@ -103,7 +104,7 @@ void ei_impl_setdefaults_frame(ei_widget_t widget){
 
     /* Geometry Management */
     frame->widget.geom_params = NULL;	///< Pointer to the geometry management parameters for this widget. If NULL, the widget is not currently managed and thus, is not displayed on the screen.
-    //frame->widget.requested_size;	///< See \ref ei_widget_get_requested_size.
+    frame->widget.requested_size=(ei_size_t){100,100} ;	///< See \ref ei_widget_get_requested_size.
     //frame->widget.screen_location;///< See \ref ei_widget_get_screen_location.
     //frame->widget.content_rect;	///< See ei_widget_get_content_rect. By defaults, points to the screen_location.
 

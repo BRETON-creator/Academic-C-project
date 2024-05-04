@@ -59,6 +59,7 @@ void ei_app_create(ei_size_t main_window_size, bool fullscreen){
     root= ei_impl_alloc_frame();
     ei_impl_setdefaults_frame(root);
     root->parent=NULL;
+    root->requested_size = main_window_size;
     root_surface = main_window;
 
 }
@@ -86,6 +87,7 @@ void ei_app_run(void){
     ei_rect_t clipper = hw_surface_get_rect(ei_app_root_surface());
     while (stack_size || current){
         while (current) {
+            //clipper = rectangle de la surface du parent, des surfaces des widgets qui sont devant lui dans l'offscreen
             current->wclass->drawfunc(current, surface, pick_surface, &clipper);
             if (current->children_head) child = current->children_head->next_sibling;
             while (child) {
