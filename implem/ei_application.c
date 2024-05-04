@@ -123,6 +123,7 @@ void ei_app_run(void){
                 child = child->next_sibling;
             }
             current = current->children_head;
+            //il faudrait mettre à jour surface , pick surface , et clipper pour chaque widget qu'on veut dessiner
         }
         if (stack_size){
             stack_size--;
