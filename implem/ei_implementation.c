@@ -65,6 +65,14 @@ void ei_impl_release_frame(ei_widget_t frame){
 
 /**
  * \brief Fonction pour dessiner un widget frame.
+ * TODO : dessiner correctement le frame
+ * dans la surface de la fenetre root ou de la fenetre du parent ?
+ * doit trouver le point ou on doit placer le frame
+ * depend du point d'ancrage
+ * dessine le relief au bon endroit
+ * dessine le frame au bon endroit
+ * pose le texte et l'image au bon endroit
+ *
  */
 void ei_impl_draw_frame(ei_widget_t widget,ei_surface_t surface,ei_surface_t pick_surface,ei_rect_t* clipper){
     hw_surface_unlock(surface);
@@ -88,6 +96,7 @@ void ei_impl_draw_frame(ei_widget_t widget,ei_surface_t surface,ei_surface_t pic
 
 /**
  * \brief Fonction pour mettre les valeurs par defauts d'un widget frame
+ * TODO : completer cette fonction avec les bonnes valeures
  */
 void ei_impl_setdefaults_frame(ei_widget_t widget){
     ei_impl_frame_t* frame = (ei_impl_frame_t*)widget;

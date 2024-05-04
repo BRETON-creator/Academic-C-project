@@ -37,9 +37,12 @@ ei_surface_t root_surface;
  *					is a system window.
  */
 void ei_app_create(ei_size_t main_window_size, bool fullscreen){
-    ei_size_t size;
+    //TODO : creer le off screen aussi !
+    // et initialiser le picking...
+
     // initializes the hardware (calls \ref hw_init)
     hw_init();
+
     // registers all classes of widget and all geometry managers
     ei_widgetclass_t* frameclass=malloc(sizeof(ei_widgetclass_t));
     frameclass->allocfunc = ei_impl_alloc_frame;
@@ -50,6 +53,7 @@ void ei_app_create(ei_size_t main_window_size, bool fullscreen){
     frameclass->next = NULL;
     strcpy(frameclass->name,(ei_widgetclass_name_t){"frame\0"});
     ei_widgetclass_register(frameclass);
+
     // creates the root window (either in a system window, or the entire screen
     ei_surface_t main_window= hw_create_window(main_window_size,fullscreen);
     hw_surface_lock(main_window);
@@ -68,7 +72,10 @@ void ei_app_create(ei_size_t main_window_size, bool fullscreen){
  * \brief	Releases all the resources of the application, and releases the hardware
  *		(ie. calls \ref hw_quit).
  */
-void ei_app_free(void){}
+void ei_app_free(void){
+    //TODO
+    hw_quit();
+}
 
 /**
  * \brief	Runs the application: enters the main event loop. Exits when
@@ -105,6 +112,16 @@ void ei_app_run(void){
     }
 
     getchar();
+    /*
+     * ME SUIS PRIS LA TETE POUR RIEN JE SUIS STUPIDE OUI
+     * Y'a jsute a faire ca :
+     * dessiner root
+     * appeler ei_impl_widget_draw_children
+     *
+     * bien plus simple. :/
+     * imma so stupid
+     * => TODO implementer ei_impl_widget_draw_children (ei_implementation.c)
+     * */
 }
 
 /**

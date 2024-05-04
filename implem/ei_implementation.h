@@ -43,7 +43,7 @@ typedef struct ei_impl_widget_t {
 
 /**
  * @brief   Implementation of the frame type of widget.
- *      Contains this self attributes :
+ *      Contains these self attributes :
  *          - ei_relief_t frame_relief: an enumerate specifying the type of relief of the widget
  *          - ei_color_t frame_color: color type defining the bg color of the frame
  *          - char* text : the text of the frame
