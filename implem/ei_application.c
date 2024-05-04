@@ -11,6 +11,7 @@
 #include "ei_widgetclass.h"
 #include "ei_implementation.h"
 #include "ei_draw.h"
+#include "ei_placer.h"
 
 #define MAXAPP 500
 
@@ -38,12 +39,14 @@ ei_surface_t root_surface;
  */
 void ei_app_create(ei_size_t main_window_size, bool fullscreen){
     //TODO : creer le off screen aussi !
-    // et initialiser le picking...
+    // et initialiser le picking?...
 
     // initializes the hardware (calls \ref hw_init)
     hw_init();
 
     // registers all classes of widget and all geometry managers
+
+    //      register frame class of widget
     ei_widgetclass_t* frameclass=malloc(sizeof(ei_widgetclass_t));
     frameclass->allocfunc = ei_impl_alloc_frame;
     frameclass->releasefunc = ei_impl_release_frame;
@@ -53,6 +56,13 @@ void ei_app_create(ei_size_t main_window_size, bool fullscreen){
     frameclass->next = NULL;
     strcpy(frameclass->name,(ei_widgetclass_name_t){"frame\0"});
     ei_widgetclass_register(frameclass);
+
+    //      register geometry manager "placer"
+    ei_geometrymanager_t* placer=calloc(1,sizeof(ei_geometrymanager_t));
+    strcpy(placer->name,"placer\0");
+    placer->runfunc = ei_impl_placer_runfunc;
+    placer->releasefunc = ei_impl_placer_releasefunc;
+    ei_geometrymanager_register(placer);
 
     // creates the root window (either in a system window, or the entire screen
     ei_surface_t main_window= hw_create_window(main_window_size,fullscreen);
@@ -68,12 +78,22 @@ void ei_app_create(ei_size_t main_window_size, bool fullscreen){
 
 }
 
-/**S
+/**
  * \brief	Releases all the resources of the application, and releases the hardware
  *		(ie. calls \ref hw_quit).
  */
 void ei_app_free(void){
     //TODO
+    /*
+     * doit release :
+     * - toutes les widgets class
+     * - tous les geometrymanager
+     * - la surface offscreen (hw_surface_free)
+     * - tous les widgets (ei_widget_destroy(root))
+     * - ?
+     *
+    */
+
     hw_quit();
 }
 
@@ -142,7 +162,9 @@ void ei_frame_set_bg_color(ei_widget_t* widget , ei_color_t color){
  * @param	rect		The rectangle to add, expressed in the root window coordinates.
  *				A copy is made, so it is safe to release the rectangle on return.
  */
-void ei_app_invalidate_rect(const ei_rect_t* rect){}
+void ei_app_invalidate_rect(const ei_rect_t* rect){
+
+}
 
 /**
  * \brief	Tells the application to quit. Is usually called by an event handler (for example

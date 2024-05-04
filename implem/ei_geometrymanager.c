@@ -133,6 +133,9 @@ ei_geom_param_t		ei_widget_get_geom_params	(ei_widget_t widget);
  */
 void			ei_widget_set_geom_params	(ei_widget_t widget, ei_geom_param_t geom_param);
 
+//=======================================
+
+
 
 
 

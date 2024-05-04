@@ -136,4 +136,17 @@ void ei_impl_draw_frame(ei_widget_t widget,ei_surface_t surface,ei_surface_t pic
  */
 void ei_impl_setdefaults_frame(ei_widget_t);
 
+
+//=====================================
+
+/**
+ * @brief   Fonction run geometrymanager de PLACER
+ */
+void ei_impl_placer_runfunc(ei_widget_t );
+
+/**
+ * @brief Release function of placer
+ */
+ void  ei_impl_placer_releasefunc(ei_widget_t);
+
 #endif

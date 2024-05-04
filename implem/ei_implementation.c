@@ -129,3 +129,14 @@ void ei_impl_setdefaults_frame(ei_widget_t widget){
     //frame->rect_image;
 }
 
+//===================================== placer
+
+/**
+ * @brief   Fonction run geometrymanager de PLACER
+ */
+void ei_impl_placer_runfunc(ei_widget_t widget){}
+
+/**
+ * @brief Release function of placer
+ */
+void  ei_impl_placer_releasefunc(ei_widget_t widget){}
