@@ -74,6 +74,9 @@ void ei_app_create(ei_size_t main_window_size, bool fullscreen){
     ei_impl_setdefaults_frame(root);
     root->parent=NULL;
     root->requested_size = main_window_size;
+    ((ei_impl_frame_t*)root)->frame_relief=ei_relief_none;
+    root->screen_location = hw_surface_get_rect(main_window);
+    root->requested_size= root->screen_location.size;
     root_surface = main_window;
 
 }

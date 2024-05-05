@@ -79,10 +79,10 @@ void ei_impl_draw_frame(ei_widget_t widget,ei_surface_t surface,ei_surface_t pic
     int h;
     ei_color_t color  = ((ei_impl_frame_t*)widget)->frame_color;
     ei_size_t size= widget->requested_size;
-    ei_rect_t rect= hw_surface_get_rect(surface);
+    ei_rect_t rect= widget->screen_location;
     h = size.height < size.width ? size.height : size.width;
     int border = 0.05*h;
-    //top_left = ei_place(... ?)
+
     ei_point_t point_array[4] = {{rect.top_left.x +border, rect.top_left.y + border},
                                  {rect.top_left.x - border + size.width, rect.top_left.y + border},
                                  {rect.top_left.x + size.width -border, rect.top_left.y + size.height - border},
@@ -113,9 +113,21 @@ void ei_impl_draw_frame(ei_widget_t widget,ei_surface_t surface,ei_surface_t pic
     light_color.green = color.green + 20;
     light_color.red = color.red + 20;
 
+    switch (((ei_impl_frame_t*) widget)->frame_relief){
+        case ei_relief_none:
+            ei_draw_polygon(surface,point_array_dark,5, color,clipper);
+            ei_draw_polygon(surface,point_array_light,5,color,clipper);
+            break;
+        case ei_relief_raised:
+            ei_draw_polygon(surface,point_array_dark,5, dark_color,clipper);
+            ei_draw_polygon(surface,point_array_light,5,light_color,clipper);
+            break;
+        case ei_relief_sunken:
+            ei_draw_polygon(surface,point_array_dark,5, light_color,clipper);
+            ei_draw_polygon(surface,point_array_light,5,dark_color,clipper);
+            break;
+    }
 
-    ei_draw_polygon(surface,point_array_dark,4, dark_color,clipper);
-    ei_draw_polygon(surface,point_array_light,4,light_color,clipper);
     ei_draw_polygon(surface,point_array,4, color,clipper);
     ei_surface_t surfacetext;
     //surfacetext = hw_text_create_surface(((ei_impl_frame_t*)widget)->text,((ei_impl_frame_t*)widget)->text_font,((ei_impl_frame_t*)widget)->text_color);

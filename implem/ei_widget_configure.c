@@ -62,6 +62,10 @@ void			ei_frame_configure		(ei_widget_t		widget,
 							 ei_anchor_t*		img_anchor){
     if (!color) color = &ei_default_background_color;
     ((ei_impl_frame_t*)widget)->frame_color = *color;
+    if (!relief)((ei_impl_frame_t*)widget)->frame_relief = ei_relief_none;
+    else ((ei_impl_frame_t*)widget)->frame_relief = *relief;
+
+    if (requested_size) widget->requested_size=*requested_size;
 }
 
 

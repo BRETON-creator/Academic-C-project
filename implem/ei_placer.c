@@ -13,7 +13,7 @@
 #include "ei_placer.h"
 #include "ei_types.h"
 #include "ei_widget.h"
-
+#include "ei_implementation.h"
 
 
 /**
@@ -68,8 +68,8 @@ void		ei_place	(ei_widget_t		widget,
          * pour :
          *  - requested_size : la taille de notre widget d'apres width et height ?
          *  - screen_location : le rectangle definissant l'emplacement de notre widget: possede deux champs :
-         *      - top_left : ei_point_t {x,y} : coin haut gauche du rectangle
-         *      - size : {width, height} : taille du rectangle
+         *      - top_left : ei_point_t {x,y} : coin haut gauche du rectangle, prenant en compte l'ancrage
+         *      - size : {width, height} : taille du rectangle, prenant en compte ce qui est possible de faire
          *  - content_rect : g pas compris =QUESTION POUR LES ENCADRANTS!
          *
          *  place le widget:  - soit relativement a ses parents :widget->parent (avec les parametre rel)
@@ -77,6 +77,21 @@ void		ei_place	(ei_widget_t		widget,
          *
          *  cette fonction sera appelée dans les drawfunc (fonction a refaire au passage).
          */
+
+        //if (rel_height) widget->requested_size.height = (widget->parent->requested_size.height) * (*rel_height);
+        //if (rel_width) widget->requested_size.width = (widget->parent->requested_size.width) * (*rel_width);
+
+
+        if (x) widget->screen_location.top_left.x = *x;
+        if (y) widget->screen_location.top_left.y = *y;
+        if (width) {
+            widget->screen_location.size.width = *width;
+            widget->requested_size.width = *width;
+        }
+        if (height) {
+            widget->requested_size.height= *height;
+            widget->screen_location.size.height = *height;
+        }
 
 
 }
