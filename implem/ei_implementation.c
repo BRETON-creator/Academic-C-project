@@ -25,7 +25,14 @@
 void		ei_impl_widget_draw_children	(ei_widget_t		widget,
 						 ei_surface_t		surface,
 						 ei_surface_t		pick_surface,
-						 ei_rect_t*		clipper);
+						 ei_rect_t*		clipper){
+    (widget->wclass->drawfunc)(widget,surface,pick_surface,clipper);
+    ei_widget_t child = widget->children_head;
+    while (child){
+        ei_impl_widget_draw_children(child, surface,pick_surface,clipper);
+        child = child->next_sibling;
+    }
+}
 
 
 
@@ -80,8 +87,8 @@ void ei_impl_draw_frame(ei_widget_t widget,ei_surface_t surface,ei_surface_t pic
     ei_color_t color  = ((ei_impl_frame_t*)widget)->frame_color;
     ei_size_t size= widget->requested_size;
     ei_rect_t rect= widget->screen_location;
-    h = size.height < size.width ? size.height : size.width;
-    int border = 0.05*h;
+    h = size.height < size.width ? size.height / 2 : size.width /2;
+    int border = 0.05*h; // il faut definir border size dans widgetclass frame pour pouvoir controller la largeur du relief
 
     ei_point_t point_array[4] = {{rect.top_left.x +border, rect.top_left.y + border},
                                  {rect.top_left.x - border + size.width, rect.top_left.y + border},
@@ -90,41 +97,40 @@ void ei_impl_draw_frame(ei_widget_t widget,ei_surface_t surface,ei_surface_t pic
     //Pour créer du relief on dessine les deux moitiés de rectangle l'une plus claire et l'autre plus sombre, et par dessus on dessine le rectangle
 
 
-    ei_point_t point_array_dark[5] = {{rect.top_left.x , rect.top_left.y + size.height},
-                                 {rect.top_left.x+ h , rect.top_left.y + size.height - h },
-                                 {rect.top_left.x + size.width , rect.top_left.y },
-                                 {rect.top_left.x+ size.width  , rect.top_left.y + size.height  },
-                                 {rect.top_left.x + size.width -h, rect.top_left.y + h}  };
-
-    ei_color_t dark_color  = ei_default_background_color;
-    dark_color.blue = color.blue - 20;
-    dark_color.green = color.green - 20;
-    dark_color.red = color.red - 20;
-
-
     ei_point_t point_array_light[5] = {{rect.top_left.x , rect.top_left.y + size.height},
                                  {rect.top_left.x+ h , rect.top_left.y + size.height - h },
-                                 {rect.top_left.x + size.width , rect.top_left.y },
-                                 {rect.top_left.x  , rect.top_left.y },
-                                 {rect.top_left.x + size.width -h, rect.top_left.y + h}  };
+                                 {rect.top_left.x + size.width -h , rect.top_left.y + size.height - h},
+                                 {rect.top_left.x+ size.width  , rect.top_left.y},
+                                 {rect.top_left.x , rect.top_left.y}  };
+
+    ei_point_t point_array_dark[5] = {{rect.top_left.x , rect.top_left.y + size.height},
+                                 {rect.top_left.x+ h , rect.top_left.y + h },
+                                 {rect.top_left.x + size.width -h , rect.top_left.y +h },
+                                 {rect.top_left.x + size.width  , rect.top_left.y },
+                                 {rect.top_left.x + size.width, rect.top_left.y + size.height}  };
 
     ei_color_t light_color  = ei_default_background_color;
     light_color.blue = color.blue + 20;
     light_color.green = color.green + 20;
     light_color.red = color.red + 20;
 
+    ei_color_t dark_color  = ei_default_background_color;
+    dark_color.blue = color.blue - 20;
+    dark_color.green = color.green - 20;
+    dark_color.red = color.red - 20;
+
     switch (((ei_impl_frame_t*) widget)->frame_relief){
         case ei_relief_none:
-            ei_draw_polygon(surface,point_array_dark,4, color,clipper); // /!\ on appelle avec point_array_size = 4 alors qu'il y a 5 points
-            ei_draw_polygon(surface,point_array_light,4,color,clipper);
+            ei_draw_polygon(surface,point_array_dark,5, color,clipper); //
+            ei_draw_polygon(surface,point_array_light,5,color,clipper);
             break;
         case ei_relief_raised:
-            ei_draw_polygon(surface,point_array_dark,4, dark_color,clipper);
-            ei_draw_polygon(surface,point_array_light,4,light_color,clipper);
+            ei_draw_polygon(surface,point_array_dark,5, dark_color,clipper);
+            ei_draw_polygon(surface,point_array_light,5,light_color,clipper);
             break;
         case ei_relief_sunken:
-            ei_draw_polygon(surface,point_array_dark,4, light_color,clipper);
-            ei_draw_polygon(surface,point_array_light,4,dark_color,clipper);
+            ei_draw_polygon(surface,point_array_dark,5, light_color,clipper);
+            ei_draw_polygon(surface,point_array_light,5,dark_color,clipper);
             break;
     }
 

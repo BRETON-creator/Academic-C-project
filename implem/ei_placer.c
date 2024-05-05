@@ -80,10 +80,6 @@ void		ei_place	(ei_widget_t		widget,
 
         //if (rel_height) widget->requested_size.height = (widget->parent->requested_size.height) * (*rel_height);
         //if (rel_width) widget->requested_size.width = (widget->parent->requested_size.width) * (*rel_width);
-
-
-        if (x) widget->screen_location.top_left.x = *x;
-        if (y) widget->screen_location.top_left.y = *y;
         if (width) {
             widget->screen_location.size.width = *width;
             widget->requested_size.width = *width;
@@ -92,6 +88,61 @@ void		ei_place	(ei_widget_t		widget,
             widget->requested_size.height= *height;
             widget->screen_location.size.height = *height;
         }
+
+        //calculer x et y en fonction de l'ancrage :
+
+        int xpos = -1, ypos = -1;
+        if (rel_x)
+            xpos = (widget->requested_size.width) * (*rel_x);
+        if (rel_y)
+            ypos = (widget->requested_size.height) * (*rel_y);
+        if (x) xpos = *x;
+        if (y) ypos = *y;
+
+        ei_anchor_t anc;
+        if (!anchor) anc= ei_anc_northwest;
+        else anc = *anchor;
+        switch (anc){
+            case ei_anc_northwest:
+                xpos = xpos;
+                ypos = ypos;
+                break;
+            case ei_anc_north:
+                xpos = xpos-(widget->requested_size.width)/2;
+                ypos = ypos;
+                break;
+            case ei_anc_northeast:
+                xpos = xpos - widget->requested_size.width;
+                ypos = ypos;
+                break;
+            case ei_anc_west:
+                xpos = xpos;
+                ypos = ypos - widget->requested_size.height /2;
+                break;
+            case ei_anc_center:
+                xpos = xpos-(widget->requested_size.width)/2;
+                ypos = ypos - widget->requested_size.height /2;
+                break;
+            case ei_anc_east:
+                xpos = xpos - widget->requested_size.width;
+                ypos = ypos - widget->requested_size.height /2;
+                break;
+            case ei_anc_southwest:
+                xpos = xpos;
+                ypos = ypos - widget->requested_size.height;
+                break;
+            case ei_anc_south:
+                xpos = xpos - widget->requested_size.width / 2;
+                ypos = ypos - widget->requested_size.height;
+                break;
+            case ei_anc_southeast:
+                xpos = xpos - widget->requested_size.width;
+                ypos = ypos - widget->requested_size.height;
+                break;
+        }
+
+        if (xpos!= -1) widget->screen_location.top_left.x = xpos;
+        if (ypos!= -1) widget->screen_location.top_left.y = ypos;
 
 
 }
