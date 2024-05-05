@@ -115,16 +115,16 @@ void ei_impl_draw_frame(ei_widget_t widget,ei_surface_t surface,ei_surface_t pic
 
     switch (((ei_impl_frame_t*) widget)->frame_relief){
         case ei_relief_none:
-            ei_draw_polygon(surface,point_array_dark,5, color,clipper);
-            ei_draw_polygon(surface,point_array_light,5,color,clipper);
+            ei_draw_polygon(surface,point_array_dark,4, color,clipper); // /!\ on appelle avec point_array_size = 4 alors qu'il y a 5 points
+            ei_draw_polygon(surface,point_array_light,4,color,clipper);
             break;
         case ei_relief_raised:
-            ei_draw_polygon(surface,point_array_dark,5, dark_color,clipper);
-            ei_draw_polygon(surface,point_array_light,5,light_color,clipper);
+            ei_draw_polygon(surface,point_array_dark,4, dark_color,clipper);
+            ei_draw_polygon(surface,point_array_light,4,light_color,clipper);
             break;
         case ei_relief_sunken:
-            ei_draw_polygon(surface,point_array_dark,5, light_color,clipper);
-            ei_draw_polygon(surface,point_array_light,5,dark_color,clipper);
+            ei_draw_polygon(surface,point_array_dark,4, light_color,clipper);
+            ei_draw_polygon(surface,point_array_light,4,dark_color,clipper);
             break;
     }
 
