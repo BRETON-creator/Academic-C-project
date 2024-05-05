@@ -69,6 +69,18 @@ typedef struct ei_impl_frame_t {
     ei_surface_t rect_image;
 } ei_impl_frame_t;
 
+/**
+ * @brief Implementation of the widget type button
+ * Same as a frame but contains 3 self attributes :
+ *  - int rayon : rayon des arrondis
+ *  - ei_callback_t traitantfunc : adresse d'une fonction traitant. Doit etre appelée par la bibliothèque losque l'utilisateur clique sur le bouton.
+ *  - void* user_params : adresse memoire permettant a l'utilisateur de passser un parametre spécifique a ce bouton lors de l'appel du traitant.
+ */
+typedef struct {
+    ei_impl_frame_t frame;
+    int rayon;
+    void* user_params;
+} ei_impl_button_t;
 
 
 /**
