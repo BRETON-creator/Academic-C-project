@@ -29,7 +29,7 @@ void		ei_impl_widget_draw_children	(ei_widget_t		widget,
     (widget->wclass->drawfunc)(widget,surface,pick_surface,clipper);
     ei_widget_t child = widget->children_head;
     while (child){
-        ei_impl_widget_draw_children(child, surface,pick_surface,clipper);
+        ei_impl_widget_draw_children(child, surface,pick_surface,&(widget->screen_location));
         child = child->next_sibling;
     }
 }
@@ -350,63 +350,65 @@ void ei_impl_setdefaults_button(ei_widget_t widget){
  * pose le texte et l'image au bon endroit
  *
  */
+ /**
 void ei_impl_draw_button(ei_widget_t widget,ei_surface_t surface,ei_surface_t pick_surface,ei_rect_t* clipper){
-        hw_surface_unlock(surface);
-        int h;
-        ei_color_t color  = ((ei_impl_button_t*)widget)->frame.frame_color;
-        ei_size_t size= widget->requested_size;
-        ei_rect_t rect= widget->screen_location;
-        h = size.height < size.width ? size.height / 2 : size.width /2;
-        int border = 0.05*h; // il faut definir border size dans widgetclass button pour pouvoir controller la largeur du relief
+    hw_surface_unlock(surface);
+    int h;
+    ei_color_t color  = ((ei_impl_button_t*)widget)->frame.frame_color;
+    ei_size_t size= widget->requested_size;
+    ei_rect_t rect= widget->screen_location;
+    h = size.height < size.width ? size.height / 2 : size.width /2;
+    int border = 0.05*h; // il faut definir border size dans widgetclass button pour pouvoir controller la largeur du relief
 
-        ei_point_t point_array[4] = {{rect.top_left.x +border, rect.top_left.y + border},
-                                     {rect.top_left.x - border + size.width, rect.top_left.y + border},
-                                     {rect.top_left.x + size.width -border, rect.top_left.y + size.height - border},
-                                     {rect.top_left.x + border, rect.top_left.y + size.height - border}};
-        //Pour créer du relief on dessine les deux moitiés de rectangle l'une plus claire et l'autre plus sombre, et par dessus on dessine le rectangle
+    ei_point_t point_array[4] = {{rect.top_left.x +border, rect.top_left.y + border},
+                                 {rect.top_left.x - border + size.width, rect.top_left.y + border},
+                                 {rect.top_left.x + size.width -border, rect.top_left.y + size.height - border},
+                                 {rect.top_left.x + border, rect.top_left.y + size.height - border}};
+    //Pour créer du relief on dessine les deux moitiés de rectangle l'une plus claire et l'autre plus sombre, et par dessus on dessine le rectangle
 
 
-        ei_point_t point_array_light[5] = {{rect.top_left.x , rect.top_left.y + size.height},
-                                           {rect.top_left.x+ h , rect.top_left.y + size.height - h },
-                                           {rect.top_left.x + size.width -h , rect.top_left.y + size.height - h},
-                                           {rect.top_left.x+ size.width  , rect.top_left.y},
-                                           {rect.top_left.x , rect.top_left.y}  };
+    ei_point_t point_array_light[5] = {{rect.top_left.x , rect.top_left.y + size.height},
+                                       {rect.top_left.x+ h , rect.top_left.y + size.height - h },
+                                       {rect.top_left.x + size.width -h , rect.top_left.y + size.height - h},
+                                       {rect.top_left.x+ size.width  , rect.top_left.y},
+                                       {rect.top_left.x , rect.top_left.y}  };
 
-        ei_point_t point_array_dark[5] = {{rect.top_left.x , rect.top_left.y + size.height},
-                                          {rect.top_left.x+ h , rect.top_left.y + h },
-                                          {rect.top_left.x + size.width -h , rect.top_left.y +h },
-                                          {rect.top_left.x + size.width  , rect.top_left.y },
-                                          {rect.top_left.x + size.width, rect.top_left.y + size.height}  };
+    ei_point_t point_array_dark[5] = {{rect.top_left.x , rect.top_left.y + size.height},
+                                      {rect.top_left.x+ h , rect.top_left.y + h },
+                                      {rect.top_left.x + size.width -h , rect.top_left.y +h },
+                                      {rect.top_left.x + size.width  , rect.top_left.y },
+                                      {rect.top_left.x + size.width, rect.top_left.y + size.height}  };
 
-        ei_color_t light_color  = ei_default_background_color;
-        light_color.blue = color.blue + 20;
-        light_color.green = color.green + 20;
-        light_color.red = color.red + 20;
+    ei_color_t light_color  = ei_default_background_color;
+    light_color.blue = color.blue + 20;
+    light_color.green = color.green + 20;
+    light_color.red = color.red + 20;
 
-        ei_color_t dark_color  = ei_default_background_color;
-        dark_color.blue = color.blue - 20;
-        dark_color.green = color.green - 20;
-        dark_color.red = color.red - 20;
+    ei_color_t dark_color  = ei_default_background_color;
+    dark_color.blue = color.blue - 20;
+    dark_color.green = color.green - 20;
+    dark_color.red = color.red - 20;
 
-        switch (((ei_impl_button_t*) widget)->frame.frame_relief){
-                case ei_relief_none:
-                        ei_draw_polygon(surface,point_array_dark,5, color,clipper); //
-                        ei_draw_polygon(surface,point_array_light,5,color,clipper);
-                        break;
-                case ei_relief_raised:
-                        ei_draw_polygon(surface,point_array_dark,5, dark_color,clipper);
-                        ei_draw_polygon(surface,point_array_light,5,light_color,clipper);
-                        break;
-                case ei_relief_sunken:
-                        ei_draw_polygon(surface,point_array_dark,5, light_color,clipper);
-                        ei_draw_polygon(surface,point_array_light,5,dark_color,clipper);
-                        break;
-        }
+    switch (((ei_impl_button_t*) widget)->frame.frame_relief){
+        case ei_relief_none:
+            ei_draw_polygon(surface,point_array_dark,5, color,clipper); //
+            ei_draw_polygon(surface,point_array_light,5,color,clipper);
+            break;
+        case ei_relief_raised:
+            ei_draw_polygon(surface,point_array_dark,5, dark_color,clipper);
+            ei_draw_polygon(surface,point_array_light,5,light_color,clipper);
+            break;
+        case ei_relief_sunken:
+            ei_draw_polygon(surface,point_array_dark,5, light_color,clipper);
+            ei_draw_polygon(surface,point_array_light,5,dark_color,clipper);
+            break;
+    }
 
-        ei_draw_polygon(surface,point_array,4, color,clipper);
-        ei_surface_t surfacetext;
-        surfacetext = hw_text_create_surface(((ei_impl_button_t*)widget)->frame.text,((ei_impl_button_t*)widget)->frame.text_font,((ei_impl_button_t*)widget)->frame.text_color);
-        hw_surface_update_rects(surface,NULL);
-        //hw_surface_update_rects(surfacetext,NULL);
-        hw_surface_lock(surface);
+    ei_draw_polygon(surface,point_array,4, color,clipper);
+    ei_surface_t surfacetext;
+    surfacetext = hw_text_create_surface(((ei_impl_button_t*)widget)->frame.text,((ei_impl_button_t*)widget)->frame.text_font,((ei_impl_button_t*)widget)->frame.text_color);
+    hw_surface_update_rects(surface,NULL);
+    //hw_surface_update_rects(surfacetext,NULL);
+    hw_surface_lock(surface);
 }
+*/
