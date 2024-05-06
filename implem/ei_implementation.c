@@ -29,7 +29,7 @@ void		ei_impl_widget_draw_children	(ei_widget_t		widget,
     (widget->wclass->drawfunc)(widget,surface,pick_surface,clipper);
     ei_widget_t child = widget->children_head;
     while (child){
-        ei_impl_widget_draw_children(child, surface,pick_surface,clipper);
+        ei_impl_widget_draw_children(child, surface,pick_surface,&(widget->screen_location));
         child = child->next_sibling;
     }
 }
