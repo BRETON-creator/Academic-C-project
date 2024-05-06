@@ -162,3 +162,38 @@ void ei_impl_placer_runfunc(ei_widget_t );
  void  ei_impl_placer_releasefunc(ei_widget_t);
 
 #endif
+
+//======================================= button
+
+/**
+ *  \brief fonction pour alloué un espace pour un widget button.
+ *
+ * @return un espace assez grand pour stocker un widget de classe button.
+ */
+ei_widget_t ei_impl_alloc_button();
+
+/**
+ * \brief Fonction pour free un espace alloué a un widget button.
+ *
+ */
+void ei_impl_release_button(ei_widget_t button);
+
+/**
+* \brief Fonction pour mettre les valeurs par defauts d'un widget button
+* TODO : completer cette fonction avec les bonnes valeures
+*/
+
+void ei_impl_setdefaults_button(ei_widget_t widget);
+
+/**
+* \brief Fonction pour dessiner un widget button.
+* TODO : dessiner correctement le button
+* dans la surface de la fenetre root ou de la fenetre du parent ?
+* doit trouver le point ou on doit placer le button
+* depend du point d'ancrage
+* dessine le relief au bon endroit
+* dessine le button au bon endroit
+* pose le texte et l'image au bon endroit
+*
+*/
+void ei_impl_draw_button(ei_widget_t widget,ei_surface_t surface,ei_surface_t pick_surface,ei_rect_t* clipper);

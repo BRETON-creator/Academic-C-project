@@ -105,7 +105,18 @@ void			ei_button_configure		(ei_widget_t		widget,
 							 ei_rect_ptr_t*		img_rect,
 							 ei_anchor_t*		img_anchor,
 							 ei_callback_t*		callback,
-							 ei_user_param_t*	user_param){}
+							 ei_user_param_t*	user_param){
+        if (!color) color = &ei_default_background_color;
+        ((ei_impl_button_t*)widget)->frame.frame_color = *color;
+        if (!relief)((ei_impl_button_t*)widget)->frame.frame_relief = ei_relief_none;
+        else ((ei_impl_button_t*)widget)->frame.frame_relief = *relief;
+
+        if (requested_size) widget->requested_size=*requested_size;
+
+        if (text)((ei_impl_button_t*)widget)->frame.text = *text;
+
+
+}
 
 
 /**
