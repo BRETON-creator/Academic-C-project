@@ -5,10 +5,9 @@
  *
  */
 
-#include "ei_application.h"
+#include "ei_types.h"
 #include "ei_widgetclass.h"
 #include "ei_implementation.h"
-#include "ei_application.c"
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>

@@ -8,7 +8,7 @@
 
 #include "ei_implementation.h"
 #include "ei_draw.h"
-
+#include "ei_offscreen.c"
 
 
 /**
@@ -29,6 +29,11 @@ void		ei_impl_widget_draw_children	(ei_widget_t		widget,
     (widget->wclass->drawfunc)(widget,surface,pick_surface,clipper);
     ei_widget_t child = widget->children_head;
     while (child){
+        //pick_surface
+        bool force_alpha=true;
+        ei_size_t size = child->requested_size;
+        ei_surface_t pick_surface = hw_surface_create (ei_app_root_surface(), size, force_alpha);
+        child-> pick_id = create_new_pick_id();
         ei_impl_widget_draw_children(child, surface,pick_surface,&(widget->screen_location));
         child = child->next_sibling;
     }
