@@ -203,25 +203,26 @@ void give_rounded_frame(ei_point_t* circle, ei_rect_t rect, int radius) {
                                    (rect.top_left.y) + (rect.size.height) - radius};
         circle[i] = (ei_point_t) {(center.x) + (xpos * radius), (center.y) - (ypos * radius)};
     }
+    circle[39].x = circle[0].x;
 }
 
 void give_lower_frame(ei_point_t* rounded_frame,ei_rect_t rect, int h, ei_point_t* lower_frame){
     for (int i=0; i<15; i++){
         lower_frame[i] = rounded_frame[25+i];
     }
-    for (int i=0;i<5;i++){
+    for (int i=0;i<6;i++){
         lower_frame[15+i] = rounded_frame[i];
     }
-    lower_frame[20] = (ei_point_t){rect.top_left.x +rect.size.width -h, rect.top_left.y + h};
-    lower_frame[21] = (ei_point_t){rect.top_left.x + h                , rect.top_left.y + h};
+    lower_frame[21] = (ei_point_t){rect.top_left.x +rect.size.width -h, rect.top_left.y + h};
+    lower_frame[22] = (ei_point_t){rect.top_left.x + h                , rect.top_left.y + h};
 }
 
 void give_upper_frame(ei_point_t* rounded_frame,ei_rect_t rect, int h, ei_point_t* upper_frame){
-    for (int i=0; i<20; i++){
+    for (int i=0; i<21; i++){
         upper_frame[i] = rounded_frame[5+i];
     }
-    upper_frame[20] = (ei_point_t){rect.top_left.x + h                , rect.top_left.y + h};
-    upper_frame[21] = (ei_point_t){rect.top_left.x +rect.size.width -h, rect.top_left.y + h};
+    upper_frame[21] = (ei_point_t){rect.top_left.x + h                , rect.top_left.y + h};
+    upper_frame[22] = (ei_point_t){rect.top_left.x +rect.size.width -h, rect.top_left.y + h};
 }
 
 void ei_impl_draw_button(ei_widget_t widget,ei_surface_t surface,ei_surface_t pick_surface,ei_rect_t* clipper){
@@ -236,8 +237,8 @@ void ei_impl_draw_button(ei_widget_t widget,ei_surface_t surface,ei_surface_t pi
     ei_point_t rounded_frame[40];
     int radius= ((ei_impl_button_t*)widget)->rayon;
     give_rounded_frame(rounded_frame, rect, radius);
-    ei_point_t upper_frame[22];
-    ei_point_t lower_frame[22];
+    ei_point_t upper_frame[23];
+    ei_point_t lower_frame[23];
     ei_point_t smaller_frame[40];
 
     give_upper_frame(rounded_frame,rect,h,upper_frame);
@@ -250,17 +251,17 @@ void ei_impl_draw_button(ei_widget_t widget,ei_surface_t surface,ei_surface_t pi
     ei_color_t dark_color  = (ei_color_t){color.red -20, color.green -20, color.blue -20, color.alpha};
     switch (((ei_impl_frame_t*) widget)->frame_relief){
         case ei_relief_none:
-            ei_draw_polygon(surface,lower_frame,22, color,clipper); //
-            ei_draw_polygon(surface,upper_frame,22,color,clipper);
+            ei_draw_polygon(surface,lower_frame,23, color,clipper); //
+            ei_draw_polygon(surface,upper_frame,23,color,clipper);
             break;
         case ei_relief_raised:
-            ei_draw_polygon(surface,lower_frame,22, dark_color,clipper);
-            ei_draw_polygon(surface,upper_frame,22,light_color,clipper);
+            ei_draw_polygon(surface,lower_frame,23, dark_color,clipper);
+            ei_draw_polygon(surface,upper_frame,23,light_color,clipper);
             break;
         case ei_relief_sunken:
 
-            ei_draw_polygon(surface,lower_frame,22, light_color,clipper);
-            ei_draw_polygon(surface,upper_frame,22,dark_color,clipper);
+            ei_draw_polygon(surface,lower_frame,23, light_color,clipper);
+            ei_draw_polygon(surface,upper_frame,23,dark_color,clipper);
             break;
     }
 
