@@ -12,11 +12,13 @@
 #include "ei_implementation.h"
 #include "ei_draw.h"
 #include "ei_placer.h"
+#include "ei_event.h"
 
 #define MAXAPP 500
 
 
 ei_impl_widget_t* root = NULL;
+bool quit = false;
 ei_surface_t root_surface;
 
 
@@ -56,6 +58,17 @@ void ei_app_create(ei_size_t main_window_size, bool fullscreen){
     frameclass->next = NULL;
     strcpy(frameclass->name,(ei_widgetclass_name_t){"frame\0"});
     ei_widgetclass_register(frameclass);
+
+    //      register button class of widget
+    ei_widgetclass_t* buttonclass=malloc(sizeof(ei_widgetclass_t));
+    buttonclass->allocfunc = ei_impl_alloc_button;
+    buttonclass->releasefunc = ei_impl_release_button;
+    buttonclass->drawfunc = ei_impl_draw_button;
+    buttonclass->setdefaultsfunc = ei_impl_setdefaults_button;
+    buttonclass->geomnotifyfunc = NULL;
+    buttonclass->next = NULL;
+    strcpy(buttonclass->name,(ei_widgetclass_name_t){"button\0"});
+    ei_widgetclass_register(buttonclass);
 
     //      register geometry manager "placer"
     ei_geometrymanager_t* placer=calloc(1,sizeof(ei_geometrymanager_t));
@@ -112,6 +125,7 @@ void ei_app_run(void){
     ei_widget_t child=NULL;
     int stack_size=0;
     // TODO : gerer les differentes surfaces, pick_surface et clipper !
+
     ei_surface_t surface=ei_app_root_surface();
     ei_surface_t pick_surface=ei_app_root_surface();
     ei_rect_t clipper = hw_surface_get_rect(ei_app_root_surface());
@@ -136,6 +150,14 @@ void ei_app_run(void){
     }
 
     getchar();
+
+    while (!quit){
+            //ei_app_invalidate_rect(...);
+
+            ei_event_t* event = malloc(sizeof(ei_event_t));
+            hw_event_wait_next(event);
+
+    }
     /*
      * ME SUIS PRIS LA TETE POUR RIEN JE SUIS STUPIDE OUI
      * Y'a jsute a faire ca :
@@ -174,7 +196,9 @@ void ei_app_invalidate_rect(const ei_rect_t* rect){
  * \brief	Tells the application to quit. Is usually called by an event handler (for example
  *		when pressing the "Escape" key).
  */
-void ei_app_quit_request(void){}
+void ei_app_quit_request(void){
+        quit = true;
+}
 
 /**
  * \brief	Returns the "root widget" of the application: a "frame" widget that span the entire

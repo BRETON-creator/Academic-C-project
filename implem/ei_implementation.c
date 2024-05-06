@@ -191,3 +191,134 @@ void ei_impl_placer_runfunc(ei_widget_t widget){}
  * @brief Release function of placer
  */
 void  ei_impl_placer_releasefunc(ei_widget_t widget){}
+
+//======================================= button
+
+/**
+ *  \brief fonction pour alloué un espace pour un widget button.
+ *
+ * @return un espace assez grand pour stocker un widget de classe button.
+ */
+ei_widget_t ei_impl_alloc_button(){
+        return calloc(1,sizeof(ei_impl_button_t));
+}
+
+
+/**
+ * \brief Fonction pour free un espace alloué a un widget button.
+ *
+ */
+void ei_impl_release_button(ei_widget_t button){
+        free((ei_impl_button_t*)button);
+}
+
+/**
+* \brief Fonction pour mettre les valeurs par defauts d'un widget button
+* TODO : completer cette fonction avec les bonnes valeures
+*/
+
+void ei_impl_setdefaults_button(ei_widget_t widget){
+        ei_impl_button_t* button = (ei_impl_button_t*)widget;
+        button->frame.widget.wclass = ei_widgetclass_from_name((ei_const_string_t){"button\0"});
+        //button->widget.pick_id;
+        //button->widget.pick_color;
+        button->frame.widget.user_data = NULL;
+        button->frame.widget.destructor = NULL;
+        /* Widget Hierachy Management */
+        button->frame.widget.parent = ei_app_root_widget();		///< Pointer to the parent of this widget.
+        button->frame.widget.children_head=NULL;	///< Pointer to the first child of this widget.	Children are chained with the "next_sibling" field.
+        button->frame.widget.children_tail=NULL;	///< Pointer to the last child of this widget.
+        button->frame.widget.next_sibling=NULL;	///< Pointer to the next child of this widget's parent widget.
+
+        /* Geometry Management */
+        button->frame.widget.geom_params = NULL;	///< Pointer to the geometry management parameters for this widget. If NULL, the widget is not currently managed and thus, is not displayed on the screen.
+        button->frame.widget.requested_size=(ei_size_t){100,100} ;	///< See \ref ei_widget_get_requested_size.
+        //button->widget.screen_location;///< See \ref ei_widget_get_screen_location.
+        //button->widget.content_rect;	///< See ei_widget_get_content_rect. By defaults, points to the screen_location.
+
+        button->frame.frame_relief=0;
+        button->frame.frame_color=ei_default_background_color; //default : noir
+        button->frame.text=NULL;
+        button->frame.text_font=ei_default_font;
+        button->frame.text_size=ei_font_default_size;
+        button->frame.text_color=ei_font_default_color;
+        button->frame.text_anchor=ei_anc_center;
+        button->frame.image=NULL;
+        button->frame.image_anchor=ei_anc_center;
+        //button->rect_image;
+
+        button->rayon = 0;
+        button->user_params=NULL;
+}
+
+/**
+ * \brief Fonction pour dessiner un widget button.
+ * TODO : dessiner correctement le button
+ * dans la surface de la fenetre root ou de la fenetre du parent ?
+ * doit trouver le point ou on doit placer le button
+ * depend du point d'ancrage
+ * dessine le relief au bon endroit
+ * dessine le button au bon endroit
+ * pose le texte et l'image au bon endroit
+ *
+ */
+void ei_impl_draw_button(ei_widget_t widget,ei_surface_t surface,ei_surface_t pick_surface,ei_rect_t* clipper){
+        hw_surface_unlock(surface);
+        int h;
+        ei_color_t color  = ((ei_impl_button_t*)widget)->frame.frame_color;
+        ei_size_t size= widget->requested_size;
+        ei_rect_t rect= widget->screen_location;
+        h = size.height < size.width ? size.height / 2 : size.width /2;
+        int border = 0.05*h; // il faut definir border size dans widgetclass button pour pouvoir controller la largeur du relief
+
+        ei_point_t point_array[4] = {{rect.top_left.x +border, rect.top_left.y + border},
+                                     {rect.top_left.x - border + size.width, rect.top_left.y + border},
+                                     {rect.top_left.x + size.width -border, rect.top_left.y + size.height - border},
+                                     {rect.top_left.x + border, rect.top_left.y + size.height - border}};
+        //Pour créer du relief on dessine les deux moitiés de rectangle l'une plus claire et l'autre plus sombre, et par dessus on dessine le rectangle
+
+
+        ei_point_t point_array_light[5] = {{rect.top_left.x , rect.top_left.y + size.height},
+                                           {rect.top_left.x+ h , rect.top_left.y + size.height - h },
+                                           {rect.top_left.x + size.width -h , rect.top_left.y + size.height - h},
+                                           {rect.top_left.x+ size.width  , rect.top_left.y},
+                                           {rect.top_left.x , rect.top_left.y}  };
+
+        ei_point_t point_array_dark[5] = {{rect.top_left.x , rect.top_left.y + size.height},
+                                          {rect.top_left.x+ h , rect.top_left.y + h },
+                                          {rect.top_left.x + size.width -h , rect.top_left.y +h },
+                                          {rect.top_left.x + size.width  , rect.top_left.y },
+                                          {rect.top_left.x + size.width, rect.top_left.y + size.height}  };
+
+        ei_color_t light_color  = ei_default_background_color;
+        light_color.blue = color.blue + 20;
+        light_color.green = color.green + 20;
+        light_color.red = color.red + 20;
+
+        ei_color_t dark_color  = ei_default_background_color;
+        dark_color.blue = color.blue - 20;
+        dark_color.green = color.green - 20;
+        dark_color.red = color.red - 20;
+
+        switch (((ei_impl_button_t*) widget)->frame.frame_relief){
+                case ei_relief_none:
+                        ei_draw_polygon(surface,point_array_dark,5, color,clipper); //
+                        ei_draw_polygon(surface,point_array_light,5,color,clipper);
+                        break;
+                case ei_relief_raised:
+                        ei_draw_polygon(surface,point_array_dark,5, dark_color,clipper);
+                        ei_draw_polygon(surface,point_array_light,5,light_color,clipper);
+                        break;
+                case ei_relief_sunken:
+                        ei_draw_polygon(surface,point_array_dark,5, light_color,clipper);
+                        ei_draw_polygon(surface,point_array_light,5,dark_color,clipper);
+                        break;
+        }
+
+        ei_draw_polygon(surface,point_array,4, color,clipper);
+        ei_surface_t surfacetext;
+        surfacetext = hw_text_create_surface(((ei_impl_button_t*)widget)->frame.text,((ei_impl_button_t*)widget)->frame.text_font,((ei_impl_button_t*)widget)->frame.text_color);
+        hw_surface_update_rects(surface,NULL);
+        //hw_surface_update_rects(surfacetext,NULL);
+        hw_surface_lock(surface);
+}

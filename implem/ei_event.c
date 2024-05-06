@@ -9,6 +9,7 @@
 #include <string.h>
 #include "ei_implementation.h"
 #include "ei_widget_attributes.h"
+#include "ei_widget_configure.h"
 
 // bool ei_callback_clickbutton(ei_widget_t		widget, struct ei_event_t*	event, ei_user_param_t	user_param){
 //
@@ -40,7 +41,12 @@ void		ei_bind			(ei_eventtype_t		eventtype,
                      ei_widget_t		widget,
                      ei_tag_t		tag,
                      ei_callback_t		callback,
-                     void*			user_param);
+                     void*			user_param){
+
+        ei_button_configure(&widget, NULL,NULL,NULL,NULL,NULL,NULL,
+                            NULL,NULL,NULL,NULL,NULL,NULL, &callback, &user_param);
+
+}
 
 /**
  * \brief	Unbinds a callback from an event type and widget or tag.
@@ -53,4 +59,7 @@ void		ei_unbind		(ei_eventtype_t		eventtype,
                      ei_widget_t		widget,
                      ei_tag_t		tag,
                      ei_callback_t		callback,
-                     void*			user_param);
+                     void*			user_param){
+        ei_button_configure(widget, NULL,NULL,NULL,NULL,NULL,NULL,
+                            NULL,NULL,NULL,NULL,NULL,NULL, NULL, NULL);
+}
