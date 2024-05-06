@@ -65,7 +65,10 @@ void			ei_frame_configure		(ei_widget_t		widget,
     if (!relief)((ei_impl_frame_t*)widget)->frame_relief = ei_relief_none;
     else ((ei_impl_frame_t*)widget)->frame_relief = *relief;
 
-    if (requested_size) widget->requested_size=*requested_size;
+    if (requested_size) {
+        widget->requested_size=*requested_size;
+        widget->screen_location.size=*requested_size;
+    }
 }
 
 

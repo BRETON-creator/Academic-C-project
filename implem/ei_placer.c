@@ -75,11 +75,12 @@ void		ei_place	(ei_widget_t		widget,
          *  place le widget:  - soit relativement a ses parents :widget->parent (avec les parametre rel)
          *                    - soit avec les valeurs absolue (x, y, etc)
          *
-         *  cette fonction sera appelée dans les drawfunc (fonction a refaire au passage).
+         *  c'est au programmeur d'appeler cette fonction.
          */
 
         //if (rel_height) widget->requested_size.height = (widget->parent->requested_size.height) * (*rel_height);
         //if (rel_width) widget->requested_size.width = (widget->parent->requested_size.width) * (*rel_width);
+        //widget->geom_params->manager= ei_geometrymanager_from_name((char*){"placer\0"});
         if (width) {
             widget->screen_location.size.width = *width;
             widget->requested_size.width = *width;
@@ -140,10 +141,7 @@ void		ei_place	(ei_widget_t		widget,
                 ypos = ypos - widget->requested_size.height;
                 break;
         }
-
         if (xpos!= -1) widget->screen_location.top_left.x = xpos;
         if (ypos!= -1) widget->screen_location.top_left.y = ypos;
-
-
 }
 

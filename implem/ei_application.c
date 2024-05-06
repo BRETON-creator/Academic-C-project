@@ -118,7 +118,8 @@ void ei_app_run(void){
     while (stack_size || current){
         while (current) {
             //clipper = rectangle de la surface du parent, des surfaces des widgets qui sont devant lui dans l'offscreen
-            current->wclass->drawfunc(current, surface, pick_surface, &clipper);
+            //if (current->geom_params !=NULL)
+                current->wclass->drawfunc(current, surface, pick_surface, &clipper);
             if (current->children_head) child = current->children_head->next_sibling;
             while (child) {
                 stack[stack_size] = child;
