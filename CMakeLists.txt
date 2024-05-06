@@ -76,6 +76,9 @@ set(LIB_EI_SOURCES
 		${SRC}/ei_implementation.c
 		${SRC}/ei_geometrymanager.c
 		${SRC}/ei_event.c
+		${SRC}/ei_offscreen.c
+
+
 
 		#     ${SRC}/un_autre_fichier_source.c
 )
