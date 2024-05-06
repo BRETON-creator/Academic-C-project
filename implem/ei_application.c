@@ -150,8 +150,6 @@ void ei_app_run(void){
         }
     }
 
-    getchar();
-
     while (!quit){
             //ei_app_invalidate_rect(...);
 

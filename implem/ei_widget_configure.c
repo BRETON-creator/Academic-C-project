@@ -112,8 +112,14 @@ void			ei_button_configure		(ei_widget_t		widget,
         else ((ei_impl_button_t*)widget)->frame.frame_relief = *relief;
 
         if (requested_size) widget->requested_size=*requested_size;
-
         if (text)((ei_impl_button_t*)widget)->frame.text = *text;
+        if (corner_radius)((ei_impl_button_t*)widget)->rayon = *corner_radius;
+
+        if (!text_font) text_font = &ei_default_font;
+        ((ei_impl_button_t*)widget)->frame.text_font = *text_font;
+
+        if (!text_color) text_color = &ei_font_default_color;
+        ((ei_impl_button_t*)widget)->frame.text_color = *text_color;
 
 
 }
