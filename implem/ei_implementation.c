@@ -245,9 +245,9 @@ void ei_impl_draw_button(ei_widget_t widget,ei_surface_t surface,ei_surface_t pi
     give_rounded_frame(smaller_frame,(ei_rect_t){(ei_point_t){rect.top_left.x+border,rect.top_left.y+border},
                                                             (ei_size_t){rect.size.width - 2*border, rect.size.height - 2*border}},radius);
 
-    ei_color_t light_color  = (ei_color_t){color.red + 20, color.green +20, color.blue +20};
+    ei_color_t light_color  = (ei_color_t){color.red + 20, color.green +20, color.blue +20, color.alpha};
 
-    ei_color_t dark_color  = (ei_color_t){color.red -20, color.green -20, color.blue -20};
+    ei_color_t dark_color  = (ei_color_t){color.red -20, color.green -20, color.blue -20, color.alpha};
     switch (((ei_impl_frame_t*) widget)->frame_relief){
         case ei_relief_none:
             ei_draw_polygon(surface,lower_frame,22, color,clipper); //
@@ -258,12 +258,13 @@ void ei_impl_draw_button(ei_widget_t widget,ei_surface_t surface,ei_surface_t pi
             ei_draw_polygon(surface,upper_frame,22,light_color,clipper);
             break;
         case ei_relief_sunken:
+
             ei_draw_polygon(surface,lower_frame,22, light_color,clipper);
             ei_draw_polygon(surface,upper_frame,22,dark_color,clipper);
             break;
     }
 
-    ei_draw_polygon(surface,rounded_frame,40,light_color,clipper);
+    //ei_draw_polygon(surface,rounded_frame,40,light_color,clipper);
     ei_draw_polygon(surface,smaller_frame,40, color,clipper);
 
     hw_surface_update_rects(surface,NULL);
