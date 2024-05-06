@@ -74,6 +74,7 @@ set(LIB_EI_SOURCES
 		${SRC}/ei_placer.c
 		${SRC}/ei_widgetclass.c
 		${SRC}/ei_implementation.c
+		${SRC}/ei_geometrymanager.c
 
 		#     ${SRC}/un_autre_fichier_source.c
 )

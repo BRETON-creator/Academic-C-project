@@ -43,7 +43,7 @@ typedef struct ei_impl_widget_t {
 
 /**
  * @brief   Implementation of the frame type of widget.
- *      Contains this self attributes :
+ *      Contains these self attributes :
  *          - ei_relief_t frame_relief: an enumerate specifying the type of relief of the widget
  *          - ei_color_t frame_color: color type defining the bg color of the frame
  *          - char* text : the text of the frame
@@ -69,6 +69,18 @@ typedef struct ei_impl_frame_t {
     ei_surface_t rect_image;
 } ei_impl_frame_t;
 
+/**
+ * @brief Implementation of the widget type button
+ * Same as a frame but contains 3 self attributes :
+ *  - int rayon : rayon des arrondis
+ *  - ei_callback_t traitantfunc : adresse d'une fonction traitant. Doit etre appelée par la bibliothèque losque l'utilisateur clique sur le bouton.
+ *  - void* user_params : adresse memoire permettant a l'utilisateur de passser un parametre spécifique a ce bouton lors de l'appel du traitant.
+ */
+typedef struct {
+    ei_impl_frame_t frame;
+    int rayon;
+    void* user_params;
+} ei_impl_button_t;
 
 
 /**
@@ -135,5 +147,18 @@ void ei_impl_draw_frame(ei_widget_t widget,ei_surface_t surface,ei_surface_t pic
  * \brief Fonction pour mettre les valeurs par defauts d'un widget frame
  */
 void ei_impl_setdefaults_frame(ei_widget_t);
+
+
+//=====================================
+
+/**
+ * @brief   Fonction run geometrymanager de PLACER
+ */
+void ei_impl_placer_runfunc(ei_widget_t );
+
+/**
+ * @brief Release function of placer
+ */
+ void  ei_impl_placer_releasefunc(ei_widget_t);
 
 #endif

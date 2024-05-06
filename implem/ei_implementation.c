@@ -25,7 +25,14 @@
 void		ei_impl_widget_draw_children	(ei_widget_t		widget,
 						 ei_surface_t		surface,
 						 ei_surface_t		pick_surface,
-						 ei_rect_t*		clipper);
+						 ei_rect_t*		clipper){
+    (widget->wclass->drawfunc)(widget,surface,pick_surface,clipper);
+    ei_widget_t child = widget->children_head;
+    while (child){
+        ei_impl_widget_draw_children(child, surface,pick_surface,clipper);
+        child = child->next_sibling;
+    }
+}
 
 
 
@@ -65,16 +72,69 @@ void ei_impl_release_frame(ei_widget_t frame){
 
 /**
  * \brief Fonction pour dessiner un widget frame.
+ * TODO : dessiner correctement le frame
+ * dans la surface de la fenetre root ou de la fenetre du parent ?
+ * doit trouver le point ou on doit placer le frame
+ * depend du point d'ancrage
+ * dessine le relief au bon endroit
+ * dessine le frame au bon endroit
+ * pose le texte et l'image au bon endroit
+ *
  */
 void ei_impl_draw_frame(ei_widget_t widget,ei_surface_t surface,ei_surface_t pick_surface,ei_rect_t* clipper){
     hw_surface_unlock(surface);
-    ei_size_t size= hw_surface_get_size(surface);
-    ei_rect_t rect= hw_surface_get_rect(surface);
-    ei_point_t point_array[4] = {rect.top_left,
-                                 {rect.top_left.x + size.width, rect.top_left.y},
-                                 {rect.top_left.x + size.width, rect.top_left.y + size.height},
-                                 {rect.top_left.x, rect.top_left.y + size.height}};
-    ei_draw_polygon(surface,point_array,4,((ei_impl_frame_t*)widget)->frame_color,clipper);
+    int h;
+    ei_color_t color  = ((ei_impl_frame_t*)widget)->frame_color;
+    ei_size_t size= widget->requested_size;
+    ei_rect_t rect= widget->screen_location;
+    h = size.height < size.width ? size.height / 2 : size.width /2;
+    int border = 0.05*h; // il faut definir border size dans widgetclass frame pour pouvoir controller la largeur du relief
+
+    ei_point_t point_array[4] = {{rect.top_left.x +border, rect.top_left.y + border},
+                                 {rect.top_left.x - border + size.width, rect.top_left.y + border},
+                                 {rect.top_left.x + size.width -border, rect.top_left.y + size.height - border},
+                                 {rect.top_left.x + border, rect.top_left.y + size.height - border}};
+    //Pour créer du relief on dessine les deux moitiés de rectangle l'une plus claire et l'autre plus sombre, et par dessus on dessine le rectangle
+
+
+    ei_point_t point_array_light[5] = {{rect.top_left.x , rect.top_left.y + size.height},
+                                 {rect.top_left.x+ h , rect.top_left.y + size.height - h },
+                                 {rect.top_left.x + size.width -h , rect.top_left.y + size.height - h},
+                                 {rect.top_left.x+ size.width  , rect.top_left.y},
+                                 {rect.top_left.x , rect.top_left.y}  };
+
+    ei_point_t point_array_dark[5] = {{rect.top_left.x , rect.top_left.y + size.height},
+                                 {rect.top_left.x+ h , rect.top_left.y + h },
+                                 {rect.top_left.x + size.width -h , rect.top_left.y +h },
+                                 {rect.top_left.x + size.width  , rect.top_left.y },
+                                 {rect.top_left.x + size.width, rect.top_left.y + size.height}  };
+
+    ei_color_t light_color  = ei_default_background_color;
+    light_color.blue = color.blue + 20;
+    light_color.green = color.green + 20;
+    light_color.red = color.red + 20;
+
+    ei_color_t dark_color  = ei_default_background_color;
+    dark_color.blue = color.blue - 20;
+    dark_color.green = color.green - 20;
+    dark_color.red = color.red - 20;
+
+    switch (((ei_impl_frame_t*) widget)->frame_relief){
+        case ei_relief_none:
+            ei_draw_polygon(surface,point_array_dark,5, color,clipper); //
+            ei_draw_polygon(surface,point_array_light,5,color,clipper);
+            break;
+        case ei_relief_raised:
+            ei_draw_polygon(surface,point_array_dark,5, dark_color,clipper);
+            ei_draw_polygon(surface,point_array_light,5,light_color,clipper);
+            break;
+        case ei_relief_sunken:
+            ei_draw_polygon(surface,point_array_dark,5, light_color,clipper);
+            ei_draw_polygon(surface,point_array_light,5,dark_color,clipper);
+            break;
+    }
+
+    ei_draw_polygon(surface,point_array,4, color,clipper);
     ei_surface_t surfacetext;
     //surfacetext = hw_text_create_surface(((ei_impl_frame_t*)widget)->text,((ei_impl_frame_t*)widget)->text_font,((ei_impl_frame_t*)widget)->text_color);
     hw_surface_update_rects(surface,NULL);
@@ -87,6 +147,7 @@ void ei_impl_draw_frame(ei_widget_t widget,ei_surface_t surface,ei_surface_t pic
 
 /**
  * \brief Fonction pour mettre les valeurs par defauts d'un widget frame
+ * TODO : completer cette fonction avec les bonnes valeures
  */
 void ei_impl_setdefaults_frame(ei_widget_t widget){
     ei_impl_frame_t* frame = (ei_impl_frame_t*)widget;
@@ -103,7 +164,7 @@ void ei_impl_setdefaults_frame(ei_widget_t widget){
 
     /* Geometry Management */
     frame->widget.geom_params = NULL;	///< Pointer to the geometry management parameters for this widget. If NULL, the widget is not currently managed and thus, is not displayed on the screen.
-    //frame->widget.requested_size;	///< See \ref ei_widget_get_requested_size.
+    frame->widget.requested_size=(ei_size_t){100,100} ;	///< See \ref ei_widget_get_requested_size.
     //frame->widget.screen_location;///< See \ref ei_widget_get_screen_location.
     //frame->widget.content_rect;	///< See ei_widget_get_content_rect. By defaults, points to the screen_location.
 
@@ -119,3 +180,14 @@ void ei_impl_setdefaults_frame(ei_widget_t widget){
     //frame->rect_image;
 }
 
+//===================================== placer
+
+/**
+ * @brief   Fonction run geometrymanager de PLACER
+ */
+void ei_impl_placer_runfunc(ei_widget_t widget){}
+
+/**
+ * @brief Release function of placer
+ */
+void  ei_impl_placer_releasefunc(ei_widget_t widget){}
