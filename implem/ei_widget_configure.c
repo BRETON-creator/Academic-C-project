@@ -113,6 +113,7 @@ void			ei_button_configure		(ei_widget_t		widget,
         else ((ei_impl_button_t*)widget)->frame.frame_relief = *relief;
 
         if (requested_size) widget->requested_size=*requested_size;
+        widget->screen_location.size = widget->requested_size;
         if (text)((ei_impl_button_t*)widget)->frame.text = *text;
         if (corner_radius)((ei_impl_button_t*)widget)->rayon = *corner_radius;
 

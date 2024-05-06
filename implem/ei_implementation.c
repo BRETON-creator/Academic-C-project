@@ -70,23 +70,6 @@ void ei_impl_release_frame(ei_widget_t frame){
     free((ei_impl_frame_t*)frame);
 }
 
-void give_rounded_frame(ei_point_t* circle, ei_rect_t rect, int radius){
-    float pi = 3.14;
-    float xpos,ypos;
-    ei_point_t center;
-    for (int i=0;i<40;i++){
-        xpos=cosf(((float)i/20)*pi);
-        ypos=sinf(((float)i/20)*pi);
-        if (0 <=i && i<10) center = (ei_point_t){(rect.top_left.x) + (rect.size.width) - radius, (rect.top_left.y) +radius};
-        if (10<=i && i<20) center = (ei_point_t){(rect.top_left.x) + radius                    , (rect.top_left.y) +radius};
-        if (20<=i && i<30) center = (ei_point_t){(rect.top_left.x) + radius                    , (rect.top_left.y) +(rect.size.height)-radius};
-        if (30<=i        ) center = (ei_point_t){(rect.top_left.x) + (rect.size.width) - radius, (rect.top_left.y) +(rect.size.height)-radius};
-        circle[i] = (ei_point_t){(center.x)+(xpos*radius),(center.y)-(ypos*radius)};
-    }
-
-}
-
-
 /**
  * \brief Fonction pour dessiner un widget frame.
  * TODO : dessiner correctement le frame
@@ -152,9 +135,8 @@ void ei_impl_draw_frame(ei_widget_t widget,ei_surface_t surface,ei_surface_t pic
     }
 
     ei_draw_polygon(surface,point_array,4, color,clipper);
-    //ei_point_t circle[40]; //utile pour les buttons
-    //give_rounded_frame(circle,rect,30);
-    //ei_draw_polygon(surface,circle, 40, ei_default_background_color, clipper);
+
+
     ei_surface_t surfacetext;
     //surfacetext = hw_text_create_surface(((ei_impl_frame_t*)widget)->text,((ei_impl_frame_t*)widget)->text_font,((ei_impl_frame_t*)widget)->text_color);
     hw_surface_update_rects(surface,NULL);
@@ -204,6 +186,25 @@ void ei_impl_setdefaults_frame(ei_widget_t widget){
     //frame->rect_image;
 }
 
+void give_rounded_frame(ei_point_t* circle, ei_rect_t rect, int radius) {
+    float pi = 3.14;
+    float xpos, ypos;
+    ei_point_t center;
+    for (int i = 0; i < 40; i++) {
+        xpos = cosf(((float) i / 20) * pi);
+        ypos = sinf(((float) i / 20) * pi);
+        if (0 <= i && i < 10)
+            center = (ei_point_t) {(rect.top_left.x) + (rect.size.width) - radius, (rect.top_left.y) + radius};
+        if (10 <= i && i < 20) center = (ei_point_t) {(rect.top_left.x) + radius, (rect.top_left.y) + radius};
+        if (20 <= i && i < 30)
+            center = (ei_point_t) {(rect.top_left.x) + radius, (rect.top_left.y) + (rect.size.height) - radius};
+        if (30 <= i)
+            center = (ei_point_t) {(rect.top_left.x) + (rect.size.width) - radius,
+                                   (rect.top_left.y) + (rect.size.height) - radius};
+        circle[i] = (ei_point_t) {(center.x) + (xpos * radius), (center.y) - (ypos * radius)};
+    }
+}
+
 void give_lower_frame(ei_point_t* rounded_frame,ei_rect_t rect, int h, ei_point_t* lower_frame){
     for (int i=0; i<15; i++){
         lower_frame[i] = rounded_frame[25+i];
@@ -235,12 +236,14 @@ void ei_impl_draw_button(ei_widget_t widget,ei_surface_t surface,ei_surface_t pi
     ei_point_t rounded_frame[40];
     int radius= ((ei_impl_button_t*)widget)->rayon;
     give_rounded_frame(rounded_frame, rect, radius);
-    ei_point_t upper_frame[22], lower_frame[22];
+    ei_point_t upper_frame[22];
+    ei_point_t lower_frame[22];
+    ei_point_t smaller_frame[40];
+
     give_upper_frame(rounded_frame,rect,h,upper_frame);
     give_lower_frame(rounded_frame,rect,h,lower_frame);
-    ei_point_t smaller_frame[40];
     give_rounded_frame(smaller_frame,(ei_rect_t){(ei_point_t){rect.top_left.x+border,rect.top_left.y+border},
-                                                 (ei_size_t){rect.size.width - 2*border, rect.size.height - 2*border}},radius);
+                                                            (ei_size_t){rect.size.width - 2*border, rect.size.height - 2*border}},radius);
 
     ei_color_t light_color  = (ei_color_t){color.red + 20, color.green +20, color.blue +20};
 
@@ -260,10 +263,11 @@ void ei_impl_draw_button(ei_widget_t widget,ei_surface_t surface,ei_surface_t pi
             break;
     }
 
+    ei_draw_polygon(surface,rounded_frame,40,light_color,clipper);
     ei_draw_polygon(surface,smaller_frame,40, color,clipper);
-    ei_surface_t surfacetext;
-    //surfacetext = hw_text_create_surface(((ei_impl_frame_t*)widget)->text,((ei_impl_frame_t*)widget)->text_font,((ei_impl_frame_t*)widget)->text_color);
+
     hw_surface_update_rects(surface,NULL);
+    //ei_surface_t surfacetext = hw_text_create_surface(((ei_impl_frame_t*)widget)->text,((ei_impl_frame_t*)widget)->text_font,((ei_impl_frame_t*)widget)->text_color);
     //hw_surface_update_rects(surfacetext,NULL);
     hw_surface_lock(surface);
 }
@@ -324,7 +328,7 @@ void ei_impl_setdefaults_button(ei_widget_t widget){
         //button->widget.screen_location;///< See \ref ei_widget_get_screen_location.
         //button->widget.content_rect;	///< See ei_widget_get_content_rect. By defaults, points to the screen_location.
 
-        button->frame.frame_relief=0;
+        button->frame.frame_relief=ei_relief_raised;
         button->frame.frame_color=ei_default_background_color; //default : noir
         button->frame.text=NULL;
         button->frame.text_font=ei_default_font;
@@ -335,7 +339,7 @@ void ei_impl_setdefaults_button(ei_widget_t widget){
         button->frame.image_anchor=ei_anc_center;
         //button->rect_image;
 
-        button->rayon = 0;
+        button->rayon = 30;
         button->user_params=NULL;
 }
 
