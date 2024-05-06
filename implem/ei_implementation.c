@@ -247,20 +247,20 @@ void ei_impl_draw_button(ei_widget_t widget,ei_surface_t surface,ei_surface_t pi
     ei_color_t dark_color  = (ei_color_t){color.red -20, color.green -20, color.blue -20};
     switch (((ei_impl_frame_t*) widget)->frame_relief){
         case ei_relief_none:
-            ei_draw_polygon(surface,lower_frame,5, color,clipper); //
-            ei_draw_polygon(surface,upper_frame,5,color,clipper);
+            ei_draw_polygon(surface,lower_frame,22, color,clipper); //
+            ei_draw_polygon(surface,upper_frame,22,color,clipper);
             break;
         case ei_relief_raised:
-            ei_draw_polygon(surface,lower_frame,5, dark_color,clipper);
-            ei_draw_polygon(surface,upper_frame,5,light_color,clipper);
+            ei_draw_polygon(surface,lower_frame,22, dark_color,clipper);
+            ei_draw_polygon(surface,upper_frame,22,light_color,clipper);
             break;
         case ei_relief_sunken:
-            ei_draw_polygon(surface,lower_frame,5, light_color,clipper);
-            ei_draw_polygon(surface,upper_frame,5,dark_color,clipper);
+            ei_draw_polygon(surface,lower_frame,22, light_color,clipper);
+            ei_draw_polygon(surface,upper_frame,22,dark_color,clipper);
             break;
     }
 
-    ei_draw_polygon(surface,smaller_frame,4, color,clipper);
+    ei_draw_polygon(surface,smaller_frame,40, color,clipper);
     ei_surface_t surfacetext;
     //surfacetext = hw_text_create_surface(((ei_impl_frame_t*)widget)->text,((ei_impl_frame_t*)widget)->text_font,((ei_impl_frame_t*)widget)->text_color);
     hw_surface_update_rects(surface,NULL);
