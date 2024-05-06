@@ -8,6 +8,7 @@
  */
 
 #include "ei_widget_configure.h"
+#include "ei_implementation.h"
 
 /**
  * @brief	Configures the attributes of widgets of the class "frame".
@@ -58,7 +59,11 @@ void			ei_frame_configure		(ei_widget_t		widget,
 							 ei_anchor_t*		text_anchor,
 							 ei_surface_t*		img,
 							 ei_rect_ptr_t*		img_rect,
-							 ei_anchor_t*		img_anchor){}
+							 ei_anchor_t*		img_anchor){
+
+
+        ((ei_impl_frame_t*) widget)-> frame_color = *color;
+}
 
 
 
