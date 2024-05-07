@@ -106,7 +106,9 @@ void			ei_widget_destroy		(ei_widget_t		widget){
  *
  * @return			true if the widget is displayed, false otherwise.
  */
-bool	 		ei_widget_is_displayed		(ei_widget_t		widget){}
+bool	 		ei_widget_is_displayed		(ei_widget_t		widget){
+    return !(widget->geom_params);
+}
 
 
 /**

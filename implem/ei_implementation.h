@@ -125,6 +125,14 @@ typedef struct ei_impl_geom_param_t {
 	ei_geometrymanager_t*		manager;	///< The geometry managers that manages this widget.
 } ei_impl_geom_param_t;
 
+typedef struct {
+    ei_impl_geom_param_t geom_param;
+    int *x, *y;
+    float *rel_x, *rel_y;
+
+
+} ei_placer_t;
+
 //================================================================================================
 /**
  *  \brief fonction pour alloué un espace pour un widget frame.
