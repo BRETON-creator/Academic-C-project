@@ -14,8 +14,6 @@
 #include "ei_placer.h"
 #include "ei_event.h"
 
-#define MAXAPP 500
-
 
 ei_impl_widget_t* root = NULL;
 bool quit              = false;
@@ -83,15 +81,14 @@ void ei_app_create(ei_size_t main_window_size, bool fullscreen){
 
 
     // creates the root widget to access the root window.
-    root                        = ei_impl_alloc_frame();
+    root                                    = ei_impl_alloc_frame();
     ei_impl_setdefaults_frame(root);
     root->parent=NULL;
-    root->requested_size        = main_window_size;
-    ((ei_impl_frame_t*)root)->frame_relief=ei_relief_none;
-    root->screen_location       = hw_surface_get_rect(main_window);
-    root->requested_size        = root->screen_location.size;
-    root_surface = main_window;
-
+    root->requested_size                    = main_window_size;
+    ((ei_impl_frame_t*)root)->frame_relief  =ei_relief_none;
+    root->screen_location                   = hw_surface_get_rect(main_window);
+    root->requested_size                    = root->screen_location.size;
+    root_surface                            = main_window;
 }
 
 /**
@@ -109,7 +106,21 @@ void ei_app_free(void){
      * - ?
      *
     */
-
+    //free les widgets_class (on en a que 2...
+    ei_widgetclass_t *tmp = ei_widgetclass_from_name("button\0");
+    ei_widgetclass_t *suiv= tmp->next;
+    while (suiv){
+        free(tmp);
+        tmp=suiv;
+        suiv=suiv->next;
+    }
+    free(tmp);
+    //free les geometrymanager (on en a qu'un pour le moment...
+    free(ei_geometrymanager_from_name("placer\0"));
+    //free la surface offscreen
+    //hw_surface_free(??)
+    //free tous les widgets (parcours suffixe de l'arbre des widgets
+    ei_widget_destroy(root);
     hw_quit();
 }
 
@@ -128,35 +139,14 @@ void ei_app_run(void){
     (root->wclass->drawfunc)(root,surface,pick_surface,&clipper);
     ei_impl_widget_draw_children(root, surface,pick_surface,&clipper);
 
-    while (!quit){
-            //ei_app_invalidate_rect(...);
+    while (!quit) {
+        //ei_app_invalidate_rect(...);
 
-            ei_event_t* event = malloc(sizeof(ei_event_t));
-            hw_event_wait_next(event);
-
+        ei_event_t *event = malloc(sizeof(ei_event_t));
+        hw_event_wait_next(event);
     }
-    /*
-     * ME SUIS PRIS LA TETE POUR RIEN JE SUIS STUPIDE OUI
-     * Y'a jsute a faire ca :
-     * dessiner root
-     * appeler ei_impl_widget_draw_children
-     *
-     * bien plus simple. :/
-     * imma so stupid
-     * => TODO implementer ei_impl_widget_draw_children (ei_implementation.c)
-     * */
 }
 
-/**
- * \brief	Change the color of the background window (root widget) with the given color in parameters.
- *
- * @param	widget (the root widget)	, color (the structure representing a color)
- *
- */
-void ei_frame_set_bg_color(ei_widget_t* widget , ei_color_t color){
-    ei_impl_frame_t* frame = (ei_impl_frame_t*)widget;
-    frame->frame_color = color;
-}
 
 /**
  * \brief	Adds a rectangle to the list of rectangles that must be updated on screen. The real

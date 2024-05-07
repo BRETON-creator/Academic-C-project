@@ -10,10 +10,11 @@
 
 
 #include "ei_geometrymanager.h"
+#include "ei_implementation.h"
 
 
 /**
- * on initialise une variable global contenant tous les geometrymanager
+ * on initialise une variable globale contenant tous les geometrymanager
  */
 
 ei_geometrymanager_t* head_list_geometrymanager = NULL;
@@ -21,7 +22,9 @@ ei_geometrymanager_t* head_list_geometrymanager = NULL;
 /**
  * \brief	Returns the size of \ref ei_impl_geom_param_t.
  */
-size_t		ei_geom_param_size(){}
+size_t		ei_geom_param_size(){
+    return sizeof(ei_impl_geom_param_t);
+}
 
 
 
@@ -42,7 +45,22 @@ size_t		ei_geom_param_size(){}
  * 				the widget before the run.
  */
 void			ei_geometry_run_finalize(ei_widget_t widget, ei_rect_t* new_screen_location){
-
+    if (widget->screen_location.top_left.x != new_screen_location->top_left.x ||
+        widget->screen_location.top_left.y != new_screen_location->top_left.y ||
+        widget->screen_location.size.height!= new_screen_location->size.height||
+        widget->screen_location.size.width != new_screen_location->size.width){
+            //alors la geometrie a changée
+            //on met a jour la screen location
+            widget->screen_location.top_left.x = new_screen_location->top_left.x;
+            widget->screen_location.top_left.y = new_screen_location->top_left.y;
+            widget->screen_location.size.height = new_screen_location->size.height;
+            widget->screen_location.size.width = new_screen_location->size.width;
+            //on prevoie un redraw
+            // TODO
+            //on notifie le widget qu'on a changé sa géométrie
+            (widget->wclass->geomnotifyfunc)(widget);
+            //on recalcule la géométrie des enfants TODO
+    }
 }
 
 
@@ -95,7 +113,9 @@ ei_geometrymanager_t*	ei_geometrymanager_from_name	(ei_geometrymanager_name_t na
  *
  * @param	widget		The widget to unmap from the screen.
  */
-void			ei_geometrymanager_unmap	(ei_widget_t widget);
+void			ei_geometrymanager_unmap	(ei_widget_t widget){
+    free(widget->geom_params);
+}
 
 
 
@@ -106,7 +126,9 @@ void			ei_geometrymanager_unmap	(ei_widget_t widget);
  *
  * @return			A pointer to the geometry manager, or NULL if the widget is not currently displayed.
  */
-ei_geometrymanager_t*	ei_widget_get_geom_manager	(ei_widget_t widget);
+ei_geometrymanager_t*	ei_widget_get_geom_manager	(ei_widget_t widget){
+    return widget->geom_params ? widget->geom_params->manager : NULL;
+}
 
 /**
  * @brief	Sets the geometry manager for this widget.
@@ -114,7 +136,10 @@ ei_geometrymanager_t*	ei_widget_get_geom_manager	(ei_widget_t widget);
  * @param	widget		The widget.
  * @param	manager		The geometry manager managing this widget.
  */
-void			ei_widget_set_geom_manager	(ei_widget_t widget, ei_geometrymanager_t* manager);
+void			ei_widget_set_geom_manager	(ei_widget_t widget, ei_geometrymanager_t* manager){
+    widget->geom_params = calloc(1,ei_geom_param_size());
+    widget->geom_params->manager = manager;
+}
 
 /**
  * @brief	Get the geometry management parameters for this widget.
@@ -123,7 +148,9 @@ void			ei_widget_set_geom_manager	(ei_widget_t widget, ei_geometrymanager_t* man
  *
  * @return			A pointer to the geometry management parameters, or NULL if the widget is not currently displayed.
  */
-ei_geom_param_t		ei_widget_get_geom_params	(ei_widget_t widget);
+ei_geom_param_t		ei_widget_get_geom_params	(ei_widget_t widget){
+    return widget->geom_params;
+}
 
 /**
  * @brief	Sets the geometry management parameters for this widget.
@@ -131,7 +158,9 @@ ei_geom_param_t		ei_widget_get_geom_params	(ei_widget_t widget);
  * @param	widget		The widget.
  * @param	geom_params	The geometry management parameters.
  */
-void			ei_widget_set_geom_params	(ei_widget_t widget, ei_geom_param_t geom_param);
+void			ei_widget_set_geom_params	(ei_widget_t widget, ei_geom_param_t geom_param){
+    widget->geom_params=geom_param;
+}
 
 //=======================================
 

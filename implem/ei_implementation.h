@@ -59,14 +59,15 @@ typedef struct ei_impl_frame_t {
     ei_impl_widget_t widget;
     ei_relief_t frame_relief;
     ei_color_t frame_color;
+    int border_size;
     char* text;
     ei_font_t text_font;
     int text_size;
     ei_color_t text_color;
     ei_anchor_t text_anchor;
-    ei_const_string_t image;
+    ei_surface_t image;
     ei_anchor_t image_anchor;
-    ei_surface_t rect_image;
+    ei_rect_ptr_t rect_image;
 } ei_impl_frame_t;
 
 /**
@@ -80,6 +81,7 @@ typedef struct {
     ei_impl_frame_t frame;
     int rayon;
     void* user_params;
+    ei_callback_t callback;
 } ei_impl_button_t;
 
 
