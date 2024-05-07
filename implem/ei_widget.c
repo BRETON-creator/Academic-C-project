@@ -117,7 +117,8 @@ bool	 		ei_widget_is_displayed		(ei_widget_t		widget){}
  * @return			The top-most widget at this location, or NULL if there is no widget
  *				at this location (except for the root widget).
  */
-ei_widget_t		ei_widget_pick			(ei_point_t*		where){}
+ei_widget_t		ei_widget_pick			(ei_point_t*		where){
+}
 
 
 

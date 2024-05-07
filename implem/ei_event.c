@@ -11,17 +11,43 @@
 #include "ei_widget_attributes.h"
 #include "ei_widget_configure.h"
 
-// bool ei_callback_clickbutton(ei_widget_t		widget, struct ei_event_t*	event, ei_user_param_t	user_param){
-//
-//
-//      if (strcmp( widget->wclass->name, (ei_widgetclass_name_t){"button\0"}) != 0 ){
-//          return 0; //Si le widget n'est pas un boutton on retourne false
-//      }else
-//      {
-//
-//      }
-//
-// }
+bool ei_callback_clickbutton(ei_widget_t		widget, struct ei_event_t*	event, ei_user_param_t	user_param){
+
+
+     if (strcmp( widget->wclass->name, (ei_widgetclass_name_t){"button\0"}) != 0 ){
+         return 0; //Si le widget n'est pas un boutton on retourne false
+     }else{
+
+      //On gère la postion du pointeur de la souris et l'emplacement du widget
+      ei_point_t mouse_position =  event->param.mouse.where;
+
+      ei_point_t screen = widget->screen_location.top_left; //
+
+
+      switch (event->type)
+      {
+      case ei_ev_mouse_buttondown:
+       //si on clique sur le bouton on modifie l'apparance du bouton up -> down
+        if (((ei_impl_frame_t*) widget)->frame_relief ==  ei_relief_raised){
+         ((ei_impl_frame_t*) widget)->frame_relief = ei_relief_sunken;
+        }
+      case ei_ev_mouse_buttonup:
+       //si on relache le bouton on modifie l'apparance du bouton down -> up
+
+       if (((ei_impl_frame_t*) widget)->frame_relief ==  ei_relief_sunken) {
+        ((ei_impl_frame_t*) widget)->frame_relief =  ei_relief_raised;
+       }
+
+     default:
+      break;
+      }
+
+
+
+
+     }
+
+}
 
 
 
