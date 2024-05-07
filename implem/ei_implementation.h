@@ -79,6 +79,7 @@ typedef struct ei_impl_frame_t {
 typedef struct {
     ei_impl_frame_t frame;
     int rayon;
+    ei_callback_t callback;
     void* user_params;
 } ei_impl_button_t;
 

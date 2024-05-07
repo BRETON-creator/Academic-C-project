@@ -271,11 +271,14 @@ void ei_impl_draw_button(ei_widget_t widget,ei_surface_t surface,ei_surface_t pi
     }
 
     //ei_draw_polygon(surface,rounded_frame,40,light_color,clipper);
-    ei_draw_polygon(surface,smaller_frame,40, color,clipper);
+    ei_draw_polygon(surface,smaller_frame,40, color, clipper);
 
     hw_surface_update_rects(surface,NULL);
-    //ei_surface_t surfacetext = hw_text_create_surface(((ei_impl_frame_t*)widget)->text,((ei_impl_frame_t*)widget)->text_font,((ei_impl_frame_t*)widget)->text_color);
-    //hw_surface_update_rects(surfacetext,NULL);
+    //ei_surface_t surfacetext = hw_text_create_surface(((ei_impl_button_t*)widget)->frame.text,
+    //                                                  ((ei_impl_button_t*)widget)->frame.text_font,
+    //                                                  ((ei_impl_button_t*)widget)->frame.text_color);
+
+    hw_surface_update_rects(surface,NULL);
     hw_surface_lock(surface);
 }
 

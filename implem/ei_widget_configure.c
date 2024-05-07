@@ -123,7 +123,8 @@ void			ei_button_configure		(ei_widget_t		widget,
         if (!text_color) text_color = &ei_font_default_color;
         ((ei_impl_button_t*)widget)->frame.text_color = *text_color;
 
-
+        if (callback) ((ei_impl_button_t*)widget)->callback = *callback;
+        if (user_param) ((ei_impl_button_t*)widget)->user_params = *user_param;
 }
 
 
