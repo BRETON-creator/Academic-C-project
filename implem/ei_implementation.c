@@ -250,7 +250,7 @@ void ei_impl_placer_runfunc(ei_widget_t widget){
     float *rel_height=  ((ei_placer_t*)widget->geom_params)->rel_height;
 
     ei_place(widget, &((ei_placer_t*)widget->geom_params)->anchor,x,y,width,height,rel_x,rel_y,rel_width,rel_height);
-    ei_geometry_run_finalize(widget,widget->)
+    //ei_geometry_run_finalize(widget,widget->)
 }
 
 /**
