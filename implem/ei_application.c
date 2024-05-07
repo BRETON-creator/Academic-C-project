@@ -18,6 +18,7 @@
 ei_impl_widget_t* root = NULL;
 bool quit              = false;
 ei_surface_t root_surface;
+ei_surface_t pick_surface;
 
 
 /**
@@ -89,6 +90,7 @@ void ei_app_create(ei_size_t main_window_size, bool fullscreen){
     root->screen_location                   = hw_surface_get_rect(main_window);
     root->requested_size                    = root->screen_location.size;
     root_surface                            = main_window;
+    pick_surface                            = hw_surface_create(root_surface, hw_surface_get_size(main_window),false);
 }
 
 /**
@@ -133,10 +135,8 @@ void ei_app_run(void){
     // TODO : gerer pick surface et clipper
 
     ei_surface_t surface        = ei_app_root_surface();
-    ei_surface_t pick_surface   = ei_app_root_surface();
     ei_rect_t clipper           = hw_surface_get_rect(ei_app_root_surface());
 
-    (root->wclass->drawfunc)(root,surface,pick_surface,&clipper);
     ei_impl_widget_draw_children(root, surface,pick_surface,&clipper);
 
     while (!quit) {

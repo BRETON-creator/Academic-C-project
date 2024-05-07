@@ -175,17 +175,20 @@ void ei_impl_draw_frame(ei_widget_t widget,ei_surface_t surface,ei_surface_t pic
     }
 
     ei_draw_polygon(surface,smaller_frame,40, color,clipper);
+    hw_surface_update_rects(surface,&(ei_linked_rect_t){widget->screen_location,NULL});
 
-    hw_surface_update_rects(surface,NULL);
+
+    //on dessine sur la pick surface aussi.
+    ei_draw_polygon(pick_surface,rounded_frame,40,ei_default_background_color,clipper);
+
+
 
 
     ei_surface_t surfacetext;
     //surfacetext = hw_text_create_surface(((ei_impl_frame_t*)widget)->text,((ei_impl_frame_t*)widget)->text_font,((ei_impl_frame_t*)widget)->text_color);
-    hw_surface_update_rects(surface,NULL);
     //hw_surface_update_rects(surfacetext,NULL);
     hw_surface_lock(surface);
 }
-
 
 
 /**
@@ -206,9 +209,9 @@ void ei_impl_setdefaults_frame(ei_widget_t widget){
     frame->widget.next_sibling=NULL;	///< Pointer to the next child of this widget's parent widget.
 
     /* Geometry Management */
-    frame->widget.geom_params = NULL;	///< Pointer to the geometry management parameters for this widget. If NULL, the widget is not currently managed and thus, is not displayed on the screen.
+    frame->widget.geom_params = (ei_geom_param_t){NULL};	///< Pointer to the geometry management parameters for this widget. If NULL, the widget is not currently managed and thus, is not displayed on the screen.
     frame->widget.requested_size=(ei_size_t){100,100} ;	///< See \ref ei_widget_get_requested_size.
-    //frame->widget.screen_location;///< See \ref ei_widget_get_screen_location.
+    frame->widget.screen_location=(ei_rect_t){(ei_point_t){0,0},(ei_size_t){100,100}};///< See \ref ei_widget_get_screen_location.
     //frame->widget.content_rect;	///< See ei_widget_get_content_rect. By defaults, points to the screen_location.
 
     frame->frame_relief=0;
@@ -235,7 +238,9 @@ void ei_impl_draw_button(ei_widget_t widget,ei_surface_t surface,ei_surface_t pi
 /**
  * @brief   Fonction run geometrymanager de PLACER
  */
-void ei_impl_placer_runfunc(ei_widget_t widget){}
+void ei_impl_placer_runfunc(ei_widget_t widget){
+
+}
 
 /**
  * @brief Release function of placer
