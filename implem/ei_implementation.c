@@ -184,7 +184,6 @@ void ei_impl_draw_frame(ei_widget_t widget,ei_surface_t surface,ei_surface_t pic
 
 
 
-
     ei_surface_t surfacetext;
     //surfacetext = hw_text_create_surface(((ei_impl_frame_t*)widget)->text,((ei_impl_frame_t*)widget)->text_font,((ei_impl_frame_t*)widget)->text_color);
     //hw_surface_update_rects(surfacetext,NULL);

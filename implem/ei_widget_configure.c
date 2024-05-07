@@ -120,7 +120,8 @@ void			ei_button_configure		(ei_widget_t		widget,
         if (callback) ((ei_impl_button_t*)widget)->callback = *callback;
         if (user_param) ((ei_impl_button_t*)widget)->user_params = *user_param;
 
-
+        if (callback) ((ei_impl_button_t*)widget)->callback = *callback;
+        if (user_param) ((ei_impl_button_t*)widget)->user_params = *user_param;
 }
 
 
