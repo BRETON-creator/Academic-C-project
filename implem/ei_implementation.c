@@ -29,11 +29,14 @@ void		ei_impl_widget_draw_children	(ei_widget_t		widget,
     (widget->wclass->drawfunc)(widget,surface,pick_surface,clipper);
     ei_widget_t child = widget->children_head;
     while (child){
-        //pick_surface
+        //il faut dessiner d'abord la surface de picking et ensuie
+        //remarque pick_surface: lorsqu'on dessine une surface de picking on enregistre une couleur pour chaque pixels de la surface (elle ecrase l'autre que l'on récuperera ensuite
         bool force_alpha=true;
         ei_size_t size = child->requested_size;
         ei_surface_t pick_surface = hw_surface_create (ei_app_root_surface(), size, force_alpha);
         child-> pick_id = create_new_pick_id();
+        ei_color_t color = generate_color(child->pick_id);
+        (child->pick_color) = &color;
         ei_impl_widget_draw_children(child, surface,pick_surface,&(widget->screen_location));
         child = child->next_sibling;
     }

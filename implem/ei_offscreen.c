@@ -35,18 +35,17 @@ uint32_t create_new_pick_id(void){
 
 ei_color_t generate_color(uint32_t pick_id) {
     srand(time(NULL)); // Initialiser le générateur de nombres aléatoires
-    ei_color_t color= ei_font_default_color;
+    ei_color_t *color= calloc(1, sizeof(ei_color_t));
+    unsigned char red = (pick_id >> 24) & 0xFF;
+    unsigned char blue = (pick_id >> 16) & 0xFF;
+    unsigned char green = (pick_id >> 8) & 0xFF;
+    unsigned char transparancy = pick_id & 0xFF;
 
-    uint8_t red = (pick_id >> 24) & 0xFF;
-    uint8_t blue = (pick_id >> 16) & 0xFF;
-    uint8_t green = (pick_id >> 8) & 0xFF;
-    uint8_t transparancy = pick_id & 0xFF;
-
-    color.red = red;
-    color.blue = blue;
-    color.green = green;
-    color.alpha = transparancy;
-    return color;
+    color->red = red;
+    color->blue = blue;
+    color->green = green;
+    color->alpha = transparancy;
+    return *color;
 
 }
 
