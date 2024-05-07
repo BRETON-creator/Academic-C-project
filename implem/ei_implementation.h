@@ -59,14 +59,15 @@ typedef struct ei_impl_frame_t {
     ei_impl_widget_t widget;
     ei_relief_t frame_relief;
     ei_color_t frame_color;
+    int border_size;
     char* text;
     ei_font_t text_font;
     int text_size;
     ei_color_t text_color;
     ei_anchor_t text_anchor;
-    ei_const_string_t image;
+    ei_surface_t image;
     ei_anchor_t image_anchor;
-    ei_surface_t rect_image;
+    ei_rect_ptr_t rect_image;
 } ei_impl_frame_t;
 
 /**
@@ -81,6 +82,7 @@ typedef struct {
     int rayon;
     ei_callback_t callback;
     void* user_params;
+    ei_callback_t callback;
 } ei_impl_button_t;
 
 
@@ -123,6 +125,14 @@ uint32_t	ei_impl_map_rgba(ei_surface_t surface, ei_color_t color);
 typedef struct ei_impl_geom_param_t {
 	ei_geometrymanager_t*		manager;	///< The geometry managers that manages this widget.
 } ei_impl_geom_param_t;
+
+typedef struct {
+    ei_impl_geom_param_t geom_param;
+    int *x, *y;
+    float *rel_x, *rel_y;
+
+
+} ei_placer_t;
 
 //================================================================================================
 /**

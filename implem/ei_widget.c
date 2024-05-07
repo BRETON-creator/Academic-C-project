@@ -86,7 +86,17 @@ ei_widget_t		ei_widget_create		(ei_const_string_t	class_name,
  *
  * @param	widget		The widget that is to be destroyed.
  */
-void			ei_widget_destroy		(ei_widget_t		widget){}
+void			ei_widget_destroy		(ei_widget_t		widget){
+    ei_widget_t child = widget->children_head;
+    ei_widget_t next_child;
+    while (child){
+        next_child= child->next_sibling;
+        ei_widget_destroy(child);
+        child = next_child;
+
+    }
+    (widget->wclass->releasefunc)(widget);
+}
 
 
 /**
@@ -96,7 +106,9 @@ void			ei_widget_destroy		(ei_widget_t		widget){}
  *
  * @return			true if the widget is displayed, false otherwise.
  */
-bool	 		ei_widget_is_displayed		(ei_widget_t		widget){}
+bool	 		ei_widget_is_displayed		(ei_widget_t		widget){
+    return !(widget->geom_params);
+}
 
 
 /**
@@ -107,7 +119,8 @@ bool	 		ei_widget_is_displayed		(ei_widget_t		widget){}
  * @return			The top-most widget at this location, or NULL if there is no widget
  *				at this location (except for the root widget).
  */
-ei_widget_t		ei_widget_pick			(ei_point_t*		where){}
+ei_widget_t		ei_widget_pick			(ei_point_t*		where){
+}
 
 
 

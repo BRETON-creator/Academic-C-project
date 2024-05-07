@@ -14,12 +14,11 @@
 #include "ei_placer.h"
 #include "ei_event.h"
 
-#define MAXAPP 500
-
 
 ei_impl_widget_t* root = NULL;
 bool quit              = false;
 ei_surface_t root_surface;
+ei_surface_t pick_surface;
 
 
 /**
@@ -83,15 +82,15 @@ void ei_app_create(ei_size_t main_window_size, bool fullscreen){
 
 
     // creates the root widget to access the root window.
-    root                        = ei_impl_alloc_frame();
+    root                                    = ei_impl_alloc_frame();
     ei_impl_setdefaults_frame(root);
     root->parent=NULL;
-    root->requested_size        = main_window_size;
-    ((ei_impl_frame_t*)root)->frame_relief=ei_relief_none;
-    root->screen_location       = hw_surface_get_rect(main_window);
-    root->requested_size        = root->screen_location.size;
-    root_surface = main_window;
-
+    root->requested_size                    = main_window_size;
+    ((ei_impl_frame_t*)root)->frame_relief  =ei_relief_none;
+    root->screen_location                   = hw_surface_get_rect(main_window);
+    root->requested_size                    = root->screen_location.size;
+    root_surface                            = main_window;
+    pick_surface                            = hw_surface_create(root_surface, hw_surface_get_size(main_window),false);
 }
 
 /**
@@ -109,7 +108,21 @@ void ei_app_free(void){
      * - ?
      *
     */
-
+    //free les widgets_class (on en a que 2...
+    ei_widgetclass_t *tmp = ei_widgetclass_from_name("button\0");
+    ei_widgetclass_t *suiv= tmp->next;
+    while (suiv){
+        free(tmp);
+        tmp=suiv;
+        suiv=suiv->next;
+    }
+    free(tmp);
+    //free les geometrymanager (on en a qu'un pour le moment...
+    free(ei_geometrymanager_from_name("placer\0"));
+    //free la surface offscreen
+    //hw_surface_free(??)
+    //free tous les widgets (parcours suffixe de l'arbre des widgets
+    ei_widget_destroy(root);
     hw_quit();
 }
 bool point_in_surface(int x, int y, ei_rect_t rect){
@@ -146,10 +159,8 @@ void ei_app_run(void){
     // TODO : gerer pick surface et clipper
 
     ei_surface_t surface        = ei_app_root_surface();
-    ei_surface_t pick_surface   = ei_app_root_surface();
     ei_rect_t clipper           = hw_surface_get_rect(ei_app_root_surface());
 
-    (root->wclass->drawfunc)(root,surface,pick_surface,&clipper);
     ei_impl_widget_draw_children(root, surface,pick_surface,&clipper);
 
     while (!quit){
@@ -170,16 +181,6 @@ void ei_app_run(void){
 
 
 
-/**
- * \brief	Change the color of the background window (root widget) with the given color in parameters.
- *
- * @param	widget (the root widget)	, color (the structure representing a color)
- *
- */
-void ei_frame_set_bg_color(ei_widget_t* widget , ei_color_t color){
-    ei_impl_frame_t* frame = (ei_impl_frame_t*)widget;
-    frame->frame_color = color;
-}
 
 /**
  * \brief	Adds a rectangle to the list of rectangles that must be updated on screen. The real

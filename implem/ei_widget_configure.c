@@ -60,15 +60,23 @@ void			ei_frame_configure		(ei_widget_t		widget,
 							 ei_surface_t*		img,
 							 ei_rect_ptr_t*		img_rect,
 							 ei_anchor_t*		img_anchor){
+    ei_impl_frame_t* frame = ((ei_impl_frame_t*)widget);
     if (!color) color = &ei_default_background_color;
-    ((ei_impl_frame_t*)widget)->frame_color = *color;
-    if (!relief)((ei_impl_frame_t*)widget)->frame_relief = ei_relief_none;
-    else ((ei_impl_frame_t*)widget)->frame_relief = *relief;
-
+    frame->frame_color = *color;
+    if (!relief && !(frame->frame_relief) ) frame->frame_relief = ei_relief_none;
+    else frame->frame_relief = *relief;
+    if (border_width) ((ei_impl_frame_t*)widget)->border_size =*border_width;
     if (requested_size) {
         widget->requested_size=*requested_size;
         widget->screen_location.size=*requested_size;
     }
+    if (text) frame->text = *text;
+    if (text_font) frame->text_font = *text_font;
+    if (text_color) frame->text_color = *text_color;
+    if (text_anchor) frame->text_anchor = *text_anchor;
+    if (img) frame->image = *img;
+    if (img_rect) frame->rect_image = *img_rect;
+    if (img_anchor) frame->image_anchor= *img_anchor;
 }
 
 
@@ -107,21 +115,10 @@ void			ei_button_configure		(ei_widget_t		widget,
 							 ei_callback_t*		callback,
 							 ei_user_param_t*	user_param){
 
-        if (!color) color = &ei_default_background_color;
-        ((ei_impl_button_t*)widget)->frame.frame_color = *color;
-        if (!relief)((ei_impl_button_t*)widget)->frame.frame_relief = ei_relief_none;
-        else ((ei_impl_button_t*)widget)->frame.frame_relief = *relief;
-
-        if (requested_size) widget->requested_size=*requested_size;
-        widget->screen_location.size = widget->requested_size;
-        if (text)((ei_impl_button_t*)widget)->frame.text = *text;
-        if (corner_radius)((ei_impl_button_t*)widget)->rayon = *corner_radius;
-
-        if (!text_font) text_font = &ei_default_font;
-        ((ei_impl_button_t*)widget)->frame.text_font = *text_font;
-
-        if (!text_color) text_color = &ei_font_default_color;
-        ((ei_impl_button_t*)widget)->frame.text_color = *text_color;
+        ei_frame_configure(widget, requested_size, color,border_width,relief,text,text_font,text_color,text_anchor,img,img_rect,img_anchor);
+        if (corner_radius) ((ei_impl_button_t*)widget)->rayon = *corner_radius;
+        if (callback) ((ei_impl_button_t*)widget)->callback = *callback;
+        if (user_param) ((ei_impl_button_t*)widget)->user_params = *user_param;
 
         if (callback) ((ei_impl_button_t*)widget)->callback = *callback;
         if (user_param) ((ei_impl_button_t*)widget)->user_params = *user_param;
