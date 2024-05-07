@@ -82,7 +82,6 @@ typedef struct {
     int rayon;
     ei_callback_t callback;
     void* user_params;
-    ei_callback_t callback;
 } ei_impl_button_t;
 
 
