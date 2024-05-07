@@ -143,5 +143,7 @@ void		ei_place	(ei_widget_t		widget,
         }
         if (xpos!= -1) widget->screen_location.top_left.x = xpos;
         if (ypos!= -1) widget->screen_location.top_left.y = ypos;
+
+    //((ei_placer_t*)widget->geom_params)->x = x;
 }
 

@@ -80,8 +80,8 @@ typedef struct ei_impl_frame_t {
 typedef struct {
     ei_impl_frame_t frame;
     int rayon;
-    void* user_params;
     ei_callback_t callback;
+    void* user_params;
 } ei_impl_button_t;
 
 
@@ -127,10 +127,9 @@ typedef struct ei_impl_geom_param_t {
 
 typedef struct {
     ei_impl_geom_param_t geom_param;
-    int *x, *y;
-    float *rel_x, *rel_y;
-
-
+    int *x, *y, *height, *width;
+    float *rel_x, *rel_y, *rel_height, *rel_width;
+    ei_anchor_t anchor;
 } ei_placer_t;
 
 //================================================================================================

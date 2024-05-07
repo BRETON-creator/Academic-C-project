@@ -13,7 +13,7 @@
 #include "ei_draw.h"
 #include "ei_placer.h"
 #include "ei_event.h"
-
+#include "ei_widget_configure.h"
 
 ei_impl_widget_t* root = NULL;
 bool quit              = false;
@@ -125,6 +125,30 @@ void ei_app_free(void){
     ei_widget_destroy(root);
     hw_quit();
 }
+bool point_in_surface(int x, int y, ei_rect_t rect){
+        int x_min = rect.top_left.x;
+        int y_min = rect.top_left.y;
+        int x_max = rect.size.width + x_min;
+        int y_max = rect.size.height + y_min;
+
+        return (x_min<=x && x<=x_max && y_min<=y && y<=y_max);
+}
+
+ei_widget_t find_widget(ei_event_t event){
+        int x = event.param.mouse.where.x;
+        int y = event.param.mouse.where.y;
+
+        ei_widget_t widget = root->children_head;
+        ei_rect_t rect = widget->screen_location;
+
+        while (true){
+                if (point_in_surface(x, y, rect)) break;
+                if (widget == NULL) break;
+                widget=widget->children_head;
+        }
+
+        return widget;
+}
 
 /**
  * \brief	Runs the application: enters the main event loop. Exits when
@@ -139,13 +163,33 @@ void ei_app_run(void){
 
     ei_impl_widget_draw_children(root, surface,pick_surface,&clipper);
 
-    while (!quit) {
-        //ei_app_invalidate_rect(...);
+    while (!quit){
+            ei_app_invalidate_rect(root);
 
-        ei_event_t *event = malloc(sizeof(ei_event_t));
-        hw_event_wait_next(event);
+
+            ei_event_t* event = malloc(sizeof(ei_event_t));
+            hw_event_wait_next(event);
+
+            ei_widget_t widget = find_widget(*event);
+            if (widget){
+                    ei_widgetclass_name_t name = {"button\0"};
+                    if (strcmp(widget->wclass->name, name)==0 && event->type == ei_ev_mouse_buttondown){
+                            ((ei_impl_button_t*)widget)->callback(widget, event,((ei_impl_button_t*)widget)->user_params);
+                            ((ei_impl_button_t*)widget)->frame.frame_relief = ei_relief_sunken;
+
+                            ei_impl_widget_draw_children(widget, surface,pick_surface,&clipper);
+                    }
+
+                    if (strcmp(widget->wclass->name, name)==0 && event->type == ei_ev_mouse_buttonup){
+                            ((ei_impl_button_t*)widget)->frame.frame_relief = ei_relief_raised;
+                            ei_impl_widget_draw_children(widget, surface,pick_surface,&clipper);
+                    }
+            }
+
     }
 }
+
+
 
 
 /**

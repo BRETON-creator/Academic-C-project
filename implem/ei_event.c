@@ -86,10 +86,6 @@ void		ei_bind			(ei_eventtype_t		eventtype,
                      ei_tag_t		tag,
                      ei_callback_t		callback,
                      void*			user_param){
-
-        ei_button_configure(&widget, NULL,NULL,NULL,NULL,NULL,NULL,
-                            NULL,NULL,NULL,NULL,NULL,NULL, &callback, &user_param);
-
 }
 
 /**
@@ -104,6 +100,4 @@ void		ei_unbind		(ei_eventtype_t		eventtype,
                      ei_tag_t		tag,
                      ei_callback_t		callback,
                      void*			user_param){
-        ei_button_configure(widget, NULL,NULL,NULL,NULL,NULL,NULL,
-                            NULL,NULL,NULL,NULL,NULL,NULL, NULL, NULL);
 }

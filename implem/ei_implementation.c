@@ -9,7 +9,7 @@
 #include "ei_implementation.h"
 #include "ei_draw.h"
 #include "ei_offscreen.c"
-
+#include "ei_placer.h"
 
 /**
  * @brief	Draws the children of a widget.
@@ -221,6 +221,7 @@ void ei_impl_setdefaults_frame(ei_widget_t widget){
     frame->text_size=ei_font_default_size;
     frame->text_color=ei_font_default_color;
     frame->text_anchor=ei_anc_center;
+    frame->border_size=5;
     frame->image=NULL;
     frame->image_anchor=ei_anc_center;
     //frame->rect_image;
@@ -239,7 +240,17 @@ void ei_impl_draw_button(ei_widget_t widget,ei_surface_t surface,ei_surface_t pi
  * @brief   Fonction run geometrymanager de PLACER
  */
 void ei_impl_placer_runfunc(ei_widget_t widget){
+    int *x = ((ei_placer_t*)widget->geom_params)->x;
+    int *y = ((ei_placer_t*)widget->geom_params)->y;
+    int *width =  ((ei_placer_t*)widget->geom_params)->width;
+    int *height=  ((ei_placer_t*)widget->geom_params)->height;
+    float *rel_x =  ((ei_placer_t*)widget->geom_params)->rel_x;
+    float *rel_y =  ((ei_placer_t*)widget->geom_params)->rel_y;
+    float *rel_width =  ((ei_placer_t*)widget->geom_params)->rel_width;
+    float *rel_height=  ((ei_placer_t*)widget->geom_params)->rel_height;
 
+    ei_place(widget, &((ei_placer_t*)widget->geom_params)->anchor,x,y,width,height,rel_x,rel_y,rel_width,rel_height);
+    //ei_geometry_run_finalize(widget,widget->)
 }
 
 /**
