@@ -128,7 +128,7 @@ typedef struct {
     ei_impl_geom_param_t geom_param;
     int *x, *y, *height, *width;
     float *rel_x, *rel_y, *rel_height, *rel_width;
-    ei_anchor_t anchor;
+    ei_anchor_t* anchor;
 } ei_placer_t;
 
 //================================================================================================

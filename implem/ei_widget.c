@@ -89,12 +89,14 @@ ei_widget_t		ei_widget_create		(ei_const_string_t	class_name,
 void			ei_widget_destroy		(ei_widget_t		widget){
     ei_widget_t child = widget->children_head;
     ei_widget_t next_child;
-    while (child){
-        next_child= child->next_sibling;
+    while (child) {
+        next_child = child->next_sibling;
         ei_widget_destroy(child);
         child = next_child;
 
     }
+    if (widget->destructor) (widget->destructor)(widget);
+    if (widget->geom_params) (widget->geom_params->manager->releasefunc)(widget);
     (widget->wclass->releasefunc)(widget);
 }
 
