@@ -78,6 +78,7 @@ set(LIB_EI_SOURCES
 		${SRC}/ei_event.c
 		${SRC}/ei_offscreen.c
 		${SRC}/var.h
+		${SRC}/ei_widget_attributes.c
 
 
 
