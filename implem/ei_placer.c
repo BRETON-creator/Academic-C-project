@@ -14,6 +14,7 @@
 #include "ei_types.h"
 #include "ei_widget.h"
 #include "ei_implementation.h"
+#include "ei_geometrymanager.h"
 
 
 /**
@@ -144,6 +145,18 @@ void		ei_place	(ei_widget_t		widget,
         if (xpos!= -1) widget->screen_location.top_left.x = xpos;
         if (ypos!= -1) widget->screen_location.top_left.y = ypos;
 
-    //((ei_placer_t*)widget->geom_params)->x = x;
+        ei_placer_t *geom_param = calloc(1,sizeof(ei_placer_t));
+        //*x,*y,*height,*width,*rel_x,*rel_y,*rel_height,*rel_width,*anchor};
+        geom_param->x           = x;
+        geom_param->y           = y;
+        geom_param->height      = height;
+        geom_param->width       = width;
+        geom_param->rel_x       = rel_x;
+        geom_param->rel_y       = rel_y;
+        geom_param->rel_height  = rel_height;
+        geom_param->rel_width   = rel_width;
+        geom_param->anchor      = anchor;
+        ei_widget_set_geom_params(widget,(ei_geom_param_t)geom_param);
+        ei_widget_set_geom_manager(widget,ei_geometrymanager_from_name("placer\0"));
 }
 
