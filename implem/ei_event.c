@@ -5,67 +5,69 @@
 
  */
 
+
 #include "ei_event.h"
 #include <string.h>
 #include "ei_implementation.h"
 #include "ei_widget_attributes.h"
 #include "ei_widget_configure.h"
 
-//fonction qui renvoit la couleur dans l'offscreen d'un point de l'espace
 
-uint32_t get_color_point( ei_point_t point , ei_surface_t pick_surface){
-    uint32_t pixel_ptr = (uint32_t*)hw_surface_get_buffer(pick_surface);
-    int compteur= 0;
-    int pixel_final = point.x * point.y;
-    for (i = 0; i < (pick_surface.width * pick_surface.height); i++){
-     if(compteur == pixel_final){
-      return pixel_ptr
-     }
-     pixel_ptr++ ;
-     compteur++;
+// fonction qui renvoit la couleur dans l'offscreen d'un point de l'espace
 
-}
-}
+ uint32_t get_color_point( ei_point_t point){
+     uint32_t pixel_ptr = (uint32_t)hw_surface_get_buffer(pick_surface);
+     ei_size_t size = hw_surface_get_size( pick_surface);
+     int compteur= 0;
+     int pixel_final = point.x * point.y;
+     for ( int i = 0; i < (size.width * size.height); i++){
+      if(compteur == pixel_final){
+       return pixel_ptr;
+      }
+      pixel_ptr++ ;
+      compteur++;
 
-bool ei_callback_clickbutton(ei_widget_t		widget, struct ei_event_t*	event, ei_user_param_t	user_param){
+ }
+ }
 
-
-     if (strcmp( widget->wclass->name, (ei_widgetclass_name_t){"button\0"}) != 0 ){
-         return 0; //Si le widget n'est pas un boutton on retourne false
-     }else{
-
-      //On gère la postion du pointeur de la souris et l'emplacement du widget
-      ei_point_t mouse_position =  event->param.mouse.where;
-      //Pour cela on doit utiliser la surface offscreen
-      ei_point_t screen = widget->screen_location.top_left;
+ bool ei_callback_clickbutton(ei_widget_t		widget, struct ei_event_t*	event, ei_user_param_t	user_param){
 
 
+      if (strcmp( widget->wclass->name, (ei_widgetclass_name_t){"button\0"}) != 0 ){
+          return 0; //Si le widget n'est pas un boutton on retourne false
+      }else{
 
+       //On gère la postion du pointeur de la souris et l'emplacement du widget
+       ei_point_t mouse_position =  event->param.mouse.where;
+       //Pour cela on doit utiliser la surface offscreen
+       ei_point_t screen = widget->screen_location.top_left;
 
-      switch (event->type)
-      {
-      case ei_ev_mouse_buttondown:
-       //si on clique sur le bouton on modifie l'apparance du bouton up -> down
-        if (((ei_impl_frame_t*) widget)->frame_relief ==  ei_relief_raised){
-         ((ei_impl_frame_t*) widget)->frame_relief = ei_relief_sunken;
+       if (widget->pick_id != get_color_point(mouse_position));
+
+       switch (event->type)
+       {
+       case ei_ev_mouse_buttondown:
+        //si on clique sur le bouton on modifie l'apparance du bouton up -> down
+         if (((ei_impl_frame_t*) widget)->frame_relief ==  ei_relief_raised){
+          ((ei_impl_frame_t*) widget)->frame_relief = ei_relief_sunken;
+         }
+       case ei_ev_mouse_buttonup:
+        //si on relache le bouton on modifie l'apparance du bouton down -> up
+
+        if (((ei_impl_frame_t*) widget)->frame_relief ==  ei_relief_sunken) {
+         ((ei_impl_frame_t*) widget)->frame_relief =  ei_relief_raised;
         }
-      case ei_ev_mouse_buttonup:
-       //si on relache le bouton on modifie l'apparance du bouton down -> up
 
-       if (((ei_impl_frame_t*) widget)->frame_relief ==  ei_relief_sunken) {
-        ((ei_impl_frame_t*) widget)->frame_relief =  ei_relief_raised;
+      default:
+       break;
        }
 
-     default:
-      break;
+
+
+
       }
 
-
-
-
-     }
-
-}
+ }
 
 
 
