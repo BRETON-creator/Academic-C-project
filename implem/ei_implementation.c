@@ -31,12 +31,28 @@ void		ei_impl_widget_draw_children	(ei_widget_t		widget,
     while (child){
         //il faut dessiner d'abord la surface de picking et ensuie
         //remarque pick_surface: lorsqu'on dessine une surface de picking on enregistre une couleur pour chaque pixels de la surface (elle ecrase l'autre que l'on récuperera ensuite
-        //bool force_alpha=true;
-        //ei_size_t size = child->requested_size;
-        //ei_surface_t pick_surface = hw_surface_create (ei_app_root_surface(), size, force_alpha);
-        //child-> pick_id = create_new_pick_id();
-        //ei_color_t color = generate_color(child->pick_id);
-        //(child->pick_color) = &color;
+        bool force_alpha=true;
+        ei_size_t size = child->requested_size;
+        //pour dessiner sur la pick_surface on change la valeur de ces pixels avec la pick_color
+
+        //on récupère la couleur
+        child-> pick_id = create_new_pick_id();
+        ei_color_t color = generate_color(child->pick_id);
+        (child->pick_color) = &color;
+
+        //on change les pixels qui correspondent au widget à dessiner sur la pick_surface
+        ei_point_t first_pixel_coordinates = child->screen_location.top_left;
+        hw_surface_set_origin(pick_surface, first_pixel_coordinates);
+        uint32_t *pixel_ptr = hw_surface_get_buffer(pick_surface); //pointeur sur le premier pixelcorrespond au widget
+        int y  = child->screen_location.top_left.y;
+        for (int j = 0 ; j < (size.height) ; j++){
+            for (int i = 0; i < (size.width); i++)  //on change toute une ligne puis on passe à la ligne suivante
+                *pixel_ptr++ = child->pick_id;
+            y++;
+            first_pixel_coordinates.y = y;
+            hw_surface_set_origin(pick_surface, first_pixel_coordinates);
+            uint32_t *pixel_ptr = hw_surface_get_buffer(pick_surface);
+        }
         ei_impl_widget_draw_children(child, surface,pick_surface,&(widget->screen_location));
         child = child->next_sibling;
     }
