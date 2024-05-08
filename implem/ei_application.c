@@ -166,28 +166,35 @@ void ei_app_run(void){
 
     ei_impl_widget_draw_children(root, surface,pick_surface,&clipper);
 
+    ei_widget_t previous_widget;
     while (!quit){
             ei_app_invalidate_rect(root);
-
-
             ei_event_t* event = malloc(sizeof(ei_event_t));
             hw_event_wait_next(event);
-
             ei_widget_t widget = find_widget(*event);
+
+            if ((event->type == ei_ev_mouse_buttonup) && ((ei_impl_frame_t*)previous_widget)->frame_relief ==  ei_relief_sunken){
+                ((ei_impl_button_t*)previous_widget)->frame.frame_relief = ei_relief_raised;
+                ei_impl_widget_draw_children(previous_widget, surface,pick_surface,&clipper);
+            }
+
+
             if (widget){
                     ei_widgetclass_name_t name = {"button\0"};
-                    if (strcmp(widget->wclass->name, name)==0 && event->type == ei_ev_mouse_buttondown){
+                    if (strcmp(widget->wclass->name, name)==0 && event->type == ei_ev_mouse_buttondown && ((ei_impl_button_t*) widget)->frame.frame_relief ==  ei_relief_raised){
+                            previous_widget = widget;
                             ((ei_impl_button_t*)widget)->callback(widget, event,((ei_impl_button_t*)widget)->user_params);
                             ((ei_impl_button_t*)widget)->frame.frame_relief = ei_relief_sunken;
 
                             ei_impl_widget_draw_children(widget, surface,pick_surface,&clipper);
+
+
                     }
 
-                    if (strcmp(widget->wclass->name, name)==0 && event->type == ei_ev_mouse_buttonup){
-                            ((ei_impl_button_t*)widget)->frame.frame_relief = ei_relief_raised;
-                            ei_impl_widget_draw_children(widget, surface,pick_surface,&clipper);
-                    }
+
             }
+
+
 
     }
 }

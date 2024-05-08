@@ -37,14 +37,16 @@ bool ei_callback_clickbutton(ei_widget_t		widget, struct ei_event_t*	event, ei_u
 
       //On gère la postion du pointeur de la souris et l'emplacement du widget
       ei_point_t mouse_position =  event->param.mouse.where;
-      if (widget->pick_id != get_color_point(mouse_position));
+      if (widget->pick_id != get_color_point(mouse_position)){
+       return 0;
+      };
 
       switch (event->type)
       {
       case ei_ev_mouse_buttondown:
        //si on clique sur le bouton on modifie l'apparance du bouton up -> down
-        if (((ei_impl_frame_t*) widget)->frame_relief ==  ei_relief_raised){
-         ((ei_impl_frame_t*) widget)->frame_relief = ei_relief_sunken;
+        if (((ei_impl_button_t*) widget)->frame.frame_relief ==  ei_relief_raised){
+         ((ei_impl_button_t*) widget)->frame.frame_relief = ei_relief_sunken;
         }
       case ei_ev_mouse_buttonup:
        //si on relache le bouton on modifie l'apparance du bouton down -> up
