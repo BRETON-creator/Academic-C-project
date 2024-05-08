@@ -31,12 +31,12 @@ void		ei_impl_widget_draw_children	(ei_widget_t		widget,
     while (child){
         //il faut dessiner d'abord la surface de picking et ensuie
         //remarque pick_surface: lorsqu'on dessine une surface de picking on enregistre une couleur pour chaque pixels de la surface (elle ecrase l'autre que l'on récuperera ensuite
-        bool force_alpha=true;
-        ei_size_t size = child->requested_size;
-        ei_surface_t pick_surface = hw_surface_create (ei_app_root_surface(), size, force_alpha);
-        child-> pick_id = create_new_pick_id();
-        ei_color_t color = generate_color(child->pick_id);
-        (child->pick_color) = &color;
+        //bool force_alpha=true;
+        //ei_size_t size = child->requested_size;
+        //ei_surface_t pick_surface = hw_surface_create (ei_app_root_surface(), size, force_alpha);
+        //child-> pick_id = create_new_pick_id();
+        //ei_color_t color = generate_color(child->pick_id);
+        //(child->pick_color) = &color;
         ei_impl_widget_draw_children(child, surface,pick_surface,&(widget->screen_location));
         child = child->next_sibling;
     }
@@ -62,7 +62,7 @@ uint32_t	ei_impl_map_rgba(ei_surface_t surface, ei_color_t color);
 //================================================================================================
 
 void give_rounded_frame(ei_point_t* circle, ei_rect_t rect, int radius) {
-    float pi = 3.14;
+    float pi = 355./113.;
     float xpos, ypos;
     ei_point_t center;
     for (int i = 0; i < 40; i++) {
@@ -78,6 +78,9 @@ void give_rounded_frame(ei_point_t* circle, ei_rect_t rect, int radius) {
                                    (rect.top_left.y) + (rect.size.height) - radius};
         circle[i] = (ei_point_t) {(center.x) + (xpos * radius), (center.y) - (ypos * radius)};
     }
+    circle[9].y = circle[10].y;
+    circle[19].x = circle[20].x;
+    circle[29].y = circle[30].y;
     circle[39].x = circle[0].x;
 }
 
@@ -153,7 +156,7 @@ void ei_impl_draw_frame(ei_widget_t widget,ei_surface_t surface,ei_surface_t pic
     give_upper_frame(rounded_frame,rect,h,upper_frame);
     give_lower_frame(rounded_frame,rect,h,lower_frame);
     give_rounded_frame(smaller_frame,(ei_rect_t){(ei_point_t){rect.top_left.x+border,rect.top_left.y+border},
-                                                 (ei_size_t){rect.size.width - 2*border, rect.size.height - 2*border}},radius);
+                                                 (ei_size_t){rect.size.width - 2*border, rect.size.height - 2*border}},radius-border);
 
     ei_color_t light_color  = (ei_color_t){color.red + 20, color.green +20, color.blue +20, color.alpha};
 
@@ -252,7 +255,7 @@ void ei_impl_placer_runfunc(ei_widget_t widget){
     ei_rect_t *old_surface = &(ei_rect_t){(ei_point_t){widget->screen_location.top_left.x, widget->screen_location.top_left.y},
                                           (ei_size_t){widget->screen_location.size.width,widget->screen_location.size.height}};
 
-    ei_place(widget, &((ei_placer_t*)widget->geom_params)->anchor,x,y,width,height,rel_x,rel_y,rel_width,rel_height);
+    ei_place(widget, ((ei_placer_t*)widget->geom_params)->anchor,x,y,width,height,rel_x,rel_y,rel_width,rel_height);
     ei_rect_t *new_surface = &(widget->screen_location);
     widget->screen_location = *old_surface;
     ei_geometry_run_finalize(widget,new_surface);
