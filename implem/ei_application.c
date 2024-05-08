@@ -111,6 +111,12 @@ void ei_app_free(void){
      * - ?
      *
     */
+
+    //free la surface offscreen
+    //hw_surface_free(??)
+    //free tous les widgets (parcours suffixe de l'arbre des widgets
+    ei_widget_destroy(root);
+
     //free les widgets_class (on en a que 2...
     ei_widgetclass_t *tmp = ei_widgetclass_from_name("button\0");
     ei_widgetclass_t *suiv= tmp->next;
@@ -122,10 +128,7 @@ void ei_app_free(void){
     free(tmp);
     //free les geometrymanager (on en a qu'un pour le moment...
     free(ei_geometrymanager_from_name("placer\0"));
-    //free la surface offscreen
-    //hw_surface_free(??)
-    //free tous les widgets (parcours suffixe de l'arbre des widgets
-    ei_widget_destroy(root);
+
     hw_quit();
 }
 bool point_in_surface(int x, int y, ei_rect_t rect){
