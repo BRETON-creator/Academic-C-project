@@ -14,11 +14,14 @@
 #include "ei_placer.h"
 #include "ei_event.h"
 #include "ei_widget_configure.h"
+#include "var.h"
 
+
+ei_surface_t pick_surface;
 ei_impl_widget_t* root = NULL;
 bool quit              = false;
 ei_surface_t root_surface;
-ei_surface_t pick_surface;
+
 
 
 /**

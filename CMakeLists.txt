@@ -77,6 +77,7 @@ set(LIB_EI_SOURCES
 		${SRC}/ei_geometrymanager.c
 		${SRC}/ei_event.c
 		${SRC}/ei_offscreen.c
+		${SRC}/var.h
 
 
 
@@ -143,3 +144,5 @@ target_link_libraries(parsing		ei ${PLATFORM_LIB_FLAGS})
 # target to build the documentation
 
 add_custom_target(doc doxygen		${DOCS_DIR}/doxygen.cfg WORKING_DIRECTORY ${ROOT_DIR})
+
+
