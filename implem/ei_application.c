@@ -15,7 +15,6 @@
 #include "ei_event.h"
 #include "ei_widget_configure.h"
 #include "var.h"
-#include "ei_eventstruct.h"
 
 
 ei_surface_t pick_surface;
@@ -23,7 +22,7 @@ ei_impl_widget_t* root = NULL;
 bool quit              = false;
 ei_surface_t root_surface;
 
-ei_linked_rect_t* rects = NULL;
+
 
 /**
  * \brief	Creates an application.
@@ -128,9 +127,33 @@ void ei_app_free(void){
     }
     free(tmp);
     //free les geometrymanager (on en a qu'un pour le moment...
-    free((ei_geometrymanager_from_name("placer\0")));
+    free(ei_geometrymanager_from_name("placer\0"));
 
     hw_quit();
+}
+bool point_in_surface(int x, int y, ei_rect_t rect){
+        int x_min = rect.top_left.x;
+        int y_min = rect.top_left.y;
+        int x_max = rect.size.width + x_min;
+        int y_max = rect.size.height + y_min;
+
+        return (x_min<=x && x<=x_max && y_min<=y && y<=y_max);
+}
+
+ei_widget_t find_widget(ei_event_t event){
+        int x = event.param.mouse.where.x;
+        int y = event.param.mouse.where.y;
+
+        ei_widget_t widget = root->children_head;
+        ei_rect_t rect = widget->screen_location;
+
+        while (true){
+                if (point_in_surface(x, y, rect)) break;
+                if (widget == NULL) break;
+                widget=widget->children_head;
+        }
+
+        return widget;
 }
 
 /**
@@ -146,39 +169,37 @@ void ei_app_run(void){
 
     ei_impl_widget_draw_children(root, surface,pick_surface,&clipper);
 
-    //boucle principale
-    //On bind les callbacks internes ?
-    //ei_bind(ei_ev_mouse_buttondown,NULL,(ei_tag_t){"button\0"},ei_buttoncallback,NULL);
-    //ei_bind(ei_ev_mouse_buttonup,NULL,(ei_tag_t){"button\0"},ei_buttoncallback,NULL);
-    //ei_bind(ei_ev_mouse_move,NULL,(ei_tag_t){"button\0"},ei_buttoncallback,NULL);
+    ei_widget_t previous_widget;
+    while (!quit){
+            ei_app_invalidate_rect(root);
+            ei_event_t* event = malloc(sizeof(ei_event_t));
+            hw_event_wait_next(event);
+            ei_widget_t widget = find_widget(*event);
 
-    ei_event_t* event = calloc(1,sizeof(ei_event_t));
-    ei_bind_t* bind;
-    ei_bind_t* binds;
-    bool change_event;
-    while(!quit){
+            if ((event->type == ei_ev_mouse_buttonup) && ((ei_impl_frame_t*)previous_widget)->frame_relief ==  ei_relief_sunken){
+                ((ei_impl_button_t*)previous_widget)->frame.frame_relief = ei_relief_raised;
+                ei_impl_widget_draw_children(previous_widget, surface,pick_surface,&clipper);
+            }
 
-        hw_event_wait_next(event);
 
-        do {
-            bind = ei_callback_from_event(event, binds);
-            if (bind) {
-                if (bind->eventtype == ei_ev_mouse_buttondown || event->type == ei_ev_mouse_buttonup || event->type == ei_ev_mouse_move) {
-                    change_event = (bind->callback)(ei_widget_pick(&event->param.mouse.where), event, bind->user_param);
-                    if (! change_event) {
-                        binds = bind->next_bind;
+            if (widget){
+                    ei_widgetclass_name_t name = {"button\0"};
+                    if (strcmp(widget->wclass->name, name)==0 && event->type == ei_ev_mouse_buttondown && ((ei_impl_button_t*) widget)->frame.frame_relief ==  ei_relief_raised){
+                            previous_widget = widget;
+                            ((ei_impl_button_t*)widget)->callback(widget, event,((ei_impl_button_t*)widget)->user_params);
+                            ((ei_impl_button_t*)widget)->frame.frame_relief = ei_relief_sunken;
+
+                            ei_impl_widget_draw_children(widget, surface,pick_surface,&clipper);
+
+
                     }
-                }else{
-                    change_event = (bind->callback)(NULL,event,bind->user_param);
-                }
+
 
             }
-        }while(!change_event && bind);
-        hw_surface_unlock(root_surface);
-        hw_surface_update_rects(root_surface,rects);
-        hw_surface_lock(root_surface);
+
+
+
     }
-    free(event);
 }
 
 
@@ -192,16 +213,7 @@ void ei_app_run(void){
  *				A copy is made, so it is safe to release the rectangle on return.
  */
 void ei_app_invalidate_rect(const ei_rect_t* rect){
-    ei_linked_rect_t *new_rect = calloc(1, sizeof(ei_linked_rect_t));
-    ei_rect_t* copy_rect = calloc(1,sizeof(ei_rect_t));
-    copy_rect->size.width = rect->size.width;
-    copy_rect->size.height= rect->size.height;
-    copy_rect->top_left.x = rect->top_left.x;
-    copy_rect->top_left.y = rect->top_left.y;
 
-    new_rect->rect=*copy_rect;
-    new_rect->next=rects;
-    rects=new_rect;
 }
 
 /**
