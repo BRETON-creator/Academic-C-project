@@ -13,6 +13,7 @@
 #include "ei_widget.h"
 #include "ei_geometrymanager.h"
 #include "ei_application.h"
+#include "ei_eventstruct.h"
 
 
 
