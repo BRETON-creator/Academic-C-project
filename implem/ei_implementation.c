@@ -11,6 +11,7 @@
 #include "ei_offscreen.c"
 #include "ei_placer.h"
 #include "ei_event.h"
+#include "var.h"
 
 /**
  * @brief	Draws the children of a widget.
@@ -30,30 +31,6 @@ void		ei_impl_widget_draw_children	(ei_widget_t		widget,
     (widget->wclass->drawfunc)(widget,surface,pick_surface,clipper);
     ei_widget_t child = widget->children_head;
     while (child){
-        //il faut dessiner d'abord la surface de picking et ensuie
-        //remarque pick_surface: lorsqu'on dessine une surface de picking on enregistre une couleur pour chaque pixels de la surface (elle ecrase l'autre que l'on récuperera ensuite
-        bool force_alpha=true;
-        ei_size_t size = child->requested_size;
-        //pour dessiner sur la pick_surface on change la valeur de ces pixels avec la pick_color
-
-        //on récupère la couleur
-        child-> pick_id = create_new_pick_id();
-        ei_color_t color = generate_color(child->pick_id);
-        (child->pick_color) = &color;
-
-        //on change les pixels qui correspondent au widget à dessiner sur la pick_surface
-        ei_point_t first_pixel_coordinates = child->screen_location.top_left;
-        hw_surface_set_origin(pick_surface, first_pixel_coordinates);
-        uint32_t *pixel_ptr = hw_surface_get_buffer(pick_surface); //pointeur sur le premier pixelcorrespond au widget
-        int y  = child->screen_location.top_left.y;
-        for (int j = 0 ; j < (size.height) ; j++){
-            for (int i = 0; i < (size.width); i++)  //on change toute une ligne puis on passe à la ligne suivante
-                *pixel_ptr++ = child->pick_id;
-            y++;
-            first_pixel_coordinates.y = y;
-            hw_surface_set_origin(pick_surface, first_pixel_coordinates);
-            uint32_t *pixel_ptr = hw_surface_get_buffer(pick_surface);
-        }
         ei_impl_widget_draw_children(child, surface,pick_surface,&(widget->screen_location));
         child = child->next_sibling;
     }
@@ -364,6 +341,7 @@ void ei_create_bind(ei_eventtype_t		eventtype,
         new_bind->object.widget = widget;
         new_bind->bind_isWidget = true;
     }else{
+        new_bind->object.tag=calloc(1,sizeof(ei_tag_t));
         strcpy(new_bind->object.tag,tag);
         new_bind->bind_isWidget = false;
     }
@@ -401,4 +379,29 @@ void ei_delete_bind(ei_eventtype_t		eventtype,
 }
 
 
+bool ei_callback_clickbutton(ei_widget_t		widget, struct ei_event_t*	event, ei_user_param_t	user_param){
+
+    if (strcmp( widget->wclass->name, (ei_widgetclass_name_t){"button\0"}) != 0 ){
+        return false; //Si le widget n'est pas un boutton on retourne false
+    }else{
+        switch (event->type)
+        {
+            case ei_ev_mouse_buttondown:
+                //si on clique sur le bouton on modifie l'apparance du bouton up -> down
+                if (((ei_impl_button_t*) widget)->frame.frame_relief ==  ei_relief_raised){
+                    ((ei_impl_button_t*) widget)->frame.frame_relief = ei_relief_sunken;
+                }
+            case ei_ev_mouse_buttonup:
+                //si on relache le bouton on modifie l'apparance du bouton down -> up
+
+                if (((ei_impl_frame_t*) widget)->frame_relief ==  ei_relief_sunken) {
+                    ((ei_impl_frame_t*) widget)->frame_relief =  ei_relief_raised;
+                }
+
+            default:
+                break;
+        }
+        ei_impl_draw_button(widget,ei_app_root_surface(), pick_surface,&widget->parent->screen_location);
+    }
+}
 

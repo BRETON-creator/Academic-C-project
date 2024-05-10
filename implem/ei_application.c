@@ -21,6 +21,7 @@ ei_surface_t pick_surface;
 ei_impl_widget_t* root = NULL;
 bool quit              = false;
 ei_surface_t root_surface;
+ei_linked_rect_t* rects = NULL;
 
 
 
@@ -161,45 +162,50 @@ ei_widget_t find_widget(ei_event_t event){
  *		\ref ei_app_quit_request is called.
  */
 void ei_app_run(void){
-    //dessin des widgets dans l'arbre
-    // TODO : gerer pick surface et clipper
 
-    ei_surface_t surface        = ei_app_root_surface();
     ei_rect_t clipper           = hw_surface_get_rect(ei_app_root_surface());
+    ei_impl_widget_draw_children(root, root_surface,pick_surface,&clipper);
 
-    ei_impl_widget_draw_children(root, surface,pick_surface,&clipper);
+    //boucle principale
+    //On bind les callbacks internes ?
+    //ei_bind(ei_ev_mouse_buttondown,NULL,(ei_tag_t){"button\0"},ei_buttoncallback,NULL);
+    //ei_bind(ei_ev_mouse_buttonup,NULL,(ei_tag_t){"button\0"},ei_buttoncallback,NULL);
+    //ei_bind(ei_ev_mouse_move,NULL,(ei_tag_t){"button\0"},ei_buttoncallback,NULL);
 
-    ei_widget_t previous_widget;
-    while (!quit){
-            ei_app_invalidate_rect(root);
-            ei_event_t* event = malloc(sizeof(ei_event_t));
-            hw_event_wait_next(event);
-            ei_widget_t widget = find_widget(*event);
+    ei_event_t* event = calloc(1,sizeof(ei_event_t));
+    ei_bind_t* bind;
+    ei_bind_t* binds;
+    bool change_event;
+    ei_widget_t widget = NULL;
+    while(!quit){
 
-            if ((event->type == ei_ev_mouse_buttonup) && ((ei_impl_frame_t*)previous_widget)->frame_relief ==  ei_relief_sunken){
-                ((ei_impl_button_t*)previous_widget)->frame.frame_relief = ei_relief_raised;
-                ei_impl_widget_draw_children(previous_widget, surface,pick_surface,&clipper);
+        hw_event_wait_next(event);
+
+        do {
+            //call extern first
+            if (event->type == ei_ev_mouse_buttondown || event->type == ei_ev_mouse_buttonup || event->type == ei_ev_mouse_move){
+                widget= ei_widget_pick(&event->param.mouse.where);
+                if (widget && strcmp(widget->wclass->name,"button\0") == 0) ((ei_impl_button_t*)widget)->callback (widget,event,NULL);
             }
-
-
-            if (widget){
-                    ei_widgetclass_name_t name = {"button\0"};
-                    if (strcmp(widget->wclass->name, name)==0 && event->type == ei_ev_mouse_buttondown && ((ei_impl_button_t*) widget)->frame.frame_relief ==  ei_relief_raised){
-                            previous_widget = widget;
-                            ((ei_impl_button_t*)widget)->callback(widget, event,((ei_impl_button_t*)widget)->user_params);
-                            ((ei_impl_button_t*)widget)->frame.frame_relief = ei_relief_sunken;
-
-                            ei_impl_widget_draw_children(widget, surface,pick_surface,&clipper);
-
-
+            bind = ei_bind_from_event(event,binds);
+            if (bind) {
+                if (event->type == ei_ev_mouse_buttondown || event->type == ei_ev_mouse_buttonup || event->type == ei_ev_mouse_move) {
+                    change_event = (bind->callback)(ei_widget_pick(&event->param.mouse.where), event, bind->user_param);
+                    if (! change_event) {
+                        binds = bind->next_bind;
                     }
-
-
+                }else{
+                    change_event = (bind->callback)(NULL,event,bind->user_param);
+                }
             }
-
-
-
+        }while(!change_event && bind);
+        hw_surface_unlock(root_surface);
+        hw_surface_update_rects(root_surface,rects);
+        // IL faut release tout les rects
+        rects=NULL;
+        hw_surface_lock(root_surface);
     }
+    free(event);
 }
 
 
@@ -243,6 +249,8 @@ ei_widget_t ei_app_root_widget(void){
 ei_surface_t ei_app_root_surface(void){
     return root_surface;
 }
+
+
 
 
 

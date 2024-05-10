@@ -10,42 +10,18 @@
 
 #include "ei_widget.h"
 #include "ei_implementation.h"
+#include "var.h"
 
+uint32_t next_pick_id = 0x000000FF;
 
-/**
- * @brief	The type of functions that are called just before a widget is being destroyed
- * 		(the "widget" parameter and its fields are still valid).
- * 		Functions of this type are passed as a parameter to \ref ei_widget_create.
- *
- * @param	widget		The widget that is going to be destroyed.
- */
-typedef void		(*ei_widget_destructor_t)	(ei_widget_t widget);
-
-
-
-
-
-/**
- * @brief	A function that is called in response to a user event. For example, the function that
- *		a programmer wants to be called when the user has pressed on a graphical button.
- *
- * @param	widget		The widget for which the event was generated.
- * @param	event		The event containing all its parameters (type, etc.)
- * @param	user_param	The user parameters that was provided by the caller when registering
- *				this callback.
- *
- * @return			A boolean telling if the event was consumed by the callback or not.
- *				If TRUE, the library does not try to call other callbacks for this
- *				event. If FALSE, the library will call the next callback registered
- *				for this event, if any.
- *				Note: The callback may execute many operations and still return
- *				FALSE, or return TRUE without having done anything.
- */
-typedef bool		(*ei_callback_t)		(ei_widget_t		widget,
-							 struct ei_event_t*	event,
-							 ei_user_param_t	user_param);
-
-
+ei_color_t* give_color_pickid(uint32_t* pickid){
+    ei_color_t* pickcolor = calloc(1,sizeof(ei_color_t));
+    pickcolor->alpha = 0xFF;
+    pickcolor->red = *((uint8_t*)pickid);
+    pickcolor->green = *((uint8_t*)pickid+1);
+    pickcolor->blue = *((uint8_t*)pickid+2);
+    return pickcolor;
+}
 
 /**
  * @brief	Creates a new instance of a widget of some particular class, as a descendant of
@@ -74,6 +50,9 @@ ei_widget_t		ei_widget_create		(ei_const_string_t	class_name,
     if (tmp==NULL) parent->children_tail=new_widget;
     new_widget->user_data=user_data;
     new_widget->destructor=destructor;
+    new_widget->pick_id = next_pick_id;
+    next_pick_id += 0x000001FF;
+    new_widget->pick_color = give_color_pickid(&new_widget->pick_id);
     return new_widget;
 }
 
@@ -113,6 +92,25 @@ bool	 		ei_widget_is_displayed		(ei_widget_t		widget){
 }
 
 
+uint32_t* get_pixel_point( ei_point_t point){
+    uint32_t *pixel_ptr = (u_int32_t*)hw_surface_get_buffer(pick_surface);
+    //pixel_ptr == (0,0)
+    ei_size_t size = hw_surface_get_size(pick_surface);
+    int idx_point = point.x + point.y*size.width;
+    return pixel_ptr + idx_point;
+}
+
+ei_widget_t widget_from_pickid(ei_widget_t current, uint32_t pick_id){
+    if (!current) return NULL;
+    if (current->pick_id == pick_id) return current;
+    ei_widget_t child = current->children_head;
+    ei_widget_t result = widget_from_pickid(child,pick_id);
+    while (child && !result){
+        child=child->next_sibling;
+        result = widget_from_pickid(child,pick_id);
+    }
+    return result;
+}
 /**
  * @brief	Returns the widget that is at a given location on screen.
  *
@@ -122,7 +120,15 @@ bool	 		ei_widget_is_displayed		(ei_widget_t		widget){
  *				at this location (except for the root widget).
  */
 ei_widget_t		ei_widget_pick			(ei_point_t*		where){
+    //on recupere le pick_id du widget du pixel sur lequel on se trouve
+    uint32_t pick_id= *get_pixel_point(*where);
+    //on trouve a quel widget il appartient et on renvoit ce widget, si c'est la racine on renvoie NULL
+    ei_widget_t current = ei_app_root_widget();
+    current = widget_from_pickid(current,pick_id);
+    if (current == ei_app_root_widget()) return NULL;
+    return current;
 }
+
 
 
 

@@ -170,8 +170,6 @@ void ei_impl_placer_runfunc(ei_widget_t );
  */
  void  ei_impl_placer_releasefunc(ei_widget_t);
 
-#endif
-
 //======================================= button
 
 /**
@@ -224,7 +222,7 @@ typedef struct ei_bind_t {
 
 ei_bind_t* ei_get_head_binds();
 
-ei_bind_t* ei_callback_from_event(ei_event_t* event, ei_bind_t* current_bind);
+ei_bind_t* ei_bind_from_event(ei_event_t* event, ei_bind_t* current_bind);
 
 void ei_create_bind(ei_eventtype_t		eventtype,
                     ei_widget_t		widget,
@@ -238,3 +236,4 @@ void ei_delete_bind(ei_eventtype_t		eventtype,
                     ei_callback_t		callback,
                     void*			user_param);
 
+#endif
