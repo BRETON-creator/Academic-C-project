@@ -15,7 +15,6 @@
 #include "ei_event.h"
 #include "ei_widget_configure.h"
 #include "var.h"
-#include "ei_eventstruct.h"
 
 
 ei_surface_t pick_surface;

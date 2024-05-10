@@ -13,7 +13,7 @@
 #include "ei_widget.h"
 #include "ei_geometrymanager.h"
 #include "ei_application.h"
-#include "ei_eventstruct.h"
+#include "ei_event.h"
 
 
 
@@ -206,3 +206,35 @@ void ei_impl_setdefaults_button(ei_widget_t widget);
 *
 */
 void ei_impl_draw_button(ei_widget_t widget,ei_surface_t surface,ei_surface_t pick_surface,ei_rect_t* clipper);
+
+
+//======================================== event
+
+typedef struct ei_bind_t {
+    union{
+        ei_widget_t widget;
+        ei_tag_t tag;
+    } object;
+    bool bind_isWidget; // 0 si object = tag, 1 si object = widget
+    ei_eventtype_t eventtype;
+    ei_callback_t callback;
+    void* user_param;
+    struct ei_bind_t* next_bind;
+}ei_bind_t;
+
+ei_bind_t* ei_get_head_binds();
+
+ei_bind_t* ei_callback_from_event(ei_event_t* event, ei_bind_t* current_bind);
+
+void ei_create_bind(ei_eventtype_t		eventtype,
+                    ei_widget_t		widget,
+                    ei_tag_t		tag,
+                    ei_callback_t		callback,
+                    void*			user_param);
+
+void ei_delete_bind(ei_eventtype_t		eventtype,
+                    ei_widget_t		widget,
+                    ei_tag_t		tag,
+                    ei_callback_t		callback,
+                    void*			user_param);
+
