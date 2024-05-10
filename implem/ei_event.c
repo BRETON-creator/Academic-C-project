@@ -11,10 +11,10 @@
 #include "ei_implementation.h"
 #include "ei_widget_attributes.h"
 #include "ei_widget_configure.h"
-#include "ei_eventstruct.h"
+
 
 // fonction qui renvoit la couleur dans l'offscreen d'un point de l'espace
-/**
+
  uint32_t get_color_point( ei_point_t point){
      uint32_t pixel_ptr = (uint32_t)hw_surface_get_buffer(pick_surface);
      ei_size_t size = hw_surface_get_size( pick_surface);
@@ -61,7 +61,7 @@ bool ei_callback_clickbutton(ei_widget_t		widget, struct ei_event_t*	event, ei_u
      }
 }
 
-*/
+
 
 /**
  * \brief	Binds a callback to an event type and a widget or a tag.
@@ -80,7 +80,6 @@ void		ei_bind			(ei_eventtype_t		eventtype,
                      ei_tag_t		tag,
                      ei_callback_t		callback,
                      void*			user_param){
-    ei_create_bind(eventtype,widget,tag,callback,user_param);
 }
 
 /**
@@ -95,5 +94,4 @@ void		ei_unbind		(ei_eventtype_t		eventtype,
                      ei_tag_t		tag,
                      ei_callback_t		callback,
                      void*			user_param){
-    ei_delete_bind(eventtype,widget,tag,callback,user_param);
 }

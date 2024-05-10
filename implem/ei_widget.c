@@ -10,7 +10,6 @@
 
 #include "ei_widget.h"
 #include "ei_implementation.h"
-#include "var.h"
 
 
 /**
@@ -123,9 +122,6 @@ bool	 		ei_widget_is_displayed		(ei_widget_t		widget){
  *				at this location (except for the root widget).
  */
 ei_widget_t		ei_widget_pick			(ei_point_t*		where){
-    hw_surface_set_origin(pick_surface,*where);
-    hw_surface_get_buffer(pick_surface);
-
 }
 
 
