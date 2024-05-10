@@ -87,7 +87,11 @@ void ei_app_create(ei_size_t main_window_size, bool fullscreen){
 
     // creates the root widget to access the root window.
     root                                    = ei_impl_alloc_frame();
+
     ei_impl_setdefaults_frame(root);
+    root->pick_id=0x000000FF;
+    root->pick_color=calloc(1,sizeof(ei_color_t));
+    root->pick_color->red = 0x00; root->pick_color->green = 0x00; root->pick_color->blue=0x00; root->pick_color->alpha=0xFF;
     root->parent=NULL;
     root->requested_size                    = main_window_size;
     ((ei_impl_frame_t*)root)->frame_relief  =ei_relief_none;
@@ -132,30 +136,6 @@ void ei_app_free(void){
 
     hw_quit();
 }
-bool point_in_surface(int x, int y, ei_rect_t rect){
-        int x_min = rect.top_left.x;
-        int y_min = rect.top_left.y;
-        int x_max = rect.size.width + x_min;
-        int y_max = rect.size.height + y_min;
-
-        return (x_min<=x && x<=x_max && y_min<=y && y<=y_max);
-}
-
-ei_widget_t find_widget(ei_event_t event){
-        int x = event.param.mouse.where.x;
-        int y = event.param.mouse.where.y;
-
-        ei_widget_t widget = root->children_head;
-        ei_rect_t rect = widget->screen_location;
-
-        while (true){
-                if (point_in_surface(x, y, rect)) break;
-                if (widget == NULL) break;
-                widget=widget->children_head;
-        }
-
-        return widget;
-}
 
 /**
  * \brief	Runs the application: enters the main event loop. Exits when
@@ -168,25 +148,28 @@ void ei_app_run(void){
 
     //boucle principale
     //On bind les callbacks internes ?
-    //ei_bind(ei_ev_mouse_buttondown,NULL,(ei_tag_t){"button\0"},ei_buttoncallback,NULL);
-    //ei_bind(ei_ev_mouse_buttonup,NULL,(ei_tag_t){"button\0"},ei_buttoncallback,NULL);
-    //ei_bind(ei_ev_mouse_move,NULL,(ei_tag_t){"button\0"},ei_buttoncallback,NULL);
+    ei_bind(ei_ev_mouse_buttondown,NULL,(ei_tag_t){"button\0"},ei_callback_clickbutton,NULL);
+    ei_bind(ei_ev_mouse_buttonup,NULL,(ei_tag_t){"button\0"},ei_callback_clickbutton,NULL);
+    ei_bind(ei_ev_mouse_move,NULL,(ei_tag_t){"button\0"},ei_callback_clickbutton,NULL);
 
     ei_event_t* event = calloc(1,sizeof(ei_event_t));
     ei_bind_t* bind;
-    ei_bind_t* binds;
+    ei_bind_t* binds=ei_get_head_binds();
     bool change_event;
     ei_widget_t widget = NULL;
     while(!quit){
-
+        binds=ei_get_head_binds();
         hw_event_wait_next(event);
 
         do {
-            //call extern first
-            if (event->type == ei_ev_mouse_buttondown || event->type == ei_ev_mouse_buttonup || event->type == ei_ev_mouse_move){
+            //call extern first (stored in widget
+            if (event->type == ei_ev_mouse_buttondown || event->type == ei_ev_mouse_buttonup){
                 widget= ei_widget_pick(&event->param.mouse.where);
+                if (widget) printf("Tu click sur %s\n",widget->wclass->name);
+                else printf("tu click sur root debile\n");
                 if (widget && strcmp(widget->wclass->name,"button\0") == 0) ((ei_impl_button_t*)widget)->callback (widget,event,NULL);
             }
+            //then intern
             bind = ei_bind_from_event(event,binds);
             if (bind) {
                 if (event->type == ei_ev_mouse_buttondown || event->type == ei_ev_mouse_buttonup || event->type == ei_ev_mouse_move) {

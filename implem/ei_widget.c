@@ -12,14 +12,14 @@
 #include "ei_implementation.h"
 #include "var.h"
 
-uint32_t next_pick_id = 0x000000FF;
+uint32_t next_pick_id = 0x00000FFF;
 
-ei_color_t* give_color_pickid(uint32_t* pickid){
+ei_color_t* give_color_pickid(uint32_t pickid){
     ei_color_t* pickcolor = calloc(1,sizeof(ei_color_t));
     pickcolor->alpha = 0xFF;
-    pickcolor->red = *((uint8_t*)pickid);
-    pickcolor->green = *((uint8_t*)pickid+1);
-    pickcolor->blue = *((uint8_t*)pickid+2);
+    pickcolor->red = (pickid >> 24) & 0xFF;
+    pickcolor->green = (pickid >> 16) & 0xFF;
+    pickcolor->blue = (pickid >> 8) & 0xFF;
     return pickcolor;
 }
 
@@ -51,8 +51,8 @@ ei_widget_t		ei_widget_create		(ei_const_string_t	class_name,
     new_widget->user_data=user_data;
     new_widget->destructor=destructor;
     new_widget->pick_id = next_pick_id;
-    next_pick_id += 0x000001FF;
-    new_widget->pick_color = give_color_pickid(&new_widget->pick_id);
+    next_pick_id += 0x00000100;
+    new_widget->pick_color = give_color_pickid(new_widget->pick_id);
     return new_widget;
 }
 
@@ -93,10 +93,13 @@ bool	 		ei_widget_is_displayed		(ei_widget_t		widget){
 
 
 uint32_t* get_pixel_point( ei_point_t point){
-    uint32_t *pixel_ptr = (u_int32_t*)hw_surface_get_buffer(pick_surface);
+    hw_surface_lock(pick_surface);
+    uint32_t *pixel_ptr = (uint32_t *) hw_surface_get_buffer(pick_surface);
+
     //pixel_ptr == (0,0)
     ei_size_t size = hw_surface_get_size(pick_surface);
     int idx_point = point.x + point.y*size.width;
+    hw_surface_unlock(pick_surface);
     return pixel_ptr + idx_point;
 }
 

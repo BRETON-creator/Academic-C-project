@@ -172,11 +172,12 @@ void ei_impl_draw_frame(ei_widget_t widget,ei_surface_t surface,ei_surface_t pic
     }
 
     ei_draw_polygon(surface,smaller_frame,40, color,clipper);
+    //on dessine sur la pick surface aussi. pour afficher la pick surface modifier pick surface par surface.
+    ei_draw_polygon(pick_surface,rounded_frame,40,*(widget->pick_color),clipper);
+
     hw_surface_update_rects(surface,&(ei_linked_rect_t){widget->screen_location,NULL});
 
 
-    //on dessine sur la pick surface aussi.
-    ei_draw_polygon(pick_surface,rounded_frame,40,ei_default_background_color,clipper);
 
 
 

@@ -236,4 +236,6 @@ void ei_delete_bind(ei_eventtype_t		eventtype,
                     ei_callback_t		callback,
                     void*			user_param);
 
+bool ei_callback_clickbutton(ei_widget_t		widget, struct ei_event_t*	event, ei_user_param_t	user_param);
+
 #endif
