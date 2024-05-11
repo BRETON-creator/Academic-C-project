@@ -8,10 +8,10 @@
 
 #include "ei_implementation.h"
 #include "ei_draw.h"
-#include "ei_offscreen.c"
 #include "ei_placer.h"
 #include "ei_event.h"
 #include "var.h"
+#include "hw_interface.h"
 
 ei_widget_t current_button_down = NULL;
 /**
@@ -176,16 +176,12 @@ void ei_impl_draw_frame(ei_widget_t widget,ei_surface_t surface,ei_surface_t pic
     //on dessine sur la pick surface aussi. pour afficher la pick surface decommenter la ligne du dessous
     //ei_draw_polygon(surface,rounded_frame,40,*(widget->pick_color),clipper);
     ei_draw_polygon(pick_surface,rounded_frame,40,*(widget->pick_color),clipper);
+
+
+    //ei_surface_t surfacetext = hw_text_create_surface(((ei_impl_frame_t*)widget)->text,((ei_impl_frame_t*)widget)->text_font,((ei_impl_frame_t*)widget)->text_color);
+    //ei_draw_text(surface,&(ei_point_t){size.width/2,size.height/2},((ei_impl_frame_t*)widget)->text,((ei_impl_frame_t*)widget)->text_font,((ei_impl_frame_t*)widget)->text_color,&widget->screen_location);
     hw_surface_update_rects(surface,&(ei_linked_rect_t){widget->screen_location,NULL}); // ca on devrait le faire la la fonction app_run
 
-
-
-
-
-
-    ei_surface_t surfacetext;
-    //surfacetext = hw_text_create_surface(((ei_impl_frame_t*)widget)->text,((ei_impl_frame_t*)widget)->text_font,((ei_impl_frame_t*)widget)->text_color);
-    //hw_surface_update_rects(surfacetext,NULL);
     hw_surface_lock(surface);
 }
 
@@ -197,8 +193,6 @@ void ei_impl_draw_frame(ei_widget_t widget,ei_surface_t surface,ei_surface_t pic
 void ei_impl_setdefaults_frame(ei_widget_t widget){
     ei_impl_frame_t* frame = (ei_impl_frame_t*)widget;
     frame->widget.wclass = ei_widgetclass_from_name((ei_const_string_t){"frame\0"});
-    //frame->widget.pick_id;
-    //frame->widget.pick_color;
     frame->widget.user_data = NULL;
     frame->widget.destructor = NULL;
     /* Widget Hierachy Management */
@@ -312,19 +306,6 @@ ei_bind_t* ei_get_head_binds(){
 ei_bind_t* ei_bind_from_event(ei_event_t* event, ei_bind_t* current_bind){
     ei_bind_t* cur_bind = current_bind;
     while (cur_bind){
-        /*if (event->type == cur_bind->eventtype && (event->type == ei_ev_mouse_buttondown || event->type == ei_ev_mouse_buttonup || event->type == ei_ev_mouse_move)){
-            if (cur_bind->bind_isWidget && cur_bind->object.widget == ei_widget_pick(&event->param.mouse.where)){
-                return cur_bind;
-            }
-            if (! cur_bind->bind_isWidget && strcmp(cur_bind->object.tag,"all\0")==0){
-                return cur_bind;
-            }
-            //... TODO
-        }
-        if (event->type == cur_bind->eventtype && event->type == ei_ev_keydown && !cur_bind->bind_isWidget && strcmp(cur_bind->object.tag,"all\0")==0){
-            return cur_bind;
-        }
-         */
         if (event->type == cur_bind->eventtype){
             return cur_bind;
         }
@@ -403,6 +384,7 @@ bool ei_callback_clickbutton(ei_widget_t		widget, struct ei_event_t*	event, ei_u
                 //si on clique sur le bouton on modifie l'apparance du bouton up -> down
                 if (((ei_impl_button_t*) widget)->frame.frame_relief ==  ei_relief_raised){
                     ((ei_impl_button_t*) widget)->frame.frame_relief = ei_relief_sunken;
+                    //il manque la modification de l'ancrage du texte
                     ei_impl_draw_button(widget,ei_app_root_surface(), pick_surface,&widget->parent->screen_location);
                     current_button_down = widget;
                 }
@@ -412,6 +394,8 @@ bool ei_callback_clickbutton(ei_widget_t		widget, struct ei_event_t*	event, ei_u
 
                 if (((ei_impl_frame_t*) widget)->frame_relief ==  ei_relief_sunken) {
                     ((ei_impl_frame_t*) widget)->frame_relief =  ei_relief_raised;
+                    //il manque la modification de l'ancrage du texte
+                    //et geom notify ? ou que pour redimension
                     ei_impl_draw_button(widget,ei_app_root_surface(), pick_surface,&widget->parent->screen_location);
                     ((ei_impl_button_t*)widget)->callback(widget,event,user_param);
                     current_button_down = NULL;

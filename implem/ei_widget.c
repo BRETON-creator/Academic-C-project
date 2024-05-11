@@ -100,7 +100,7 @@ uint32_t* get_pixel_point( ei_point_t point){
     ei_size_t size = hw_surface_get_size(pick_surface);
     int idx_point = point.x + point.y*size.width;
     uint32_t * pixel_ptr_n = pixel_ptr+ idx_point;
-    //int x = ((pixel_ptr_n - pixel_ptr))%size.width;
+    //int x = ((pixel_ptr_n - pixel_ptr))%size.width; // \/ c'etait pour le debug
     //int y = ((pixel_ptr_n - pixel_ptr))/size.width;
     //printf("%u %u, x: %d, y: %d\n",pixel_ptr,pixel_ptr_n,x,y );
     //ei_color_t *col = give_color_pickid(*pixel_ptr_n);
