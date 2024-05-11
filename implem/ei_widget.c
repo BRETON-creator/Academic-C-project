@@ -16,7 +16,7 @@ uint32_t next_pick_id = 0x00000FFF;
 
 ei_color_t* give_color_pickid(uint32_t pickid){
     ei_color_t* pickcolor = calloc(1,sizeof(ei_color_t));
-    pickcolor->alpha = 0xFF;
+    pickcolor->alpha = pickid & 0xFF;
     pickcolor->red = (pickid >> 24) & 0xFF;
     pickcolor->green = (pickid >> 16) & 0xFF;
     pickcolor->blue = (pickid >> 8) & 0xFF;
@@ -95,12 +95,20 @@ bool	 		ei_widget_is_displayed		(ei_widget_t		widget){
 uint32_t* get_pixel_point( ei_point_t point){
     hw_surface_lock(pick_surface);
     uint32_t *pixel_ptr = (uint32_t *) hw_surface_get_buffer(pick_surface);
-
+    //
     //pixel_ptr == (0,0)
     ei_size_t size = hw_surface_get_size(pick_surface);
     int idx_point = point.x + point.y*size.width;
+    uint32_t * pixel_ptr_n = pixel_ptr+ idx_point;
+    //int x = ((pixel_ptr_n - pixel_ptr))%size.width;
+    //int y = ((pixel_ptr_n - pixel_ptr))/size.width;
+    //printf("%u %u, x: %d, y: %d\n",pixel_ptr,pixel_ptr_n,x,y );
+    //ei_color_t *col = give_color_pickid(*pixel_ptr_n);
+    //printf("%08x\n",(*pixel_ptr_n)<<8 | 0xFF);
+    //printf("R:%02x G:%02x B:%02x A:%02x\n",col->red,col->green,col->blue,col->alpha);
+    //free(col);
     hw_surface_unlock(pick_surface);
-    return pixel_ptr + idx_point;
+    return pixel_ptr_n;
 }
 
 ei_widget_t widget_from_pickid(ei_widget_t current, uint32_t pick_id){
@@ -124,7 +132,7 @@ ei_widget_t widget_from_pickid(ei_widget_t current, uint32_t pick_id){
  */
 ei_widget_t		ei_widget_pick			(ei_point_t*		where){
     //on recupere le pick_id du widget du pixel sur lequel on se trouve
-    uint32_t pick_id= *get_pixel_point(*where);
+    uint32_t pick_id= (*get_pixel_point(*where)) << 8 | 0xFF; // pourquoi ? idk
     //on trouve a quel widget il appartient et on renvoit ce widget, si c'est la racine on renvoie NULL
     ei_widget_t current = ei_app_root_widget();
     current = widget_from_pickid(current,pick_id);

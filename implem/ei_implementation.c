@@ -13,6 +13,7 @@
 #include "ei_event.h"
 #include "var.h"
 
+ei_widget_t current_button_down = NULL;
 /**
  * @brief	Draws the children of a widget.
  * 		The children are draw withing the limits of the clipper and
@@ -172,10 +173,10 @@ void ei_impl_draw_frame(ei_widget_t widget,ei_surface_t surface,ei_surface_t pic
     }
 
     ei_draw_polygon(surface,smaller_frame,40, color,clipper);
-    //on dessine sur la pick surface aussi. pour afficher la pick surface modifier pick surface par surface.
+    //on dessine sur la pick surface aussi. pour afficher la pick surface decommenter la ligne du dessous
+    //ei_draw_polygon(surface,rounded_frame,40,*(widget->pick_color),clipper);
     ei_draw_polygon(pick_surface,rounded_frame,40,*(widget->pick_color),clipper);
-
-    hw_surface_update_rects(surface,&(ei_linked_rect_t){widget->screen_location,NULL});
+    hw_surface_update_rects(surface,&(ei_linked_rect_t){widget->screen_location,NULL}); // ca on devrait le faire la la fonction app_run
 
 
 
@@ -311,7 +312,7 @@ ei_bind_t* ei_get_head_binds(){
 ei_bind_t* ei_bind_from_event(ei_event_t* event, ei_bind_t* current_bind){
     ei_bind_t* cur_bind = current_bind;
     while (cur_bind){
-        if (event->type == cur_bind->eventtype && (event->type == ei_ev_mouse_buttondown || event->type == ei_ev_mouse_buttonup || event->type == ei_ev_mouse_move)){
+        /*if (event->type == cur_bind->eventtype && (event->type == ei_ev_mouse_buttondown || event->type == ei_ev_mouse_buttonup || event->type == ei_ev_mouse_move)){
             if (cur_bind->bind_isWidget && cur_bind->object.widget == ei_widget_pick(&event->param.mouse.where)){
                 return cur_bind;
             }
@@ -321,6 +322,10 @@ ei_bind_t* ei_bind_from_event(ei_event_t* event, ei_bind_t* current_bind){
             //... TODO
         }
         if (event->type == cur_bind->eventtype && event->type == ei_ev_keydown && !cur_bind->bind_isWidget && strcmp(cur_bind->object.tag,"all\0")==0){
+            return cur_bind;
+        }
+         */
+        if (event->type == cur_bind->eventtype){
             return cur_bind;
         }
         cur_bind = cur_bind->next_bind;
@@ -381,7 +386,14 @@ void ei_delete_bind(ei_eventtype_t		eventtype,
 
 
 bool ei_callback_clickbutton(ei_widget_t		widget, struct ei_event_t*	event, ei_user_param_t	user_param){
-
+    // cas ou on relache le clic en dehors du button
+    if (current_button_down && event->type==ei_ev_mouse_buttonup && widget!=current_button_down){
+        ((ei_impl_button_t*)current_button_down)->frame.frame_relief = ei_relief_raised;
+        ei_impl_draw_button(current_button_down,ei_app_root_surface(), pick_surface,&current_button_down->parent->screen_location);
+        current_button_down = NULL;
+        return true;
+    }
+    if (!widget) return false;
     if (strcmp( widget->wclass->name, (ei_widgetclass_name_t){"button\0"}) != 0 ){
         return false; //Si le widget n'est pas un boutton on retourne false
     }else{
@@ -391,18 +403,24 @@ bool ei_callback_clickbutton(ei_widget_t		widget, struct ei_event_t*	event, ei_u
                 //si on clique sur le bouton on modifie l'apparance du bouton up -> down
                 if (((ei_impl_button_t*) widget)->frame.frame_relief ==  ei_relief_raised){
                     ((ei_impl_button_t*) widget)->frame.frame_relief = ei_relief_sunken;
+                    ei_impl_draw_button(widget,ei_app_root_surface(), pick_surface,&widget->parent->screen_location);
+                    current_button_down = widget;
                 }
+                break;
             case ei_ev_mouse_buttonup:
                 //si on relache le bouton on modifie l'apparance du bouton down -> up
 
                 if (((ei_impl_frame_t*) widget)->frame_relief ==  ei_relief_sunken) {
                     ((ei_impl_frame_t*) widget)->frame_relief =  ei_relief_raised;
+                    ei_impl_draw_button(widget,ei_app_root_surface(), pick_surface,&widget->parent->screen_location);
+                    ((ei_impl_button_t*)widget)->callback(widget,event,user_param);
+                    current_button_down = NULL;
                 }
-
+                break;
             default:
                 break;
         }
-        ei_impl_draw_button(widget,ei_app_root_surface(), pick_surface,&widget->parent->screen_location);
+        return true;
     }
 }
 

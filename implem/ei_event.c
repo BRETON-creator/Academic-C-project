@@ -12,14 +12,6 @@
 #include "ei_widget_attributes.h"
 #include "ei_widget_configure.h"
 
-
-// fonction qui renvoit la couleur dans l'offscreen d'un point de l'espace
-
-
-
-
-
-
 /**
  * \brief	Binds a callback to an event type and a widget or a tag.
  *

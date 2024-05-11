@@ -154,7 +154,7 @@ void ei_app_run(void){
 
     ei_event_t* event = calloc(1,sizeof(ei_event_t));
     ei_bind_t* bind;
-    ei_bind_t* binds=ei_get_head_binds();
+    ei_bind_t* binds;
     bool change_event;
     ei_widget_t widget = NULL;
     while(!quit){
@@ -162,22 +162,22 @@ void ei_app_run(void){
         hw_event_wait_next(event);
 
         do {
-            //call extern first (stored in widget
-            if (event->type == ei_ev_mouse_buttondown || event->type == ei_ev_mouse_buttonup){
-                widget= ei_widget_pick(&event->param.mouse.where);
-                if (widget) printf("Tu click sur %s\n",widget->wclass->name);
-                else printf("tu click sur root debile\n");
-                if (widget && strcmp(widget->wclass->name,"button\0") == 0) ((ei_impl_button_t*)widget)->callback (widget,event,NULL);
-            }
+            //call extern first (stored in widget <- En fait on devrait le call dans le callback interne
+            //if (event->type == ei_ev_mouse_buttondown){ // || event->type == ei_ev_mouse_buttonup){
+            //    widget= ei_widget_pick(&event->param.mouse.where);
+                //if (widget) printf("Tu click sur %s\n",widget->wclass->name);
+                //else printf("tu click sur root debile\n");
+            //    if (widget && strcmp(widget->wclass->name,"button\0") == 0) ((ei_impl_button_t*)widget)->callback (widget,event,NULL);
+            //}
             //then intern
-            bind = ei_bind_from_event(event,binds);
+            bind = ei_bind_from_event(event,binds); // on cherche si on a un bind en lien avec l'evenement
             if (bind) {
-                if (event->type == ei_ev_mouse_buttondown || event->type == ei_ev_mouse_buttonup || event->type == ei_ev_mouse_move) {
-                    change_event = (bind->callback)(ei_widget_pick(&event->param.mouse.where), event, bind->user_param);
-                    if (! change_event) {
+                if (event->type == ei_ev_mouse_buttondown || event->type == ei_ev_mouse_buttonup || event->type == ei_ev_mouse_move) { //on regarde le type de notre event pour pouvoir utiliser mouse.where
+                    change_event = (bind->callback)(ei_widget_pick(&event->param.mouse.where), event, bind->user_param); //on appelle notre callback
+                    if (! change_event) { //si on a pas finit notre callback alors on regarde la suite
                         binds = bind->next_bind;
                     }
-                }else{
+                }else{ // si notre event a pas de picking
                     change_event = (bind->callback)(NULL,event,bind->user_param);
                 }
             }
