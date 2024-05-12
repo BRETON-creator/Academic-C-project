@@ -84,6 +84,21 @@ typedef struct {
     void* user_params;
 } ei_impl_button_t;
 
+/**
+ * @brief Implementation of widget type toplevel
+ * Same as a widget but contains :
+ * - char* title : title of the toplevel
+ * - bool can_close : specify if the window is closable
+ * - ei_axis_set_t resizable_axis : specifie quels axes sont redimmensionnables
+ * - ei_size_t minimal_size : size minimale que le gestionnaire de géométrie devra prendre en compte.
+ */
+typedef struct {
+    ei_widget_t widget;
+    char* title;
+    bool can_close;
+    ei_axis_set_t resizable_axis;
+    ei_size_t minimal_size;
+}ei_impl_toplevel_t;
 
 /**
  * @brief	Draws the children of a widget.
@@ -170,6 +185,8 @@ void ei_impl_placer_runfunc(ei_widget_t );
  */
  void  ei_impl_placer_releasefunc(ei_widget_t);
 
+
+
 //======================================= button
 
 /**
@@ -187,14 +204,12 @@ void ei_impl_release_button(ei_widget_t button);
 
 /**
 * \brief Fonction pour mettre les valeurs par defauts d'un widget button
-* TODO : completer cette fonction avec les bonnes valeures
 */
 
 void ei_impl_setdefaults_button(ei_widget_t widget);
 
 /**
 * \brief Fonction pour dessiner un widget button.
-* TODO : dessiner correctement le button
 * dans la surface de la fenetre root ou de la fenetre du parent ?
 * doit trouver le point ou on doit placer le button
 * depend du point d'ancrage
@@ -276,5 +291,32 @@ void ei_delete_bind(ei_eventtype_t		eventtype,
  * @return la fonction callback a bien été utilisée
  */
 bool ei_callback_clickbutton(ei_widget_t		widget, struct ei_event_t*	event, ei_user_param_t	user_param);
+
+//============================= toplevel
+
+/**
+ *  \brief fonction pour alloué un espace pour un widget toplevel.
+ *
+ * @return un espace assez grand pour stocker un widget de classe toplevel.
+ */
+ei_widget_t ei_impl_alloc_toplevel();
+
+/**
+ * \brief Fonction pour free un espace alloué a un widget toplevel.
+ *
+ */
+void ei_impl_release_toplevel(ei_widget_t button);
+
+/**
+* \brief Fonction pour mettre les valeurs par defauts d'un widget toplevel
+*/
+
+void ei_impl_setdefaults_toplevel(ei_widget_t widget);
+
+/**
+* \brief Fonction pour dessiner un widget toplevel.
+*
+*/
+void ei_impl_draw_toplevel(ei_widget_t widget,ei_surface_t surface,ei_surface_t pick_surface,ei_rect_t* clipper);
 
 #endif

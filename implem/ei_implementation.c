@@ -408,3 +408,38 @@ bool ei_callback_clickbutton(ei_widget_t		widget, struct ei_event_t*	event, ei_u
     }
 }
 
+
+//============================= toplevel
+
+/**
+ *  \brief fonction pour alloué un espace pour un widget toplevel.
+ *
+ * @return un espace assez grand pour stocker un widget de classe toplevel.
+ */
+ei_widget_t ei_impl_alloc_toplevel(){
+    return calloc(1,sizeof(ei_impl_toplevel_t));
+}
+
+/**
+ * \brief Fonction pour free un espace alloué a un widget toplevel.
+ *
+ */
+void ei_impl_release_toplevel(ei_widget_t button){
+    //TODO
+}
+
+/**
+* \brief Fonction pour mettre les valeurs par defauts d'un widget toplevel
+*/
+
+void ei_impl_setdefaults_toplevel(ei_widget_t widget){
+    //TODO
+}
+
+/**
+* \brief Fonction pour dessiner un widget toplevel.
+*
+*/
+void ei_impl_draw_toplevel(ei_widget_t widget,ei_surface_t surface,ei_surface_t pick_surface,ei_rect_t* clipper){
+    //TODO
+}
