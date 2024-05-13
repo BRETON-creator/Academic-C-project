@@ -94,6 +94,8 @@ typedef struct {
  */
 typedef struct {
     ei_widget_t widget;
+    const ei_color_t* color;
+    int* border_width;
     char* title;
     bool can_close;
     ei_axis_set_t resizable_axis;
@@ -221,6 +223,7 @@ void ei_impl_setdefaults_button(ei_widget_t widget);
 void ei_impl_draw_button(ei_widget_t widget,ei_surface_t surface,ei_surface_t pick_surface,ei_rect_t* clipper);
 
 
+
 //======================================== event
 /**
  * @brief Type definissant les binds
@@ -305,7 +308,7 @@ ei_widget_t ei_impl_alloc_toplevel();
  * \brief Fonction pour free un espace alloué a un widget toplevel.
  *
  */
-void ei_impl_release_toplevel(ei_widget_t button);
+void ei_impl_release_toplevel(ei_widget_t toplevel);
 
 /**
 * \brief Fonction pour mettre les valeurs par defauts d'un widget toplevel

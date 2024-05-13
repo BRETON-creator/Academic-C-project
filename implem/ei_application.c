@@ -73,6 +73,17 @@ void ei_app_create(ei_size_t main_window_size, bool fullscreen){
     strcpy(buttonclass->name,(ei_widgetclass_name_t){"button\0"});
     ei_widgetclass_register(buttonclass);
 
+    //      register button class of widget
+    ei_widgetclass_t* toplevelclass = calloc(1,sizeof(ei_widgetclass_t));
+    toplevelclass->allocfunc        = ei_impl_alloc_toplevel;
+    toplevelclass->releasefunc      = ei_impl_release_toplevel;
+    toplevelclass->drawfunc         = ei_impl_draw_toplevel;
+    toplevelclass->setdefaultsfunc  = ei_impl_setdefaults_toplevel;
+    toplevelclass->geomnotifyfunc   = NULL;
+    toplevelclass->next             = NULL;
+    strcpy(toplevelclass->name,(ei_widgetclass_name_t){"toplevel\0"});
+    ei_widgetclass_register(toplevelclass);
+
     //      register geometry manager "placer"
     ei_geometrymanager_t* placer = calloc(1,sizeof(ei_geometrymanager_t));
     placer->runfunc              = ei_impl_placer_runfunc;
