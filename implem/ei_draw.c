@@ -30,7 +30,9 @@ void	ei_draw_text		(ei_surface_t		surface,
 				 ei_const_string_t	text,
 				 ei_font_t		font,
 				 ei_color_t		color,
-				 const ei_rect_t*	clipper);
+				 const ei_rect_t*	clipper){
+
+}
 
 /**
  * \brief	Fills the surface with the specified color.
@@ -72,6 +74,55 @@ int	ei_copy_surface		(ei_surface_t		destination,
 				 const ei_rect_t*	dst_rect,
 				 ei_surface_t		source,
 				 const ei_rect_t*	src_rect,
-				 bool			alpha);
+				 bool			alpha){
+    /*On initialise les valeurs dont on aura besoin...*/
+    uint32_t *pixel_dst = (uint32_t*)hw_surface_get_buffer(destination);
+    uint32_t *pixel_src = (uint32_t*)hw_surface_get_buffer(source);
+    int x_dst,y_dst,x_src,y_src, width_src, width_dst, height_src, height_dst;
+    x_dst = dst_rect->top_left.x;
+    y_dst = dst_rect->top_left.y;
+    x_src = src_rect->top_left.x;
+    y_src = src_rect->top_left.y;
+    if (src_rect){
+        width_src = src_rect->size.width;
+        height_src = src_rect->size.height;
+    }else{
+        ei_size_t src_size = hw_surface_get_size(source);
+        width_src = src_size.width;
+        height_src = src_size.height;
+    }
+    if (dst_rect) {
+        width_dst = dst_rect->size.width;
+        height_dst = dst_rect->size.height;
+    }else{
+        ei_size_t dst_size = hw_surface_get_size(destination);
+        width_dst = dst_size.width;
+        height_dst = dst_size.height;
+    }
+    pixel_dst= pixel_dst + x_dst + y_dst*width_dst;
+    pixel_src = pixel_src + x_src + y_src*width_src;
+    uint8_t *red_dst, *green_dst, *blue_dst, *alpha_dst;
+    uint8_t *red_src, *green_src, *blue_src, *alpha_src;
+    /*On copie la source dans la destination*/
+    int min_width = width_src < width_dst ? width_src : width_dst;
+    int min_height = height_src < height_dst ? height_src : height_dst;
+    for (int y=0; y < min_height; y++){
+        for (int x=0; x<min_width;x++){
+            red_dst = (uint8_t*)(pixel_dst + x + y*width_dst);
+            green_dst = red_dst + 1;
+            blue_dst = red_dst + 2;
+            alpha_dst = red_dst + 3;
+            red_src = (uint8_t*)(pixel_dst + x + y*width_src);
+            green_src = red_src +1;
+            blue_src = red_src +2;
+            alpha_src = red_src +3;
+
+            //*(pixel_dst + x + y*width_dst) = *(pixel_src + x + y*width_src);
+        }
+    }
+
+
+
+}
 
 
