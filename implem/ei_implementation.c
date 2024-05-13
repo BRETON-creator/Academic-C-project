@@ -181,8 +181,8 @@ void ei_impl_draw_frame(ei_widget_t widget,ei_surface_t surface,ei_surface_t pic
 
     //ei_surface_t surfacetext = hw_text_create_surface(((ei_impl_frame_t*)widget)->text,((ei_impl_frame_t*)widget)->text_font,((ei_impl_frame_t*)widget)->text_color);
     //ei_draw_text(surface,&(ei_point_t){size.width/2,size.height/2},((ei_impl_frame_t*)widget)->text,((ei_impl_frame_t*)widget)->text_font,((ei_impl_frame_t*)widget)->text_color,&widget->screen_location);
-    hw_surface_update_rects(surface,&(ei_linked_rect_t){widget->screen_location,NULL}); // ca on devrait le faire la la fonction app_run
-
+    // intersect widget->screen_location et clipper
+    ei_app_invalidate_rect(&widget->screen_location);
     hw_surface_lock(surface);
 }
 
