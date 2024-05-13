@@ -11,6 +11,7 @@
 
 
 #include "ei_draw.h"
+#include "ei_implementation.h"
 
 /**
  * \brief	Draws text by calling \ref hw_text_create_surface.
@@ -31,6 +32,9 @@ void	ei_draw_text		(ei_surface_t		surface,
 				 ei_font_t		font,
 				 ei_color_t		color,
 				 const ei_rect_t*	clipper){
+    ei_surface_t surfacetext = hw_text_create_surface(text,font,color);
+    ei_copy_surface(surface, dst_rect, surfacetext, src_rect, true);
+
 
 }
 
@@ -75,6 +79,7 @@ int	ei_copy_surface		(ei_surface_t		destination,
 				 ei_surface_t		source,
 				 const ei_rect_t*	src_rect,
 				 bool			alpha){
+
     /*On initialise les valeurs dont on aura besoin...*/
     uint32_t *pixel_dst = (uint32_t*)hw_surface_get_buffer(destination);
     uint32_t *pixel_src = (uint32_t*)hw_surface_get_buffer(source);
@@ -104,6 +109,9 @@ int	ei_copy_surface		(ei_surface_t		destination,
     uint8_t *red_dst, *green_dst, *blue_dst, *alpha_dst;
     uint8_t *red_src, *green_src, *blue_src, *alpha_src;
     /*On copie la source dans la destination*/
+
+    if (width_dst != width_src || height_dst != height_src) return 1;
+
     int min_width = width_src < width_dst ? width_src : width_dst;
     int min_height = height_src < height_dst ? height_src : height_dst;
     for (int y=0; y < min_height; y++){
@@ -116,13 +124,12 @@ int	ei_copy_surface		(ei_surface_t		destination,
             green_src = red_src +1;
             blue_src = red_src +2;
             alpha_src = red_src +3;
-
-            //*(pixel_dst + x + y*width_dst) = *(pixel_src + x + y*width_src);
+            *(red_dst) = (*red_dst*(255 - *alpha_src) + *red_src * *alpha_src)/255;
+            *(green_dst) = (*green_dst*(255 - *alpha_src) + *green_src * *alpha_src)/255;
+            *(blue_dst) = (*blue_dst*(255 - *alpha_src) + *blue_src * *alpha_src)/255;
         }
     }
-
-
-
+    return 0;
 }
 
 
