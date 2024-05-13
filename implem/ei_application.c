@@ -137,6 +137,15 @@ void ei_app_free(void){
     hw_quit();
 }
 
+void release_linked_rect(ei_linked_rect_t* list){
+    ei_linked_rect_t *tmp;
+    while(list){
+        tmp=list->next;
+        free(list);
+        list=tmp;
+    }
+}
+
 /**
  * \brief	Runs the application: enters the main event loop. Exits when
  *		\ref ei_app_quit_request is called.
@@ -175,6 +184,7 @@ void ei_app_run(void){
         hw_surface_unlock(root_surface);
         hw_surface_update_rects(root_surface,rects);
         // IL faut release tout les rects
+        release_linked_rect(rects);
         rects=NULL;
         hw_surface_lock(root_surface);
     }
@@ -194,7 +204,14 @@ void ei_app_run(void){
  *				A copy is made, so it is safe to release the rectangle on return.
  */
 void ei_app_invalidate_rect(const ei_rect_t* rect){
-
+    ei_linked_rect_t* new_rect = calloc(1,sizeof(ei_linked_rect_t));
+    new_rect->next = rects;
+    new_rect->rect.top_left.x = rect->top_left.x;
+    new_rect->rect.top_left.y = rect->top_left.y;
+    new_rect->rect.size.width = rect->size.width;
+    new_rect->rect.size.height = rect->size.height;
+    rects = new_rect;
+    //ptet probl ici ?
 }
 
 /**
