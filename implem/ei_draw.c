@@ -33,7 +33,12 @@ void	ei_draw_text		(ei_surface_t		surface,
 				 ei_color_t		color,
 				 const ei_rect_t*	clipper){
     ei_surface_t surfacetext = hw_text_create_surface(text,font,color);
-    //ei_copy_surface(surface, dst_rect, surfacetext, src_rect, true);
+    ei_rect_t dst_rect = (ei_rect_t){*where, hw_surface_get_size(surfacetext)};
+    hw_surface_lock(surface);
+    hw_surface_lock(surfacetext);
+    ei_copy_surface(surface, &dst_rect, surfacetext, NULL, true);
+    hw_surface_unlock(surface);
+    hw_surface_unlock(surfacetext);
 
 
 }
@@ -72,7 +77,7 @@ void	ei_fill			(ei_surface_t		surface,
  				including the alpha channel.
  *
  * @return			Returns 0 on success, 1 on failure (different sizes between
- * 				source and destination).
+ * 				source and destination).false
  */
 int	ei_copy_surface		(ei_surface_t		destination,
 				 const ei_rect_t*	dst_rect,
@@ -81,54 +86,63 @@ int	ei_copy_surface		(ei_surface_t		destination,
 				 bool			alpha){
 
     /*On initialise les valeurs dont on aura besoin...*/
+
     uint32_t *pixel_dst = (uint32_t*)hw_surface_get_buffer(destination);
     uint32_t *pixel_src = (uint32_t*)hw_surface_get_buffer(source);
     int x_dst,y_dst,x_src,y_src, width_src, width_dst, height_src, height_dst;
-    x_dst = dst_rect->top_left.x;
-    y_dst = dst_rect->top_left.y;
-    x_src = src_rect->top_left.x;
-    y_src = src_rect->top_left.y;
+    ei_size_t dst_size = hw_surface_get_size(destination);
+    ei_size_t src_size = hw_surface_get_size(source);
     if (src_rect){
+        x_src = src_rect->top_left.x;
+        y_src = src_rect->top_left.y;
         width_src = src_rect->size.width;
         height_src = src_rect->size.height;
     }else{
-        ei_size_t src_size = hw_surface_get_size(source);
+        x_src = 0;
+        y_src = 0;
         width_src = src_size.width;
         height_src = src_size.height;
     }
     if (dst_rect) {
+        x_dst = dst_rect->top_left.x;
+        y_dst = dst_rect->top_left.y;
         width_dst = dst_rect->size.width;
         height_dst = dst_rect->size.height;
     }else{
-        ei_size_t dst_size = hw_surface_get_size(destination);
+        x_dst = 0;
+        y_dst = 0;
         width_dst = dst_size.width;
         height_dst = dst_size.height;
     }
-    pixel_dst= pixel_dst + x_dst + y_dst*width_dst;
-    pixel_src = pixel_src + x_src + y_src*width_src;
+    pixel_dst= pixel_dst + x_dst + y_dst*dst_size.width;
+    pixel_src = pixel_src + x_src + y_src*src_size.width;
     uint8_t *red_dst, *green_dst, *blue_dst, *alpha_dst;
     uint8_t *red_src, *green_src, *blue_src, *alpha_src;
     /*On copie la source dans la destination*/
 
-    if (width_dst != width_src || height_dst != height_src) return 1;
+    if (width_dst != width_src || height_dst != height_src) {
+        printf("probleme");
+        return 1;
+    }
 
     int min_width = width_src < width_dst ? width_src : width_dst;
     int min_height = height_src < height_dst ? height_src : height_dst;
     for (int y=0; y < min_height; y++){
-        for (int x=0; x<min_width;x++){
-            red_dst = (uint8_t*)(pixel_dst + x + y*width_dst);
+        for (int x=0; x < min_width; x++){
+            red_dst = (uint8_t*)(pixel_dst + x + y*dst_size.width);
             green_dst = red_dst + 1;
             blue_dst = red_dst + 2;
-            alpha_dst = red_dst + 3;
-            red_src = (uint8_t*)(pixel_dst + x + y*width_src);
+            //alpha_dst = red_dst + 3;
+            red_src = (uint8_t*)(pixel_src + x + y*src_size.width);
             green_src = red_src +1;
             blue_src = red_src +2;
             alpha_src = red_src +3;
-            *(red_dst) = (*red_dst*(255 - *alpha_src) + *red_src * *alpha_src)/255;
-            *(green_dst) = (*green_dst*(255 - *alpha_src) + *green_src * *alpha_src)/255;
-            *(blue_dst) = (*blue_dst*(255 - *alpha_src) + *blue_src * *alpha_src)/255;
+            *(red_dst) = ((*red_dst)*(255 - (*alpha_src)) + (*red_src) * (*alpha_src))/255;
+            *(green_dst) = ((*green_dst)*(255 - (*alpha_src)) + (*green_src) * (*alpha_src))/255;
+            *(blue_dst) = ((*blue_dst)*(255 - (*alpha_src)) + (*blue_src) * (*alpha_src))/255;
         }
     }
+
     return 0;
 }
 
