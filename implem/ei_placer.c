@@ -73,14 +73,14 @@ void		ei_place	(ei_widget_t		widget,
          *      - size : {width, height} : taille du rectangle, prenant en compte ce qui est possible de faire
          *  - content_rect : g pas compris =QUESTION POUR LES ENCADRANTS!
          *
-         *  place le widget:  - soit relativement a ses parents :widget->parent (avec les parametre rel)
-         *                    - soit avec les valeurs absolue (x, y, etc)
+         *  place le widget:  - relativement a ses parents :widget->parent (avec les parametre rel)
+         *                    - et avec les valeurs absolue (x, y, etc)
          *
          *  c'est au programmeur d'appeler cette fonction.
          */
 
-        //if (rel_height) widget->requested_size.height = (widget->parent->requested_size.height) * (*rel_height);
-        //if (rel_width) widget->requested_size.width = (widget->parent->requested_size.width) * (*rel_width);
+        if (rel_height) widget->requested_size.height = (widget->parent->requested_size.height) * (*rel_height);
+        if (rel_width) widget->requested_size.width = (widget->parent->requested_size.width) * (*rel_width);
         //widget->geom_params->manager= ei_geometrymanager_from_name((char*){"placer\0"});
         if (width) {
             widget->screen_location.size.width = *width;
@@ -93,13 +93,13 @@ void		ei_place	(ei_widget_t		widget,
 
         //calculer x et y en fonction de l'ancrage :
 
-        int xpos = -1, ypos = -1;
+        int xpos=widget->parent->screen_location.top_left.x,ypos = widget->parent->screen_location.top_left.y;
         if (rel_x)
-            xpos = (widget->requested_size.width) * (*rel_x);
+            xpos = xpos + (widget->requested_size.width) * (*rel_x);
         if (rel_y)
-            ypos = (widget->requested_size.height) * (*rel_y);
-        if (x) xpos = *x;
-        if (y) ypos = *y;
+            ypos = ypos + (widget->requested_size.height) * (*rel_y);
+        if (x) xpos = xpos + (*x);
+        if (y) ypos = ypos + (*y);
 
         ei_anchor_t anc;
         if (!anchor) anc= ei_anc_northwest;
@@ -142,9 +142,10 @@ void		ei_place	(ei_widget_t		widget,
                 ypos = ypos - widget->requested_size.height;
                 break;
         }
-        if (xpos!= -1) widget->screen_location.top_left.x = xpos;
-        if (ypos!= -1) widget->screen_location.top_left.y = ypos;
+        if (xpos!= 0) widget->screen_location.top_left.x = xpos;
+        if (ypos!= 0) widget->screen_location.top_left.y = ypos;
 
+        //(normalement que lorsqu'uil le widget n'a pas de geomparam
         ei_placer_t *geom_param = calloc(1,sizeof(ei_placer_t));
         //*x,*y,*height,*width,*rel_x,*rel_y,*rel_height,*rel_width,*anchor};
         geom_param->x           = x;
