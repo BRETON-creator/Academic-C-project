@@ -30,6 +30,7 @@ void		ei_impl_widget_draw_children	(ei_widget_t		widget,
 						 ei_surface_t		surface,
 						 ei_surface_t		pick_surface,
 						 ei_rect_t*		clipper){
+
     (widget->wclass->drawfunc)(widget,surface,pick_surface,clipper);
     ei_widgetclass_name_t name = {"toplevel\0"};
 
@@ -149,7 +150,18 @@ ei_widget_t ei_impl_alloc_frame(){
  *
  */
 void ei_impl_release_frame(ei_widget_t frame){
-    free((ei_impl_frame_t*)frame);
+        ei_widget_t widget = ((ei_impl_frame_t*)(frame))->widget.parent;
+        ei_widget_t child=widget->next_sibling;
+        while (true){
+                if (child==NULL || child->pick_id==frame->pick_id) break;
+                child=child->next_sibling;
+        }
+        if (child) child->parent->next_sibling=frame->next_sibling;
+        if (widget->children_head->pick_id==frame->pick_id){
+                if (widget->next_sibling) widget->children_head=widget->next_sibling;
+                else widget->children_head=NULL;
+        }
+        free((ei_impl_frame_t*)frame);
 }
 
 
@@ -319,6 +331,17 @@ ei_widget_t ei_impl_alloc_button(){
  *
  */
 void ei_impl_release_button(ei_widget_t button){
+        ei_widget_t widget = ((ei_impl_button_t*)(button))->frame.widget.parent;
+        ei_widget_t child=widget->next_sibling;
+        while (true){
+                if (child==NULL || child->pick_id==button->pick_id) break;
+                child=child->next_sibling;
+        }
+        if (child) child->parent->next_sibling=button->next_sibling;
+        if (widget->children_head->pick_id==button->pick_id){
+                if (widget->next_sibling) widget->children_head=widget->next_sibling;
+                else widget->children_head=NULL;
+        }
         free((ei_impl_button_t*)button);
 }
 

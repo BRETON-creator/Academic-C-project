@@ -27,6 +27,17 @@ ei_widget_t ei_impl_alloc_toplevel(){
  *
  */
 void ei_impl_release_toplevel(ei_widget_t toplevel){
+        ei_widget_t widget = ((ei_impl_toplevel_t*)(toplevel))->widget.parent;
+        ei_widget_t child=widget->next_sibling;
+        while (true){
+                if (child==NULL || child->pick_id==toplevel->pick_id) break;
+                child=child->next_sibling;
+        }
+        if (child) child->parent->next_sibling=toplevel->next_sibling;
+        if (widget->children_head->pick_id==toplevel->pick_id){
+                if (widget->next_sibling) widget->children_head=widget->next_sibling;
+                else widget->children_head=NULL;
+        }
         free((ei_impl_toplevel_t*)toplevel);
 }
 
@@ -37,10 +48,8 @@ bool toplevel_close(ei_widget_t	widget,
                     ei_event_t*	event,
                     ei_user_param_t user_param){
 
-        ei_impl_toplevel_t* toplevel = (ei_impl_toplevel_t*)user_param;
-
         ei_impl_release_button(widget);
-        ei_impl_release_toplevel(toplevel);
+        ei_impl_release_toplevel(widget->parent);
 
         return true;
 }
@@ -73,14 +82,14 @@ void ei_impl_setdefaults_toplevel(ei_widget_t widget){
 
 
 
-        ei_widget_t button = ei_widget_create	("button", ei_app_root_widget(), NULL, NULL);
+        ei_widget_t button = ei_widget_create	("button", toplevel, NULL, NULL);
         ei_button_configure		(button, &(ei_size_t){15, 15},
                                             &(ei_color_t){235, 20, 20, 255},
                                             &(int){2}, &k_default_button_corner_radius,
                                             &(ei_relief_t){ei_relief_raised},
                                             NULL, NULL,
                                             NULL, NULL, NULL, NULL, NULL,
-                                            &(ei_callback_t){toplevel_close}, toplevel);
+                                            &(ei_callback_t){toplevel_close}, NULL);
 
         ei_bind(ei_ev_mouse_buttondown, button,NULL,ei_callback_clickbutton,toplevel);
         ei_bind(ei_ev_mouse_buttonup,button,NULL,ei_callback_clickbutton,toplevel);
