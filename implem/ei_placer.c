@@ -74,13 +74,19 @@ void		ei_place	(ei_widget_t		widget,
          *  - content_rect : g pas compris =QUESTION POUR LES ENCADRANTS!
          *
          *  place le widget:  - relativement a ses parents :widget->parent (avec les parametre rel)
-         *                    - et avec les valeurs absolue (x, y, etc)
+         *                    - et avec les valeurs absolue (x, y, etc) (toujours relativement au parent)
          *
          *  c'est au programmeur d'appeler cette fonction.
          */
 
-        if (rel_height) widget->requested_size.height = (widget->parent->requested_size.height) * (*rel_height);
-        if (rel_width) widget->requested_size.width = (widget->parent->requested_size.width) * (*rel_width);
+        if (rel_height) {
+            widget->requested_size.height = (widget->parent->requested_size.height) * (*rel_height);
+            widget->screen_location.size.height = widget->requested_size.height;
+        }
+        if (rel_width) {
+            widget->requested_size.width = (widget->parent->requested_size.width) * (*rel_width);
+            widget->screen_location.size.width = widget->requested_size.width;
+        }
         //widget->geom_params->manager= ei_geometrymanager_from_name((char*){"placer\0"});
         if (width) {
             widget->screen_location.size.width = *width;
@@ -95,12 +101,12 @@ void		ei_place	(ei_widget_t		widget,
 
         int xpos=widget->parent->screen_location.top_left.x,ypos = widget->parent->screen_location.top_left.y;
         if (rel_x)
-            xpos = xpos + (widget->requested_size.width) * (*rel_x);
+            xpos = xpos + (widget->parent->requested_size.width) * (*rel_x);
         if (rel_y)
-            ypos = ypos + (widget->requested_size.height) * (*rel_y);
+            ypos = ypos + (widget->parent->requested_size.height) * (*rel_y);
         if (x) xpos = xpos + (*x);
         if (y) ypos = ypos + (*y);
-
+        //printf("parent : %d %d , enfant : %d %d\n",widget->parent->screen_location.top_left.x, widget->parent->screen_location.top_left.y, xpos, ypos);
         ei_anchor_t anc;
         if (!anchor) anc= ei_anc_northwest;
         else anc = *anchor;

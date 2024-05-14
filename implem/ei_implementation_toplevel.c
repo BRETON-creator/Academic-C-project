@@ -73,7 +73,7 @@ void ei_impl_setdefaults_toplevel(ei_widget_t widget){
 
 
 
-        ei_widget_t button = ei_widget_create	("button", ei_app_root_widget(), NULL, NULL);
+        ei_widget_t button = ei_widget_create	("button", widget, NULL, NULL);
         ei_button_configure		(button, &(ei_size_t){15, 15},
                                             &(ei_color_t){235, 20, 20, 255},
                                             &(int){2}, &k_default_button_corner_radius,

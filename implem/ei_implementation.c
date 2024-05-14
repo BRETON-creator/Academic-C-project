@@ -6,6 +6,7 @@
  */
 
 
+#include <ei_widget_configure.h>
 #include "ei_implementation.h"
 #include "ei_draw.h"
 #include "ei_placer.h"
@@ -39,7 +40,7 @@ void		ei_impl_widget_draw_children	(ei_widget_t		widget,
 
             int border = *toplevel->border_width;
             int button_border = ((ei_impl_button_t){toplevel->button}).frame.border_size;
-            ei_place_xy(toplevel->button, rect.top_left.x + 2*border + button_border, rect.top_left.y + 2*border + button_border);
+            ei_place_xy(toplevel->button, 2*border + button_border, 2*border + button_border);
     }
 
     ei_widget_t child = widget->children_head;
@@ -218,7 +219,7 @@ void ei_impl_draw_frame(ei_widget_t widget,ei_surface_t surface,ei_surface_t pic
         //printf("%s", ((ei_impl_frame_t*)widget)->text);
         ei_point_t where = place_text(rect,((ei_impl_frame_t *) widget)->text_anchor, hw_surface_get_size(hw_text_create_surface(((ei_impl_frame_t *) widget)->text,((ei_impl_frame_t *) widget)->text_font,((ei_impl_frame_t *) widget)->text_color)));
         if (((ei_impl_frame_t*)widget)->frame_relief == ei_relief_sunken)
-            where = (ei_point_t){where.x,where.y + 5};
+            where = (ei_point_t){where.x,where.y + 2};
         ei_draw_text(surface, &where, ((ei_impl_frame_t *) widget)->text,
                      ((ei_impl_frame_t *) widget)->text_font, ((ei_impl_frame_t *) widget)->text_color,
                      &widget->screen_location);
@@ -246,8 +247,8 @@ void ei_impl_setdefaults_frame(ei_widget_t widget){
 
     /* Geometry Management */
     frame->widget.geom_params = (ei_geom_param_t){NULL};	///< Pointer to the geometry management parameters for this widget. If NULL, the widget is not currently managed and thus, is not displayed on the screen.
-    frame->widget.requested_size=(ei_size_t){100,100} ;	///< See \ref ei_widget_get_requested_size.
-    frame->widget.screen_location=(ei_rect_t){(ei_point_t){0,0},(ei_size_t){100,100}};///< See \ref ei_widget_get_screen_location.
+    frame->widget.requested_size=(ei_size_t){40,30} ;	///< See \ref ei_widget_get_requested_size.
+    frame->widget.screen_location=(ei_rect_t){(ei_point_t){0,0},(ei_size_t){40,30}};///< See \ref ei_widget_get_screen_location.
     //frame->widget.content_rect;	///< See ei_widget_get_content_rect. By defaults, points to the screen_location.
 
     frame->frame_relief=0;
@@ -257,7 +258,7 @@ void ei_impl_setdefaults_frame(ei_widget_t widget){
     frame->text_size=ei_font_default_size;
     frame->text_color=ei_font_default_color;
     frame->text_anchor=ei_anc_center;
-    frame->border_size=5;
+    frame->border_size=k_default_button_border_width;
     frame->image=NULL;
     frame->image_anchor=ei_anc_center;
     //frame->rect_image;
@@ -330,7 +331,7 @@ void ei_impl_setdefaults_button(ei_widget_t widget){
         ei_impl_button_t* button = (ei_impl_button_t*)widget;
         ei_impl_setdefaults_frame(widget);
         widget->wclass =ei_widgetclass_from_name((ei_const_string_t){"button\0"});
-        button->rayon = 30;
+        button->rayon = k_default_button_corner_radius;
         button->user_params=NULL;
         button->callback=NULL;
 }
