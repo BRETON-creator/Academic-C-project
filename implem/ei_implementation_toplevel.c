@@ -126,19 +126,21 @@ void ei_impl_draw_toplevel(ei_widget_t widget, ei_surface_t surface, ei_surface_
 
 
         ei_draw_polygon(surface,square_frame,4, dark_color, clipper);
-        ei_draw_polygon(surface,rounded_frame,21, dark_color, clipper);
+        ei_draw_polygon(surface,rounded_frame_temp,21, dark_color, clipper);
         ei_draw_polygon(surface,little_square_frame,4, color, clipper);
 
-        //ei_draw_polygon(pick_surface,rounded_frame_temp,40,*(widget->pick_color),clipper);
+        ei_draw_polygon(pick_surface,rounded_frame,40,*(widget->pick_color),clipper);
+
+
         ei_color_t white_color = (ei_color_t){255,255,255, 255};
 
         if (toplevel->title) {
 
-                ei_point_t where = (ei_point_t){ border + rect.top_left.x + 1.5*toplevel->button->requested_size.width, rect.top_left.y};
+                ei_point_t where = (ei_point_t){ border + rect.top_left.x + 1.5*toplevel->button->requested_size.width, rect.top_left.y + border};
                 ei_font_t font = hw_text_font_create(ei_default_font_filename, ei_style_normal, 18);
                 ei_draw_text(surface, &where, toplevel->title,
                              font, white_color,
-                             &widget->screen_location);
+                             clipper);
                 hw_text_font_free(font);
         }
 
@@ -146,7 +148,46 @@ void ei_impl_draw_toplevel(ei_widget_t widget, ei_surface_t surface, ei_surface_
 
         hw_surface_lock(surface);
 }
+bool toplevel_move;
+ei_point_t mouse_point;
 
 bool ei_callback_toplevel(ei_widget_t		widget, struct ei_event_t*	event, ei_user_param_t	user_param){
 
+        if (event->type==ei_ev_mouse_buttonup){
+                toplevel_move = 0;
+                return 1;
+        }
+        if (!widget) return false;
+
+        ei_point_t cur_point = event->param.mouse.where;
+        ei_impl_toplevel_t* toplevel = (ei_impl_toplevel_t*)widget;
+        ei_rect_t rect = toplevel->widget.screen_location;
+
+
+        if (toplevel_move==0 && event->type==ei_ev_mouse_buttondown){
+                if (rect.top_left.y<=cur_point.y && cur_point.y<=rect.top_left.y+k_default_button_corner_radius*2+*toplevel->border_width){
+                        toplevel_move=1;
+                        mouse_point = event->param.mouse.where;
+                        return 1;
+                }
+
+        }
+
+        if (toplevel_move && event->type==ei_ev_mouse_move){
+                toplevel->widget.screen_location.top_left.x += cur_point.x - mouse_point.x;
+                toplevel->widget.screen_location.top_left.y += cur_point.y - mouse_point.y;
+
+                ei_impl_button_t* button = (ei_impl_button_t *)(toplevel->button);
+
+                button->frame.widget.screen_location.top_left.x += cur_point.x - mouse_point.x;
+                button->frame.widget.screen_location.top_left.y += cur_point.y - mouse_point.y;
+
+                mouse_point=cur_point;
+
+                rect.size.width++;
+                rect.size.height++;
+                ei_impl_widget_draw_children(ei_app_root_widget(), ei_app_root_surface(), pick_surface, &rect);
+
+                return 1;
+        }
 }
