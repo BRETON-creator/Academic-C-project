@@ -66,6 +66,8 @@ int main(int argc, char** argv)
 					 	&(float){1.0f}, &(float){1.0f},
 					 	&(float){0.5f}, NULL);
 
+
+
 	ei_bind(ei_ev_keydown, NULL, "all", default_handler, NULL);
 	ei_bind(ei_ev_close, NULL, "all", default_handler, NULL);
 
