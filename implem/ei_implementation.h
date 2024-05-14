@@ -102,6 +102,7 @@ typedef struct {
     ei_axis_set_t resizable_axis;
     ei_size_t minimal_size;
     ei_widget_t button;
+    ei_widget_t resize_button;
 }ei_impl_toplevel_t;
 
 /**
