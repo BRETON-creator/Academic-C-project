@@ -47,7 +47,9 @@ ei_widget_t		ei_widget_create		(ei_const_string_t	class_name,
     ei_widget_t tmp = parent->children_head;
     parent->children_head=new_widget;
     new_widget->next_sibling=tmp;
-    if (tmp==NULL) parent->children_tail=new_widget;
+    if (tmp==NULL) {
+            parent->children_tail=new_widget;
+    }
     new_widget->user_data=user_data;
     new_widget->destructor=destructor;
     new_widget->pick_id = next_pick_id;

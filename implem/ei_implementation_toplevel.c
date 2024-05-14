@@ -47,7 +47,7 @@ void ei_impl_release_toplevel(ei_widget_t toplevel){
 bool toplevel_close(ei_widget_t	widget,
                     ei_event_t*	event,
                     ei_user_param_t user_param){
-
+        ei_geometrymanager_unmap(widget->parent);
         ei_impl_release_button(widget);
         ei_impl_release_toplevel(widget->parent);
 
@@ -160,6 +160,21 @@ void ei_impl_draw_toplevel(ei_widget_t widget, ei_surface_t surface, ei_surface_
 bool toplevel_move;
 ei_point_t mouse_point;
 
+void move_child(ei_widget_t widget, int x, int y){
+        widget->screen_location.top_left.x += x;
+        widget->screen_location.top_left.y += y;
+
+        ei_geom_param_t geo = widget->geom_params;
+        //ei_place(widget, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+
+
+        ei_widget_t child = widget->children_head;
+        while (child){
+                move_child(child, x, y);
+                child = child->next_sibling;
+        }
+}
+
 bool ei_callback_toplevel(ei_widget_t		widget, struct ei_event_t*	event, ei_user_param_t	user_param){
 
         if (event->type==ei_ev_mouse_buttonup){
@@ -183,14 +198,10 @@ bool ei_callback_toplevel(ei_widget_t		widget, struct ei_event_t*	event, ei_user
         }
 
         if (toplevel_move && event->type==ei_ev_mouse_move){
-                toplevel->widget.screen_location.top_left.x += cur_point.x - mouse_point.x;
-                toplevel->widget.screen_location.top_left.y += cur_point.y - mouse_point.y;
+                int x = cur_point.x - mouse_point.x;
+                int y = cur_point.y - mouse_point.y;
 
-                ei_impl_button_t* button = (ei_impl_button_t *)(toplevel->button);
-
-                button->frame.widget.screen_location.top_left.x += cur_point.x - mouse_point.x;
-                button->frame.widget.screen_location.top_left.y += cur_point.y - mouse_point.y;
-
+                move_child(widget, x, y);
                 mouse_point=cur_point;
 
                 rect.size.width++;
@@ -200,3 +211,4 @@ bool ei_callback_toplevel(ei_widget_t		widget, struct ei_event_t*	event, ei_user
                 return 1;
         }
 }
+
