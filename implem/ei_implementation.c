@@ -99,6 +99,29 @@ void give_upper_frame(ei_point_t* rounded_frame,ei_rect_t rect, int h, ei_point_
     upper_frame[22] = (ei_point_t){rect.top_left.x +rect.size.width -h, rect.top_left.y + h};
 }
 
+ei_point_t place_text(ei_rect_t rect, ei_anchor_t anchor, ei_size_t size_text){
+    switch (anchor){
+        case ei_anc_northwest:
+            return rect.top_left;
+        case ei_anc_north:
+            return (ei_point_t){rect.top_left.x + rect.size.width/2 - size_text.width/2, rect.top_left.y};
+        case ei_anc_northeast:
+            return (ei_point_t){rect.top_left.x + rect.size.width - size_text.width, rect.top_left.y};
+        case ei_anc_west:
+            return (ei_point_t){rect.top_left.x, rect.top_left.y + rect.size.height/2 - size_text.height/2};
+        case ei_anc_none:
+        case ei_anc_center:
+            return (ei_point_t){rect.top_left.x + rect.size.width/2 - size_text.width/2,rect.top_left.y + rect.size.height/2 - size_text.height/2};
+        case ei_anc_east:
+            return (ei_point_t){rect.top_left.x + rect.size.width/2 - size_text.width/2,rect.top_left.y + rect.size.height/2 - size_text.height/2};
+        case ei_anc_southwest:
+            return (ei_point_t){rect.top_left.x,rect.top_left.y + rect.size.height - size_text.height};
+        case ei_anc_south:
+            return (ei_point_t){rect.top_left.x + rect.size.width/2 - size_text.width/2,rect.top_left.y + rect.size.height- size_text.height};
+        case ei_anc_southeast:
+            return (ei_point_t){rect.top_left.x + rect.size.width - size_text.width,rect.top_left.y + rect.size.height - size_text.height};
+    }
+}
 
 /**
  *  \brief fonction pour alloué un espace pour un widget frame.
@@ -117,6 +140,7 @@ ei_widget_t ei_impl_alloc_frame(){
 void ei_impl_release_frame(ei_widget_t frame){
     free((ei_impl_frame_t*)frame);
 }
+
 
 /**
  * \brief Fonction pour dessiner un widget frame.
@@ -179,8 +203,15 @@ void ei_impl_draw_frame(ei_widget_t widget,ei_surface_t surface,ei_surface_t pic
     ei_draw_polygon(pick_surface,rounded_frame,40,*(widget->pick_color),clipper);
 
 
-    //ei_surface_t surfacetext = hw_text_create_surface(((ei_impl_frame_t*)widget)->text,((ei_impl_frame_t*)widget)->text_font,((ei_impl_frame_t*)widget)->text_color);
-    //ei_draw_text(surface,&(ei_point_t){size.width/2,size.height/2},((ei_impl_frame_t*)widget)->text,((ei_impl_frame_t*)widget)->text_font,((ei_impl_frame_t*)widget)->text_color,&widget->screen_location);
+    if (((ei_impl_frame_t*)widget)->text) {
+        //printf("%s", ((ei_impl_frame_t*)widget)->text);
+        ei_point_t where = place_text(rect,((ei_impl_frame_t *) widget)->text_anchor, hw_surface_get_size(hw_text_create_surface(((ei_impl_frame_t *) widget)->text,((ei_impl_frame_t *) widget)->text_font,((ei_impl_frame_t *) widget)->text_color)));
+        if (((ei_impl_frame_t*)widget)->frame_relief == ei_relief_sunken)
+            where = (ei_point_t){where.x,where.y + 5};
+        ei_draw_text(surface, &where, ((ei_impl_frame_t *) widget)->text,
+                     ((ei_impl_frame_t *) widget)->text_font, ((ei_impl_frame_t *) widget)->text_color,
+                     &widget->screen_location);
+    }
     // intersect widget->screen_location et clipper
     ei_app_invalidate_rect(&widget->screen_location);
     hw_surface_lock(surface);

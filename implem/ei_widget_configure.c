@@ -70,9 +70,14 @@ void			ei_frame_configure		(ei_widget_t		widget,
         widget->requested_size=*requested_size;
         widget->screen_location.size=*requested_size;
     }
-    if (text) frame->text = *text;
+    if (text) {
+        frame->text = calloc(50, sizeof(char));
+        strcpy(frame->text, *text);
+    }
     if (text_font) frame->text_font = *text_font;
-    if (text_color) frame->text_color = *text_color;
+    if (text_color) {
+        frame->text_color = *text_color;
+    }
     if (text_anchor) frame->text_anchor = *text_anchor;
     if (img) frame->image = *img;
     if (img_rect) frame->rect_image = *img_rect;
