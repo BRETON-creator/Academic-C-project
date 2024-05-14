@@ -168,8 +168,7 @@ void ei_app_run(void){
 
     //boucle principale
     //On bind les callbacks internes ?
-    ei_bind(ei_ev_mouse_buttondown,NULL,(ei_tag_t){"button\0"},ei_callback_clickbutton,NULL);
-    ei_bind(ei_ev_mouse_buttonup,NULL,(ei_tag_t){"button\0"},ei_callback_clickbutton,NULL);
+
 
     ei_event_t* event = calloc(1,sizeof(ei_event_t));
     ei_bind_t* bind;

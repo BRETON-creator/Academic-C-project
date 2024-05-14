@@ -100,6 +100,7 @@ typedef struct {
     bool can_close;
     ei_axis_set_t resizable_axis;
     ei_size_t minimal_size;
+    ei_widget_t button;
 }ei_impl_toplevel_t;
 
 /**

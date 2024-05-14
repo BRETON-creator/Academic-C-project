@@ -13,6 +13,7 @@
 #include "var.h"
 #include "hw_interface.h"
 #include "ei_widget_configure.h"
+#include "ei_types.h"
 
 ei_widget_t current_button_down = NULL;
 /**
@@ -31,6 +32,17 @@ void		ei_impl_widget_draw_children	(ei_widget_t		widget,
 						 ei_surface_t		pick_surface,
 						 ei_rect_t*		clipper){
     (widget->wclass->drawfunc)(widget,surface,pick_surface,clipper);
+    ei_widgetclass_name_t name = {"toplevel\0"};
+
+    if (strcmp(widget->wclass->name, name)==0) { //es ce que c'est le meilleur endroit pour mettre ca ?
+            ei_impl_toplevel_t* toplevel = (ei_impl_toplevel_t*)widget;
+            ei_rect_t rect= widget->screen_location;
+
+            int border = *toplevel->border_width;
+            int button_border = ((ei_impl_button_t){toplevel->button}).frame.border_size;
+            ei_place_xy(toplevel->button, rect.top_left.x + 2*border + button_border, rect.top_left.y + 2*border + button_border);
+    }
+
     ei_widget_t child = widget->children_head;
     while (child){
         ei_impl_widget_draw_children(child, surface,pick_surface,&(widget->screen_location));
@@ -464,6 +476,13 @@ void ei_impl_release_toplevel(ei_widget_t toplevel){
 /**
 * \brief Fonction pour mettre les valeurs par defauts d'un widget toplevel
 */
+bool toplevel_close(ei_widget_t	widget,
+                    ei_event_t*	event,
+                    ei_user_param_t user_param){
+        printf("cc");
+        ei_impl_release_toplevel(user_param);
+        return true;
+}
 
 void ei_impl_setdefaults_toplevel(ei_widget_t widget){
         ei_impl_toplevel_t* toplevel = (ei_impl_toplevel_t*)widget;
@@ -490,6 +509,19 @@ void ei_impl_setdefaults_toplevel(ei_widget_t widget){
         toplevel->can_close = true;
         toplevel->resizable_axis = ei_axis_both;
         toplevel->minimal_size = (ei_size_t){160, 120};
+
+
+
+        ei_widget_t button = ei_widget_create	("button", ei_app_root_widget(), NULL, NULL);
+        ei_button_configure		(button, &(ei_size_t){15, 15},
+                                            &(ei_color_t){235, 20, 20, 255},
+                                            &(int){2}, &k_default_button_corner_radius,
+                                            &(ei_relief_t){ei_relief_raised},
+                                            NULL, NULL,
+                                            NULL, NULL, NULL, NULL, NULL,
+                                            &(ei_callback_t){toplevel_close}, &toplevel);
+
+        toplevel->button = button;
 }
 
 /**
@@ -504,7 +536,7 @@ void ei_impl_draw_toplevel(ei_widget_t widget, ei_surface_t surface, ei_surface_
         ei_rect_t rect= widget->screen_location;
 
         ei_color_t color  = *toplevel->color;
-        ei_color_t dark_color  = (ei_color_t){color.red -20, color.green -20, color.blue -20, color.alpha};
+        ei_color_t dark_color  = (ei_color_t){color.red -50, color.green -50, color.blue -50, color.alpha};
 
         int border = *toplevel->border_width;
 
@@ -514,7 +546,7 @@ void ei_impl_draw_toplevel(ei_widget_t widget, ei_surface_t surface, ei_surface_
 
         give_rounded_frame(rounded_frame_temp, rect, radius);
 
-        for (int i; i<21;i++){
+        for (int i=0; i<21;i++){
                 rounded_frame[i] = rounded_frame_temp[i];
         }
 
@@ -533,9 +565,20 @@ void ei_impl_draw_toplevel(ei_widget_t widget, ei_surface_t surface, ei_surface_
         ei_draw_polygon(surface,rounded_frame,21, dark_color, clipper);
         ei_draw_polygon(surface,little_square_frame,4, color, clipper);
 
-
         //ei_draw_polygon(pick_surface,rounded_frame_temp,40,*(widget->pick_color),clipper);
+        ei_color_t white_color = (ei_color_t){255,255,255, 255};
+
+        if (toplevel->title) {
+
+                ei_point_t where = (ei_point_t){ border + rect.top_left.x + 1.5*toplevel->button->requested_size.width, rect.top_left.y};
+                ei_font_t font = hw_text_font_create(ei_default_font_filename, ei_style_normal, 18);
+                ei_draw_text(surface, &where, toplevel->title,
+                             font, white_color,
+                             &widget->screen_location);
+                hw_text_font_free(font);
+        }
 
         ei_app_invalidate_rect(&widget->screen_location);
+
         hw_surface_lock(surface);
 }
