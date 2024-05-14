@@ -152,13 +152,13 @@ ei_widget_t ei_impl_alloc_frame(){
  */
 void ei_impl_release_frame(ei_widget_t frame){
         ei_widget_t widget = ((ei_impl_frame_t*)(frame))->widget.parent;
-        ei_widget_t child=widget->next_sibling;
+        ei_widget_t child= widget ? widget->next_sibling : NULL;
         while (true){
                 if (child==NULL || child->pick_id==frame->pick_id) break;
                 child=child->next_sibling;
         }
         if (child) child->parent->next_sibling=frame->next_sibling;
-        if (widget->children_head->pick_id==frame->pick_id){
+        if (widget && widget->children_head && widget->children_head->pick_id==frame->pick_id){
                 if (widget->next_sibling) widget->children_head=widget->next_sibling;
                 else widget->children_head=NULL;
         }
@@ -312,7 +312,7 @@ void ei_impl_placer_runfunc(ei_widget_t widget){
  * @brief Release function of placer
  */
 void  ei_impl_placer_releasefunc(ei_widget_t widget){
-    free(widget->geom_params->manager);
+    free(widget->geom_params);
 }
 
 //======================================= button
@@ -339,7 +339,7 @@ void ei_impl_release_button(ei_widget_t button){
                 child=child->next_sibling;
         }
         if (child) child->parent->next_sibling=button->next_sibling;
-        if (widget->children_head->pick_id==button->pick_id){
+        if (widget->children_head && widget->children_head->pick_id==button->pick_id){
                 if (widget->next_sibling) widget->children_head=widget->next_sibling;
                 else widget->children_head=NULL;
         }
@@ -419,7 +419,7 @@ void ei_delete_bind(ei_eventtype_t		eventtype,
         free(prec);
         return;
     }
-    while (prec){
+    while (prec->next_bind){
         current = prec->next_bind;
         if      (current->eventtype==eventtype &&
                  ((current->bind_isWidget && current->object.widget == widget) || (!current->bind_isWidget && strcmp(current->object.tag, tag)==0)) &&
