@@ -129,17 +129,19 @@ int	ei_copy_surface		(ei_surface_t		destination,
     int min_height = height_src < height_dst ? height_src : height_dst;
     for (int y=0; y < min_height; y++){
         for (int x=0; x < min_width; x++){
-            red_dst = (uint8_t*)(pixel_dst + x + y*dst_size.width);
-            green_dst = red_dst + 1;
-            blue_dst = red_dst + 2;
-            //alpha_dst = red_dst + 3;
-            red_src = (uint8_t*)(pixel_src + x + y*src_size.width);
-            green_src = red_src +1;
-            blue_src = red_src +2;
-            alpha_src = red_src +3;
-            *(red_dst) = ((*red_dst)*(255 - (*alpha_src)) + (*red_src) * (*alpha_src))/255;
-            *(green_dst) = ((*green_dst)*(255 - (*alpha_src)) + (*green_src) * (*alpha_src))/255;
-            *(blue_dst) = ((*blue_dst)*(255 - (*alpha_src)) + (*blue_src) * (*alpha_src))/255;
+            if (x + x_dst < dst_size.width && x + x_dst > 0 && y + y_dst > 0 && y+y_dst<dst_size.height) {
+                red_dst = (uint8_t *) (pixel_dst + x + y * dst_size.width);
+                green_dst = red_dst + 1;
+                blue_dst = red_dst + 2;
+                //alpha_dst = red_dst + 3;
+                red_src = (uint8_t *) (pixel_src + x + y * src_size.width);
+                green_src = red_src + 1;
+                blue_src = red_src + 2;
+                alpha_src = red_src + 3;
+                *(red_dst) = ((*red_dst) * (255 - (*alpha_src)) + (*red_src) * (*alpha_src)) / 255;
+                *(green_dst) = ((*green_dst) * (255 - (*alpha_src)) + (*green_src) * (*alpha_src)) / 255;
+                *(blue_dst) = ((*blue_dst) * (255 - (*alpha_src)) + (*blue_src) * (*alpha_src)) / 255;
+            }
         }
     }
 
