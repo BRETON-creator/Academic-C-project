@@ -167,7 +167,7 @@ void ei_app_run(void){
     ei_impl_widget_draw_children(root, root_surface, pick_surface, &clipper);
 
     //boucle principale
-    //On bind les callbacks internes ?
+
 
 
     ei_event_t* event = calloc(1,sizeof(ei_event_t));

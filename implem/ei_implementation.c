@@ -479,8 +479,12 @@ void ei_impl_release_toplevel(ei_widget_t toplevel){
 bool toplevel_close(ei_widget_t	widget,
                     ei_event_t*	event,
                     ei_user_param_t user_param){
-        printf("cc");
-        ei_impl_release_toplevel(user_param);
+
+        ei_impl_toplevel_t* toplevel = (ei_impl_toplevel_t*)user_param;
+
+        ei_impl_release_button(widget);
+        ei_impl_release_toplevel(toplevel);
+
         return true;
 }
 
@@ -519,7 +523,7 @@ void ei_impl_setdefaults_toplevel(ei_widget_t widget){
                                             &(ei_relief_t){ei_relief_raised},
                                             NULL, NULL,
                                             NULL, NULL, NULL, NULL, NULL,
-                                            &(ei_callback_t){toplevel_close}, &toplevel);
+                                            &(ei_callback_t){toplevel_close}, toplevel);
 
         toplevel->button = button;
 }
