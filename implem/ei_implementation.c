@@ -40,7 +40,7 @@ void		ei_impl_widget_draw_children	(ei_widget_t		widget,
 
             int border = *toplevel->border_width;
             int button_border = ((ei_impl_button_t){toplevel->button}).frame.border_size;
-            ei_place_xy(toplevel->button, 2*border + button_border, 2*border + button_border);
+            ei_place_xy(toplevel->button, border + button_border + 2, border + button_border + 2);
     }
 
     ei_widget_t child = widget->children_head;
