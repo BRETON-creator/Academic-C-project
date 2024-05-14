@@ -164,7 +164,7 @@ void release_linked_rect(ei_linked_rect_t* list){
 void ei_app_run(void){
 
     ei_rect_t clipper           = hw_surface_get_rect(ei_app_root_surface());
-    ei_impl_widget_draw_children(root, root_surface,pick_surface,&clipper);
+    ei_impl_widget_draw_children(root, root_surface, pick_surface, &clipper);
 
     //boucle principale
     //On bind les callbacks internes ?

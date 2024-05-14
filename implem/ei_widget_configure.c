@@ -154,7 +154,18 @@ void			ei_toplevel_configure		(ei_widget_t		widget,
 							 ei_string_t*		title,
 							 bool*			closable,
 							 ei_axis_set_t*		resizable,
-						 	 ei_size_ptr_t*		min_size){}
+						 	 ei_size_ptr_t*		min_size){
+
+        ei_impl_toplevel_t * toplevel = ((ei_impl_toplevel_t*)widget);
+
+        if (requested_size) toplevel->widget.requested_size = *requested_size;
+        if (color) toplevel->color = color;
+        if (border_width) toplevel->border_width = border_width;
+        if (title) toplevel->title = *title;
+        if (closable) toplevel->can_close = closable;
+        if (resizable) toplevel->resizable_axis = *resizable;
+        if (min_size) toplevel->minimal_size = **min_size;
+}
 
 
 

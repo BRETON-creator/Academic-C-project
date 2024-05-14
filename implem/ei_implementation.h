@@ -93,8 +93,8 @@ typedef struct {
  * - ei_size_t minimal_size : size minimale que le gestionnaire de géométrie devra prendre en compte.
  */
 typedef struct {
-    ei_widget_t widget;
-    const ei_color_t* color;
+    ei_impl_widget_t widget;
+    ei_color_t* color;
     int* border_width;
     char* title;
     bool can_close;

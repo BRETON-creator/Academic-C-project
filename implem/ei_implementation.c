@@ -224,6 +224,7 @@ void ei_impl_setdefaults_frame(ei_widget_t widget){
 
 void ei_impl_draw_button(ei_widget_t widget,ei_surface_t surface,ei_surface_t pick_surface,ei_rect_t* clipper){
     //dessin du cadre
+
     ei_impl_draw_frame(widget,surface,pick_surface,clipper);
     //dessin des attributs propres au button?
 }
@@ -436,23 +437,25 @@ void ei_impl_release_toplevel(ei_widget_t toplevel){
 void ei_impl_setdefaults_toplevel(ei_widget_t widget){
         ei_impl_toplevel_t* toplevel = (ei_impl_toplevel_t*)widget;
 
-        widget->wclass =ei_widgetclass_from_name((ei_const_string_t){"toplevel\0"});
-        widget->user_data = NULL;
-        widget->destructor = NULL;
+        toplevel->widget.wclass =ei_widgetclass_from_name((ei_const_string_t){"toplevel\0"});
+        toplevel->widget.user_data = NULL;
+        toplevel->widget.destructor = NULL;
         /* Widget Hierachy Management */
-        widget->parent = ei_app_root_widget();		///< Pointer to the parent of this widget.
-        widget->children_head=NULL;	///< Pointer to the first child of this widget.	Children are chained with the "next_sibling" field.
-        widget->children_tail=NULL;	///< Pointer to the last child of this widget.
-        widget->next_sibling=NULL;	///< Pointer to the next child of this widget's parent widget.
+        toplevel->widget.parent = ei_app_root_widget();		///< Pointer to the parent of this widget.
+        toplevel->widget.children_head=NULL;	///< Pointer to the first child of this widget.	Children are chained with the "next_sibling" field.
+        toplevel->widget.children_tail=NULL;	///< Pointer to the last child of this widget.
+        toplevel->widget.next_sibling=NULL;	///< Pointer to the next child of this widget's parent widget.
 
         /* Geometry Management */
-        widget->geom_params = (ei_geom_param_t){NULL};	///< Pointer to the geometry management parameters for this widget. If NULL, the widget is not currently managed and thus, is not displayed on the screen.
-        widget->requested_size=(ei_size_t){320,240} ;	///< See \ref ei_widget_get_requested_size.
-        widget->screen_location=(ei_rect_t){(ei_point_t){0,0},(ei_size_t){320,240}};///< See \ref ei_widget_get_screen_location.
+        toplevel->widget.geom_params = (ei_geom_param_t){NULL};	///< Pointer to the geometry management parameters for this widget. If NULL, the widget is not currently managed and thus, is not displayed on the screen.
+        toplevel->widget.requested_size=(ei_size_t){320,240} ;	///< See \ref ei_widget_get_requested_size.
+        toplevel->widget.screen_location=(ei_rect_t){(ei_point_t){0,0},(ei_size_t){320,240}};///< See \ref ei_widget_get_screen_location.
 
         toplevel->color = &ei_default_background_color;
-        toplevel->border_width = (int*)4;
-        toplevel->title = "Toplevel";
+        int* border = calloc(1, sizeof(int));
+        *border = 4;
+        toplevel->border_width = border;
+        toplevel->title="Toplevel";
         toplevel->can_close = true;
         toplevel->resizable_axis = ei_axis_both;
         toplevel->minimal_size = (ei_size_t){160, 120};
@@ -462,31 +465,46 @@ void ei_impl_setdefaults_toplevel(ei_widget_t widget){
 * \brief Fonction pour dessiner un widget toplevel.
 *
 */
-void ei_impl_draw_toplevel(ei_widget_t widget,ei_surface_t surface,ei_surface_t pick_surface,ei_rect_t* clipper){
+void ei_impl_draw_toplevel(ei_widget_t widget, ei_surface_t surface, ei_surface_t pick_surface, ei_rect_t* clipper){
+
         hw_surface_unlock(surface);
         ei_impl_toplevel_t* toplevel = (ei_impl_toplevel_t*)widget;
 
-        ei_size_t size= widget->requested_size;
         ei_rect_t rect= widget->screen_location;
 
         ei_color_t color  = *toplevel->color;
+        ei_color_t dark_color  = (ei_color_t){color.red -20, color.green -20, color.blue -20, color.alpha};
+
         int border = *toplevel->border_width;
 
         int radius = k_default_button_corner_radius;
         ei_point_t rounded_frame_temp[40];
-        ei_point_t rounded_frame[20];
+        ei_point_t rounded_frame[21];
 
         give_rounded_frame(rounded_frame_temp, rect, radius);
 
-        for (int i;i<20;i++){
+        for (int i; i<21;i++){
                 rounded_frame[i] = rounded_frame_temp[i];
         }
 
-        ei_point_t square_frame[4];
+        ei_point_t square_frame[4] = {{rect.top_left.x , rect.top_left.y + radius},
+                                      {rect.top_left.x + rect.size.width , rect.top_left.y + radius},
+                                      {rect.top_left.x + rect.size.width , rect.top_left.y + rect.size.height },
+                                      {rect.top_left.x, rect.top_left.y + rect.size.height}};
 
-        ei_draw_polygon(surface,rounded_frame,20, (ei_color_t){255,255,255,0}, clipper);
-        ei_draw_polygon(surface,square_frame,4,color, clipper);
+        ei_point_t little_square_frame[4] = {{rect.top_left.x + border , rect.top_left.y + 2*radius + border},
+                                      {rect.top_left.x + rect.size.width - border, rect.top_left.y + 2*radius + border},
+                                      {rect.top_left.x + rect.size.width - border, rect.top_left.y + rect.size.height - border},
+                                      {rect.top_left.x + border, rect.top_left.y + rect.size.height - border}};
 
-        hw_surface_update_rects(surface,&(ei_linked_rect_t){widget->screen_location,NULL}); // ca on devrait le faire la la fonction app_run
+
+        ei_draw_polygon(surface,square_frame,4, dark_color, clipper);
+        ei_draw_polygon(surface,rounded_frame,21, dark_color, clipper);
+        ei_draw_polygon(surface,little_square_frame,4, color, clipper);
+
+
+        //ei_draw_polygon(pick_surface,rounded_frame_temp,40,*(widget->pick_color),clipper);
+
+        ei_app_invalidate_rect(&widget->screen_location);
         hw_surface_lock(surface);
 }
