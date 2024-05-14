@@ -10,6 +10,7 @@
 #include "ei_application.h"
 #include "ei_widgetclass.h"
 #include "ei_implementation.h"
+#include "ei_implementation_toplevel.h"
 #include "ei_draw.h"
 #include "ei_placer.h"
 #include "ei_event.h"
@@ -105,7 +106,7 @@ void ei_app_create(ei_size_t main_window_size, bool fullscreen){
     root->pick_color->red = 0x00; root->pick_color->green = 0x00; root->pick_color->blue=0x00; root->pick_color->alpha=0xFF;
     root->parent=NULL;
     root->requested_size                    = main_window_size;
-    ((ei_impl_frame_t*)root)->frame_relief  =ei_relief_none;
+    ((ei_impl_frame_t*)root)->frame_relief  = ei_relief_none;
     root->screen_location                   = hw_surface_get_rect(main_window);
     root->requested_size                    = root->screen_location.size;
     root_surface                            = main_window;
@@ -168,7 +169,23 @@ void ei_app_run(void){
 
     //boucle principale
 
+    //bind des toplevels
+    ei_bind(ei_ev_mouse_buttondown, NULL,(ei_tag_t){"toplevel\0"},ei_callback_toplevel,NULL);
+    ei_bind(ei_ev_mouse_move, NULL,(ei_tag_t){"toplevel\0"},ei_callback_toplevel,NULL);
+    ei_bind(ei_ev_mouse_buttonup, NULL,(ei_tag_t){"toplevel\0"},ei_callback_toplevel,NULL);
 
+    //bind des buttons
+    ei_widget_t widget = root->children_head;
+    ei_widgetclass_name_t name = {"button\0"};
+    while (true){
+            if (widget==NULL) break;
+            if (strcmp(widget->wclass->name, name)==0){
+                    ei_user_param_t user_param = ((ei_impl_button_t*)(widget))->user_params;
+                    ei_bind(ei_ev_mouse_buttondown, ((ei_impl_button_t*)widget),NULL,ei_callback_clickbutton,user_param);
+                    ei_bind(ei_ev_mouse_buttonup,((ei_impl_button_t*)widget),NULL,ei_callback_clickbutton,user_param);
+            }
+            widget = widget->children_head;
+    }
 
     ei_event_t* event = calloc(1,sizeof(ei_event_t));
     ei_bind_t* bind;
@@ -199,8 +216,13 @@ void ei_app_run(void){
         hw_surface_lock(root_surface);
     }
     free(event);
+
     ei_unbind(ei_ev_mouse_buttondown,NULL,(ei_tag_t){"button\0"},ei_callback_clickbutton,NULL);
     ei_unbind(ei_ev_mouse_buttonup,NULL,(ei_tag_t){"button\0"},ei_callback_clickbutton,NULL);
+
+    ei_unbind(ei_ev_mouse_buttondown, NULL,(ei_tag_t){"toplevel\0"},ei_callback_clickbutton,NULL);
+    ei_unbind(ei_ev_mouse_buttonup, NULL,(ei_tag_t){"toplevel\0"},ei_callback_clickbutton,NULL);
+    ei_unbind(ei_ev_mouse_move, NULL,(ei_tag_t){"toplevel\0"},ei_callback_clickbutton,NULL);
 }
 
 
