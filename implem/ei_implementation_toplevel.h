@@ -42,5 +42,11 @@ bool ei_callback_toplevel(ei_widget_t		widget, struct ei_event_t*	event, ei_user
 
 bool ei_resize_toplevel(ei_widget_t	widget, struct ei_event_t*	event, ei_user_param_t	user_param);
 
+void ei_impl_geomnotify_toplevel(ei_widget_t widget);
+
+ei_rect_t get_rect_union( ei_rect_t old_rect , ei_rect_t new_rect);
+
+ei_rect_t get_rect_intersection( ei_rect_t old_rect , ei_rect_t new_rect);
+
 #endif //PROJETC_IG_EI_IMPLEMENTATION_TOPLEVEL_H
 

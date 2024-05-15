@@ -164,7 +164,12 @@ void			ei_toplevel_configure		(ei_widget_t		widget,
 
         ei_impl_toplevel_t * toplevel = ((ei_impl_toplevel_t*)widget);
 
-        if (requested_size) toplevel->widget.requested_size = *requested_size;
+        if (requested_size)
+        {
+	        toplevel->widget.requested_size = *requested_size;
+        	toplevel->widget.screen_location.size = *requested_size;
+        }
+
         if (color) toplevel->color = color;
         if (border_width) toplevel->border_width = border_width;
         if (title) toplevel->title = *title;

@@ -80,7 +80,7 @@ void ei_app_create(ei_size_t main_window_size, bool fullscreen){
     toplevelclass->releasefunc      = ei_impl_release_toplevel;
     toplevelclass->drawfunc         = ei_impl_draw_toplevel;
     toplevelclass->setdefaultsfunc  = ei_impl_setdefaults_toplevel;
-    toplevelclass->geomnotifyfunc   = NULL;
+    toplevelclass->geomnotifyfunc   = ei_impl_geomnotify_toplevel;
     toplevelclass->next             = NULL;
     strcpy(toplevelclass->name,(ei_widgetclass_name_t){"toplevel\0"});
     ei_widgetclass_register(toplevelclass);
