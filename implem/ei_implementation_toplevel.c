@@ -218,7 +218,7 @@ void ei_impl_setdefaults_toplevel(ei_widget_t widget){
 
 
 
-        ei_widget_t button = ei_widget_create	("button", toplevel, NULL, NULL);
+        ei_widget_t button = ei_widget_create	("button", (ei_widget_t)(toplevel), NULL, NULL);
         ei_button_configure		(button, &(ei_size_t){12, 12},
                                             &(ei_color_t){235, 20, 20, 255},
                                             &(int){1}, &(int){5},
@@ -232,7 +232,7 @@ void ei_impl_setdefaults_toplevel(ei_widget_t widget){
         ei_color_t color  = *toplevel->color;
         ei_color_t dark_color  = (ei_color_t){color.red -50, color.green -50, color.blue -50, color.alpha};
 
-        ei_widget_t resize_frame = ei_widget_create	("frame", toplevel, NULL, NULL);
+        ei_widget_t resize_frame = ei_widget_create	("frame", (ei_widget_t)(toplevel), NULL, NULL);
         ei_frame_configure		(resize_frame, &(ei_size_t){10, 10},
                                             &dark_color,
                                             &(int){0}, NULL,NULL,
@@ -306,3 +306,6 @@ void ei_impl_draw_toplevel(ei_widget_t widget, ei_surface_t surface, ei_surface_
         hw_surface_lock(surface);
 }
 
+void ei_impl_geomnotify_toplevel(ei_widget_t widget){
+        
+}
