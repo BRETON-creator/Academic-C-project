@@ -47,7 +47,7 @@ void ei_impl_release_toplevel(ei_widget_t toplevel){
 bool toplevel_close(ei_widget_t	widget,
                     ei_event_t*	event,
                     ei_user_param_t user_param){
-        ei_geometrymanager_unmap(widget->parent);
+
         ei_impl_release_button(widget);
         ei_impl_release_toplevel(widget->parent);
 
@@ -83,18 +83,34 @@ void ei_impl_setdefaults_toplevel(ei_widget_t widget){
 
 
         ei_widget_t button = ei_widget_create	("button", toplevel, NULL, NULL);
-        ei_button_configure		(button, &(ei_size_t){15, 15},
+        ei_button_configure		(button, &(ei_size_t){12, 12},
                                             &(ei_color_t){235, 20, 20, 255},
-                                            &(int){2}, &k_default_button_corner_radius,
+                                            &(int){1}, &(int){5},
                                             &(ei_relief_t){ei_relief_raised},
                                             NULL, NULL,
                                             NULL, NULL, NULL, NULL, NULL,
                                             &(ei_callback_t){toplevel_close}, NULL);
 
-        ei_bind(ei_ev_mouse_buttondown, button,NULL,ei_callback_clickbutton,toplevel);
-        ei_bind(ei_ev_mouse_buttonup,button,NULL,ei_callback_clickbutton,toplevel);
 
+
+        ei_place(button, &(ei_anchor_t){ei_anc_northwest}, &(int){*border + 4}, &(int){*border} + 4, NULL,
+                 NULL, &(float){0.0}, &(float){0.0}, NULL, NULL);
         toplevel->button = button;
+
+        ei_color_t color  = *toplevel->color;
+        ei_color_t dark_color  = (ei_color_t){color.red -50, color.green -50, color.blue -50, color.alpha};
+
+        ei_widget_t resize_button = ei_widget_create	("button", toplevel, NULL, NULL);
+        ei_button_configure		(resize_button, &(ei_size_t){10, 10},
+                                            &dark_color,
+                                            &(int){0}, &(float ){0},
+                                            &(ei_relief_t){ei_relief_raised},
+                                            NULL, NULL,
+                                            NULL, NULL, NULL, NULL, NULL,
+                                            &(ei_callback_t){NULL}, NULL);
+
+        ei_place(resize_button, &(ei_anchor_t){ei_anc_southeast}, NULL, NULL, NULL, NULL, &(float){1.0}, &(float){1.0}, NULL, NULL);
+        toplevel->resize_button = resize_button;
 }
 
 /**
@@ -145,7 +161,7 @@ void ei_impl_draw_toplevel(ei_widget_t widget, ei_surface_t surface, ei_surface_
 
         if (toplevel->title) {
 
-                ei_point_t where = (ei_point_t){ border + rect.top_left.x + 1.5*toplevel->button->requested_size.width, rect.top_left.y + border};
+                ei_point_t where = (ei_point_t){ border + rect.top_left.x + 2*toplevel->button->requested_size.width, rect.top_left.y + border};
                 ei_font_t font = hw_text_font_create(ei_default_font_filename, ei_style_normal, 18);
                 ei_draw_text(surface, &where, toplevel->title,
                              font, white_color,
@@ -163,10 +179,6 @@ ei_point_t mouse_point;
 void move_child(ei_widget_t widget, int x, int y){
         widget->screen_location.top_left.x += x;
         widget->screen_location.top_left.y += y;
-
-        ei_geom_param_t geo = widget->geom_params;
-        //ei_place(widget, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
-
 
         ei_widget_t child = widget->children_head;
         while (child){
