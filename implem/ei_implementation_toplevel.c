@@ -172,7 +172,7 @@ void ei_impl_draw_toplevel(ei_widget_t widget, ei_surface_t surface, ei_surface_
         ei_rect_t rect= widget->screen_location;
 
         ei_color_t color  = *toplevel->color;
-        ei_color_t dark_color  = (ei_color_t){color.red -50, color.green -50, color.blue -50, color.alpha};
+        ei_color_t dark_color  = (ei_color_t){abs(color.red -50), abs(color.green -50) , abs(color.blue -50) , color.alpha};
 
         int border = *toplevel->border_width;
 
