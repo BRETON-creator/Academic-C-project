@@ -22,17 +22,6 @@ bool resize;
 ei_impl_frame_t* frame;
 ei_point_t mouse_point;
 
-void move_child(ei_widget_t widget, int x, int y){
-        widget->screen_location.top_left.x += x;
-        widget->screen_location.top_left.y += y;
-
-        ei_widget_t child = widget->children_head;
-        while (child){
-                move_child(child, x, y);
-                child = child->next_sibling;
-        }
-}
-
 
 bool ei_callback_toplevel(ei_widget_t	widget, struct ei_event_t*	event, ei_user_param_t	user_param) {
 
@@ -56,6 +45,7 @@ bool ei_callback_toplevel(ei_widget_t	widget, struct ei_event_t*	event, ei_user_
                                                               *toplevel->border_width) {
                                 toplevel_move = 1;
                                 mouse_point = event->param.mouse.where;
+                                modify_hierarchy(toplevel, toplevel->widget.parent);
                                 return 1;
                         }
 
@@ -65,11 +55,18 @@ bool ei_callback_toplevel(ei_widget_t	widget, struct ei_event_t*	event, ei_user_
                         int x = cur_point.x - mouse_point.x;
                         int y = cur_point.y - mouse_point.y;
 
-                        move_child(widget, x, y);
+                        toplevel->widget.screen_location.top_left.x += x;
+                        toplevel->widget.screen_location.top_left.y += y;
                         mouse_point = cur_point;
 
                         rect.size.width++;
                         rect.size.height++;
+
+                        ei_widget_t child = toplevel->widget.children_head;
+                        while (child){
+                                (child->geom_params->manager->runfunc)(child);
+                                child=child->next_sibling;
+                        }
                         ei_impl_widget_draw_children(ei_app_root_widget(), ei_app_root_surface(), pick_surface, &rect);
 
                         return 1;
@@ -104,12 +101,16 @@ bool ei_resize_toplevel(ei_widget_t	widget, struct ei_event_t*	event, ei_user_pa
                 frame->widget.parent->screen_location.size.width += x;
                 frame->widget.parent->screen_location.size.height += y;
 
+                frame->widget.parent->requested_size.width += x;
+                frame->widget.parent->requested_size.height += y;
+
                 mouse_point = cur_point;
 
-                frame->widget.screen_location.top_left.x += x;
-                frame->widget.screen_location.top_left.y += y;
-
-                ei_impl_placer_runfunc(frame->widget.parent);
+                ei_widget_t child = frame->widget.parent->children_head;
+                while (child){
+                        (child->geom_params->manager->runfunc)(child);
+                        child=child->next_sibling;
+                }
                 ei_impl_widget_draw_children(ei_app_root_widget(), ei_app_root_surface(), pick_surface, &rect);
 
                 return 1;

@@ -92,6 +92,7 @@ void ei_impl_release_frame(ei_widget_t frame){
 
 /**
  * \brief Fonction pour dessiner un widget frame.
+ * TODO : dessiner correctement le frame
  * dans la surface de la fenetre root ou de la fenetre du parent ?
  * doit trouver le point ou on doit placer le frame
  * depend du point d'ancrage

@@ -44,5 +44,11 @@ bool ei_resize_toplevel(ei_widget_t	widget, struct ei_event_t*	event, ei_user_pa
 
 void ei_impl_geomnotify_toplevel(ei_widget_t widget);
 
+ei_rect_t get_rect_union( ei_rect_t old_rect , ei_rect_t new_rect);
+
+ei_rect_t get_rect_intersection( ei_rect_t old_rect , ei_rect_t new_rect);
+
+void modify_hierarchy( ei_widget_t widget , ei_widget_t parent);
+
 #endif //PROJETC_IG_EI_IMPLEMENTATION_TOPLEVEL_H
 
