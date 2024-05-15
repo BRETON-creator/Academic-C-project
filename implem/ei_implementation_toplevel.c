@@ -306,6 +306,3 @@ void ei_impl_draw_toplevel(ei_widget_t widget, ei_surface_t surface, ei_surface_
         hw_surface_lock(surface);
 }
 
-void ei_impl_geomnotify_toplevel(ei_widget_t widget){
-    if (widget->geom_params) (widget->geom_params->manager->runfunc)(widget);
-}

@@ -39,6 +39,7 @@ void	ei_draw_text		(ei_surface_t		surface,
     ei_copy_surface(surface, &dst_rect, surfacetext, NULL, true);
     hw_surface_unlock(surface);
     hw_surface_unlock(surfacetext);
+    hw_surface_free(surfacetext);
 
 
 }

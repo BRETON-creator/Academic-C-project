@@ -76,6 +76,7 @@ ei_widget_t ei_impl_alloc_frame(){
  */
 void ei_impl_release_frame(ei_widget_t frame){
         supr_hierachy(ei_app_root_widget(), frame);
+        free(frame->pick_color);
         free((ei_impl_frame_t*)frame);
 }
 

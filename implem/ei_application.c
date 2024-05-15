@@ -156,26 +156,7 @@ void release_linked_rect(ei_linked_rect_t* list){
     }
 }
 
-void bind_widget(ei_widget_t widget){
-        if (strcmp(widget->wclass->name, (ei_widgetclass_name_t){"button\0"})==0){
-                ei_user_param_t user_param = ((ei_impl_button_t*)(widget))->user_params;
-                ei_bind(ei_ev_mouse_buttondown, widget,NULL,ei_callback_clickbutton,user_param);
-                ei_bind(ei_ev_mouse_buttonup,widget,NULL,ei_callback_clickbutton,user_param);
-        }
 
-        if (strcmp(widget->wclass->name, (ei_widgetclass_name_t){"toplevel\0"})==0){
-                ei_bind(ei_ev_mouse_buttondown, widget,NULL,ei_callback_toplevel,NULL);
-                ei_bind(ei_ev_mouse_move, widget,NULL,ei_callback_toplevel,NULL);
-                ei_bind(ei_ev_mouse_buttonup, widget,NULL,ei_callback_toplevel,NULL);
-
-        }
-
-        ei_widget_t child = widget->children_head;
-        while (child){
-                bind_widget(child);
-                child = child->next_sibling;
-        }
-}
 
 /**
  * \brief	Runs the application: enters the main event loop. Exits when
@@ -187,7 +168,14 @@ void ei_app_run(void){
     ei_impl_widget_draw_children(root, root_surface, pick_surface, &clipper);
 
     //boucle principale
-    bind_widget(root);
+
+    //binds interns
+    ei_bind(ei_ev_mouse_buttondown, NULL,"button\0",ei_callback_clickbutton,NULL);
+    ei_bind(ei_ev_mouse_buttonup,NULL,"button\0",ei_callback_clickbutton,NULL);
+
+    ei_bind(ei_ev_mouse_buttondown, NULL,"toplevel\0",ei_callback_toplevel,NULL);
+    ei_bind(ei_ev_mouse_move, NULL,"toplevel\0",ei_callback_toplevel,NULL);
+    ei_bind(ei_ev_mouse_buttonup, NULL,"toplevel\0",ei_callback_toplevel,NULL);
 
     ei_event_t* event = calloc(1,sizeof(ei_event_t));
     ei_bind_t* bind;
@@ -217,6 +205,12 @@ void ei_app_run(void){
         rects=NULL;
         hw_surface_lock(root_surface);
     }
+    ei_unbind(ei_ev_mouse_buttondown, NULL,"button\0",ei_callback_clickbutton,NULL);
+    ei_unbind(ei_ev_mouse_buttonup,NULL,"button\0",ei_callback_clickbutton,NULL);
+
+    ei_unbind(ei_ev_mouse_buttondown, NULL,"toplevel\0",ei_callback_toplevel,NULL);
+    ei_unbind(ei_ev_mouse_move, NULL,"toplevel\0",ei_callback_toplevel,NULL);
+    ei_unbind(ei_ev_mouse_buttonup, NULL,"toplevel\0",ei_callback_toplevel,NULL);
     free(event);
 }
 
@@ -238,7 +232,6 @@ void ei_app_invalidate_rect(const ei_rect_t* rect){
     new_rect->rect.size.width = rect->size.width;
     new_rect->rect.size.height = rect->size.height;
     rects = new_rect;
-    //ptet probl ici ?
 }
 
 /**

@@ -36,5 +36,5 @@ void ei_impl_placer_runfunc(ei_widget_t widget){
  * @brief Release function of placer
  */
 void  ei_impl_placer_releasefunc(ei_widget_t widget){
-    free(widget->geom_params);
+    free((ei_placer_t*)widget->geom_params);
 }
