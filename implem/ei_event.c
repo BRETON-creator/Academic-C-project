@@ -7,10 +7,8 @@
 
 #include "var.h"
 #include "ei_event.h"
-#include <string.h>
 #include "ei_implementation.h"
-#include "ei_widget_attributes.h"
-#include "ei_widget_configure.h"
+#include "ei_impl_binds.h"
 
 /**
  * \brief	Binds a callback to an event type and a widget or a tag.

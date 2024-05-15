@@ -9,7 +9,6 @@
 #include <ei_widget_configure.h>
 #include "ei_implementation.h"
 #include "ei_draw.h"
-#include "ei_placer.h"
 #include "ei_event.h"
 #include "var.h"
 #include "hw_interface.h"
@@ -60,71 +59,6 @@ uint32_t	ei_impl_map_rgba(ei_surface_t surface, ei_color_t color);
 
 //================================================================================================
 
-void give_rounded_frame(ei_point_t* circle, ei_rect_t rect, int radius) {
-    float pi = 355./113.;
-    float xpos, ypos;
-    ei_point_t center;
-    for (int i = 0; i < 40; i++) {
-        xpos = cosf(((float) i / 20) * pi);
-        ypos = sinf(((float) i / 20) * pi);
-        if (0 <= i && i < 10)
-            center = (ei_point_t) {(rect.top_left.x) + (rect.size.width) - radius, (rect.top_left.y) + radius};
-        if (10 <= i && i < 20) center = (ei_point_t) {(rect.top_left.x) + radius, (rect.top_left.y) + radius};
-        if (20 <= i && i < 30)
-            center = (ei_point_t) {(rect.top_left.x) + radius, (rect.top_left.y) + (rect.size.height) - radius};
-        if (30 <= i)
-            center = (ei_point_t) {(rect.top_left.x) + (rect.size.width) - radius,
-                                   (rect.top_left.y) + (rect.size.height) - radius};
-        circle[i] = (ei_point_t) {(center.x) + (xpos * radius), (center.y) - (ypos * radius)};
-    }
-    circle[9].y = circle[10].y;
-    circle[19].x = circle[20].x;
-    circle[29].y = circle[30].y;
-    circle[39].x = circle[0].x;
-}
-
-void give_lower_frame(ei_point_t* rounded_frame,ei_rect_t rect, int h, ei_point_t* lower_frame){
-    for (int i=0; i<15; i++){
-        lower_frame[i] = rounded_frame[25+i];
-    }
-    for (int i=0;i<6;i++){
-        lower_frame[15+i] = rounded_frame[i];
-    }
-    lower_frame[21] = (ei_point_t){rect.top_left.x +rect.size.width -h, rect.top_left.y + h};
-    lower_frame[22] = (ei_point_t){rect.top_left.x + h                , rect.top_left.y + h};
-}
-
-void give_upper_frame(ei_point_t* rounded_frame,ei_rect_t rect, int h, ei_point_t* upper_frame){
-    for (int i=0; i<21; i++){
-        upper_frame[i] = rounded_frame[5+i];
-    }
-    upper_frame[21] = (ei_point_t){rect.top_left.x + h                , rect.top_left.y + h};
-    upper_frame[22] = (ei_point_t){rect.top_left.x +rect.size.width -h, rect.top_left.y + h};
-}
-
-ei_point_t place_text(ei_rect_t rect, ei_anchor_t anchor, ei_size_t size_text){
-    switch (anchor){
-        case ei_anc_northwest:
-            return rect.top_left;
-        case ei_anc_north:
-            return (ei_point_t){rect.top_left.x + rect.size.width/2 - size_text.width/2, rect.top_left.y};
-        case ei_anc_northeast:
-            return (ei_point_t){rect.top_left.x + rect.size.width - size_text.width, rect.top_left.y};
-        case ei_anc_west:
-            return (ei_point_t){rect.top_left.x, rect.top_left.y + rect.size.height/2 - size_text.height/2};
-        case ei_anc_none:
-        case ei_anc_center:
-            return (ei_point_t){rect.top_left.x + rect.size.width/2 - size_text.width/2,rect.top_left.y + rect.size.height/2 - size_text.height/2};
-        case ei_anc_east:
-            return (ei_point_t){rect.top_left.x + rect.size.width/2 - size_text.width/2,rect.top_left.y + rect.size.height/2 - size_text.height/2};
-        case ei_anc_southwest:
-            return (ei_point_t){rect.top_left.x,rect.top_left.y + rect.size.height - size_text.height};
-        case ei_anc_south:
-            return (ei_point_t){rect.top_left.x + rect.size.width/2 - size_text.width/2,rect.top_left.y + rect.size.height- size_text.height};
-        case ei_anc_southeast:
-            return (ei_point_t){rect.top_left.x + rect.size.width - size_text.width,rect.top_left.y + rect.size.height - size_text.height};
-    }
-}
 
 /**
  *  \brief fonction pour alloué un espace pour un widget frame.
@@ -266,7 +200,7 @@ void ei_impl_setdefaults_frame(ei_widget_t widget){
     //frame->rect_image;
 }
 
-
+//======================================= button
 void ei_impl_draw_button(ei_widget_t widget,ei_surface_t surface,ei_surface_t pick_surface,ei_rect_t* clipper){
     //dessin du cadre
 
@@ -274,40 +208,7 @@ void ei_impl_draw_button(ei_widget_t widget,ei_surface_t surface,ei_surface_t pi
     //dessin des attributs propres au button?
 }
 
-//===================================== placer
 
-/**
- * @brief   Fonction run geometrymanager de PLACER
- */
-void ei_impl_placer_runfunc(ei_widget_t widget){
-    int x              = ((ei_placer_t*)widget->geom_params)->x;
-    int y              = ((ei_placer_t*)widget->geom_params)->y;
-    int width          =  ((ei_placer_t*)widget->geom_params)->width;
-    int height         =  ((ei_placer_t*)widget->geom_params)->height;
-    float rel_x        =  ((ei_placer_t*)widget->geom_params)->rel_x;
-    float rel_y        =  ((ei_placer_t*)widget->geom_params)->rel_y;
-    float rel_width    =  ((ei_placer_t*)widget->geom_params)->rel_width;
-    float rel_height   =  ((ei_placer_t*)widget->geom_params)->rel_height;
-    ei_anchor_t anchor =  ((ei_placer_t*)widget->geom_params)->anchor;
-
-
-        ei_rect_t *old_surface = &(ei_rect_t){(ei_point_t){widget->screen_location.top_left.x, widget->screen_location.top_left.y},
-                                          (ei_size_t){widget->screen_location.size.width,widget->screen_location.size.height}};
-
-    ei_place(widget, &anchor, &x, &y, &width, &height, &rel_x, &rel_y, &rel_width, &rel_height);
-    ei_rect_t new_surface = (widget->screen_location);
-    widget->screen_location = *old_surface;
-    ei_geometry_run_finalize(widget, &new_surface);
-}
-
-/**
- * @brief Release function of placer
- */
-void  ei_impl_placer_releasefunc(ei_widget_t widget){
-    free(widget->geom_params);
-}
-
-//======================================= button
 
 /**
  *  \brief fonction pour alloué un espace pour un widget button.
@@ -350,81 +251,6 @@ void ei_impl_setdefaults_button(ei_widget_t widget){
         button->user_params=NULL;
         button->callback=NULL;
 }
-
-
-// ============================ event
-
-//definit les binds
-ei_bind_t* binds = NULL;
-
-ei_linked_tag_t* linked_tag = &(ei_linked_tag_t){"all\0",NULL};
-
-ei_bind_t* ei_get_head_binds(){
-    return binds;
-}
-
-ei_bind_t* ei_bind_from_event(ei_event_t* event, ei_bind_t* current_bind){
-    ei_bind_t* cur_bind = current_bind;
-    while (cur_bind){
-        if (event->type == cur_bind->eventtype){
-            return cur_bind;
-        }
-        cur_bind = cur_bind->next_bind;
-    }
-    return NULL;
-}
-
-void ei_create_bind(ei_eventtype_t		eventtype,
-                    ei_widget_t		widget,
-                    ei_tag_t		tag,
-                    ei_callback_t		callback,
-                    void*			user_param){
-    ei_bind_t* new_bind = calloc(1, sizeof(ei_bind_t));
-    ei_bind_t* tmp = binds;
-    binds=new_bind;
-    new_bind->next_bind=tmp;
-    new_bind->callback = callback;
-    if (widget) {
-        new_bind->object.widget = widget;
-        new_bind->bind_isWidget = true;
-    }else{
-        new_bind->object.tag=calloc(1,sizeof(ei_tag_t));
-        strcpy(new_bind->object.tag,tag);
-        new_bind->bind_isWidget = false;
-    }
-    new_bind->eventtype = eventtype;
-    new_bind->user_param= user_param;
-}
-
-void ei_delete_bind(ei_eventtype_t		eventtype,
-                    ei_widget_t		widget,
-                    ei_tag_t		tag,
-                    ei_callback_t		callback,
-                    void*			user_param){
-    ei_bind_t *current;
-    ei_bind_t *prec = binds;
-    if      (prec->eventtype==eventtype &&
-             ((prec->bind_isWidget && prec->object.widget == widget) || (!prec->bind_isWidget && strcmp(prec->object.tag, tag)==0)) &&
-             prec->callback == callback &&
-             prec->user_param == user_param){
-        binds = prec->next_bind;
-        free(prec);
-        return;
-    }
-    while (prec->next_bind){
-        current = prec->next_bind;
-        if      (current->eventtype==eventtype &&
-                 ((current->bind_isWidget && current->object.widget == widget) || (!current->bind_isWidget && strcmp(current->object.tag, tag)==0)) &&
-                 current->callback == callback &&
-                 current->user_param == user_param){
-            prec->next_bind=current->next_bind;
-            free(current);
-            return;
-        }
-        prec = current;
-    }
-}
-
 
 bool ei_callback_clickbutton(ei_widget_t		widget, struct ei_event_t*	event, ei_user_param_t	user_param){
     // cas ou on relache le clic en dehors du button

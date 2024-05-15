@@ -9,51 +9,11 @@
 #include "hw_interface.h"
 #include "ei_types.h"
 #include "ei_widget_configure.h"
+#include "ei_impl_placer.h"
 
 
 
-/**
-* \brief Fonction pour obtenir l'union de deux rectangles
-*
-*/
 
-//utile pour le redessin ?
-
-ei_rect_t get_rect_union( ei_rect_t old_rect , ei_rect_t new_rect){
-    ei_rect_t union_rect;
-    //pour le top_left on choisit entre les deux top_left des rectangles celui qui est le plus proche de l'origine
-    union_rect.top_left.x  = old_rect.top_left.x <= new_rect.top_left.x ? old_rect.top_left.x : new_rect.top_left.x;
-    union_rect.top_left.y  = old_rect.top_left.y <= new_rect.top_left.y ? old_rect.top_left.y : new_rect.top_left.y;
-    // On determine la size du rectangle englobant
-    int max_x  = old_rect.top_left.x + old_rect.size.width <= new_rect.top_left.x + new_rect.size.width ?  new_rect.top_left.x + new_rect.size.width: old_rect.top_left.x + old_rect.size.width;
-    int max_y  = old_rect.top_left.y + old_rect.size.height <= new_rect.top_left.y + new_rect.size.height ?  new_rect.top_left.y + new_rect.size.height: old_rect.top_left.y + old_rect.size.height;
-    union_rect.size.height = max_x  -  union_rect.top_left.x;
-    union_rect.size.width = max_y -  union_rect.top_left.y;
-
-    return union_rect;
-
-}
-
-/**
-* \brief Fonction pour obtenir l'intersection_rection de deux rectangles
-*
-*/
-
-ei_rect_t get_rect_intersection( ei_rect_t old_rect , ei_rect_t new_rect){
-    ei_rect_t intersection_rect;
-    intersection_rect.top_left.x = (old_rect.top_left.x > new_rect.top_left.x) ? old_rect.top_left.x : new_rect.top_left.x;
-    intersection_rect.top_left.y = (old_rect.top_left.y > new_rect.top_left.y) ? old_rect.top_left.y : new_rect.top_left.y;
-
-    intersection_rect.size.width = (( old_rect.top_left.x + old_rect.size.width < new_rect.top_left.x + new_rect.size.width) ?  old_rect.top_left.x + old_rect.size.width : new_rect.top_left.x + new_rect.size.width) - intersection_rect.top_left.x;
-    intersection_rect.size.height = ((old_rect.top_left.y + old_rect.size.height < new_rect.top_left.y + new_rect.size.height) ? old_rect.top_left.y + old_rect.size.height : new_rect.top_left.y + new_rect.size.height) - intersection_rect.top_left.y;
-
-    if (intersection_rect.size.width < 0 || intersection_rect.size.height < 0) {
-        intersection_rect.size.width = 0;
-        intersection_rect.size.height = 0;
-    }
-
-    return intersection_rect;
-}
 
 /**
 * \brief Fonction pour modifier la hiérarchie des widgets pour que le widget appelé écrase les autres fils de son parent : pour cela on le met à la fin
