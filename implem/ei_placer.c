@@ -79,20 +79,20 @@ void		ei_place	(ei_widget_t		widget,
          *  c'est au programmeur d'appeler cette fonction.
          */
 
-        if (rel_height) {
+        if (rel_height && *rel_height!=0) {
             widget->requested_size.height = (widget->parent->requested_size.height) * (*rel_height);
             widget->screen_location.size.height = widget->requested_size.height;
         }
-        if (rel_width) {
+        if (rel_width && *rel_width!=0) {
             widget->requested_size.width = (widget->parent->requested_size.width) * (*rel_width);
             widget->screen_location.size.width = widget->requested_size.width;
         }
         //widget->geom_params->manager= ei_geometrymanager_from_name((char*){"placer\0"});
-        if (width) {
+        if (width && *width!=0) {
             widget->screen_location.size.width = *width;
             widget->requested_size.width = *width;
         }
-        if (height) {
+        if (height && *height!=0) {
             widget->requested_size.height= *height;
             widget->screen_location.size.height = *height;
         }
@@ -160,15 +160,15 @@ void		ei_place	(ei_widget_t		widget,
         else geom_param = (ei_placer_t*)(widget->geom_params);
 
         //*x,*y,*height,*width,*rel_x,*rel_y,*rel_height,*rel_width,*anchor};
-        geom_param->x           = x;
-        geom_param->y           = y;
-        geom_param->height      = height;
-        geom_param->width       = width;
-        geom_param->rel_x       = rel_x;
-        geom_param->rel_y       = rel_y;
-        geom_param->rel_height  = rel_height;
-        geom_param->rel_width   = rel_width;
-        geom_param->anchor      = anchor;
+        if (x) geom_param->x           = *x;
+        if (y) geom_param->y           = *y;
+        if (height) geom_param->height      = *height;
+        if (width) geom_param->width       = *width;
+        if (rel_x) geom_param->rel_x       = *rel_x;
+        if (rel_y) geom_param->rel_y       = *rel_y;
+        if (rel_height) geom_param->rel_height  = *rel_height;
+        if (rel_width) geom_param->rel_width   = *rel_width;
+        if (anchor) geom_param->anchor      = *anchor;
 
         if (strcmp(widget->wclass->name, (ei_widgetclass_name_t){"toplevel\0"})==0){
                 ei_impl_toplevel_t *toplevel = (ei_impl_toplevel_t *) widget;
