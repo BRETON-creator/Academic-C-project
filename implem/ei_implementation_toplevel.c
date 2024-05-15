@@ -199,11 +199,14 @@ bool ei_callback_toplevel(ei_widget_t		widget, struct ei_event_t*	event, ei_user
         ei_impl_toplevel_t* toplevel = (ei_impl_toplevel_t*)widget;
         ei_rect_t rect = toplevel->widget.screen_location;
 
-
+        // il faut:
+        // -mettre à jour la hiérarchie des widgets pour que on clique sur la tete d'un toplevel il passe devant
+        //
         if (toplevel_move==0 && event->type==ei_ev_mouse_buttondown){
                 if (rect.top_left.y<=cur_point.y && cur_point.y<=rect.top_left.y+k_default_button_corner_radius*2+*toplevel->border_width){
                         toplevel_move=1;
                         mouse_point = event->param.mouse.where;
+
                         return 1;
                 }
 
@@ -223,6 +226,29 @@ bool ei_callback_toplevel(ei_widget_t		widget, struct ei_event_t*	event, ei_user
                 return 1;
         }
 }
+
+/**
+* \brief Fonction pour modifier la hiérarchie des widgets pour que le widget appelé écrase les autres fils de son parent
+*/
+
+void modify_hierarchy( ei_widget_t widget , ei_widget_t parent)
+{
+        ei_widget_t tmp = parent->children_head;
+        ei_widget_t cur = parent->children_head;
+        while (cur != NULL)
+        {
+                if (cur == widget) break;
+                if (cur->next_sibling == widget)
+                {       ei_widget_t suiv = widget->next_sibling;
+                        cur->next_sibling = suiv;
+                        widget->next_sibling = tmp;
+                        parent->children_head = widget;
+                        break;
+                }
+                cur  = cur ->next_sibling;
+        }
+}
+
 
 
 /**
