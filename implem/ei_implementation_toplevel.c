@@ -198,9 +198,9 @@ void ei_impl_draw_toplevel(ei_widget_t widget, ei_surface_t surface, ei_surface_
 
 
         ei_draw_polygon(surface,square_frame,4, dark_color, &new_clipper);
-        ei_draw_polygon(surface,rounded_frame_temp,21, dark_color, &new_clipper);
+        ei_draw_polygon(surface,rounded_frame_temp,40, dark_color, &new_clipper);
         ei_draw_polygon(surface,little_square_frame,4, color, &new_clipper);
-        ei_draw_polygon(pick_surface,rounded_frame,40,*(widget->pick_color),&new_clipper);
+        ei_draw_polygon(pick_surface,rounded_frame,21,*(widget->pick_color),&new_clipper);
 
 
         ei_color_t white_color = (ei_color_t){255,255,255, 255};

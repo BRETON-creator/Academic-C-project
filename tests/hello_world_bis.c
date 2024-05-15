@@ -106,6 +106,19 @@ int main(int argc, char** argv)
 						 &(float){1.0f}, &(float){1.0f},
 						 &(float){0.05f}, NULL);
 
+	ei_button_configure		(button4, NULL,
+							&(ei_color_t){0x00, 0x00, 0xFF, 0xff},
+						&(int){2}, NULL,
+						&(ei_relief_t){ei_relief_raised},
+						NULL, NULL,
+						&(ei_color_t){0x00, 0x00, 0x00, 0xff}, NULL, NULL, NULL, NULL,
+						&(ei_callback_t){button_press}, NULL);
+
+	ei_place			(button4, &(ei_anchor_t){ei_anc_southeast},
+						 &(int){-15}, &(int){-15}, NULL, NULL,
+						 &(float){1.0f}, &(float){1.0f},
+						 &(float){0.05f}, NULL);
+
 	ei_bind(ei_ev_keydown, NULL, "all", default_handler, NULL);
 	ei_bind(ei_ev_close, NULL, "all", default_handler, NULL);
 
