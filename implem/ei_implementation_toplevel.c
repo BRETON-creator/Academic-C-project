@@ -47,7 +47,8 @@ void ei_impl_release_toplevel(ei_widget_t toplevel){
 bool toplevel_close(ei_widget_t	widget,
                     ei_event_t*	event,
                     ei_user_param_t user_param){
-
+        widget->parent->geom_params->manager = NULL;
+        ei_impl_widget_draw_children(ei_app_root_widget(),ei_app_root_surface(),pick_surface,&widget->parent->screen_location);
         ei_impl_release_button(widget);
         ei_impl_release_toplevel(widget->parent);
 
@@ -224,3 +225,6 @@ bool ei_callback_toplevel(ei_widget_t		widget, struct ei_event_t*	event, ei_user
         }
 }
 
+void ei_impl_geomnotify_toplevel(ei_widget_t widget){
+    if (widget->geom_params) (widget->geom_params->manager->runfunc)(widget);
+}

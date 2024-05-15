@@ -31,7 +31,7 @@ void		ei_impl_widget_draw_children	(ei_widget_t		widget,
 						 ei_surface_t		surface,
 						 ei_surface_t		pick_surface,
 						 ei_rect_t*		clipper){
-
+    if (widget!=ei_app_root_widget() && (! widget->geom_params || ! widget->geom_params->manager)) return;
     (widget->wclass->drawfunc)(widget,surface,pick_surface,clipper);
 
 

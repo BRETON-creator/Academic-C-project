@@ -122,8 +122,8 @@ ei_geometrymanager_t*	ei_geometrymanager_from_name	(ei_geometrymanager_name_t na
 void			ei_geometrymanager_unmap	(ei_widget_t widget){
 
     (widget->geom_params->manager->releasefunc)(widget);
-    //if (widget->geom_params) free((ei_placer_t*)widget->geom_params);
-    //(widget->wclass->geomnotifyfunc)(widget);
+    if (widget->geom_params) free((ei_placer_t*)widget->geom_params);
+    (widget->wclass->geomnotifyfunc)(widget);
     widget->screen_location = (ei_rect_t){{0,0},{0,0}};
 }
 
