@@ -102,7 +102,6 @@ typedef struct {
     ei_axis_set_t resizable_axis;
     ei_size_t minimal_size;
     ei_widget_t button;
-    ei_widget_t resize_button;
 }ei_impl_toplevel_t;
 
 /**
@@ -297,7 +296,5 @@ void ei_delete_bind(ei_eventtype_t		eventtype,
  * @return la fonction callback a bien été utilisée
  */
 bool ei_callback_clickbutton(ei_widget_t		widget, struct ei_event_t*	event, ei_user_param_t	user_param);
-
-
 
 #endif

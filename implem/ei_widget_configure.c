@@ -172,9 +172,9 @@ void			ei_toplevel_configure		(ei_widget_t		widget,
         if (resizable) toplevel->resizable_axis = *resizable;
         if (min_size) toplevel->minimal_size = **min_size;
 
-        ei_place(toplevel->button, &(ei_anchor_t){ei_anc_northwest}, &(int){*border_width + 4}, &(int){*border_width + 4}, NULL,
-                 NULL, &(float){0.0}, &(float){0.0}, NULL, NULL);
 
+
+        ei_impl_placer_runfunc(toplevel->button);
 }
 
 

@@ -158,6 +158,27 @@ void release_linked_rect(ei_linked_rect_t* list){
     }
 }
 
+void bind_widget(ei_widget_t widget){
+        if (strcmp(widget->wclass->name, (ei_widgetclass_name_t){"button\0"})==0){
+                ei_user_param_t user_param = ((ei_impl_button_t*)(widget))->user_params;
+                ei_bind(ei_ev_mouse_buttondown, ((ei_impl_button_t*)widget),NULL,ei_callback_clickbutton,user_param);
+                ei_bind(ei_ev_mouse_buttonup,((ei_impl_button_t*)widget),NULL,ei_callback_clickbutton,user_param);
+        }
+
+        if (strcmp(widget->wclass->name, (ei_widgetclass_name_t){"toplevel\0"})==0){
+                ei_bind(ei_ev_mouse_buttondown, ((ei_impl_toplevel_t *)widget),NULL,ei_callback_toplevel,NULL);
+                ei_bind(ei_ev_mouse_move, ((ei_impl_toplevel_t *)widget),NULL,ei_callback_toplevel,NULL);
+                ei_bind(ei_ev_mouse_buttonup, ((ei_impl_toplevel_t *)widget),NULL,ei_callback_toplevel,NULL);
+
+        }
+
+        ei_widget_t child = widget->children_head;
+        while (child){
+                bind_widget(child);
+                child = child->next_sibling;
+        }
+}
+
 /**
  * \brief	Runs the application: enters the main event loop. Exits when
  *		\ref ei_app_quit_request is called.
@@ -168,24 +189,7 @@ void ei_app_run(void){
     ei_impl_widget_draw_children(root, root_surface, pick_surface, &clipper);
 
     //boucle principale
-
-    //bind des toplevels
-    ei_bind(ei_ev_mouse_buttondown, NULL,(ei_tag_t){"toplevel\0"},ei_callback_toplevel,NULL);
-    ei_bind(ei_ev_mouse_move, NULL,(ei_tag_t){"toplevel\0"},ei_callback_toplevel,NULL);
-    ei_bind(ei_ev_mouse_buttonup, NULL,(ei_tag_t){"toplevel\0"},ei_callback_toplevel,NULL);
-
-    //bind des buttons
-    ei_widget_t widget = root->children_head;
-    ei_widgetclass_name_t name = {"button\0"};
-    while (true){
-            if (widget==NULL) break;
-            if (strcmp(widget->wclass->name, name)==0){
-                    ei_user_param_t user_param = ((ei_impl_button_t*)(widget))->user_params;
-                    ei_bind(ei_ev_mouse_buttondown, ((ei_impl_button_t*)widget),NULL,ei_callback_clickbutton,user_param);
-                    ei_bind(ei_ev_mouse_buttonup,((ei_impl_button_t*)widget),NULL,ei_callback_clickbutton,user_param);
-            }
-            widget = widget->children_head;
-    }
+    bind_widget(root);
 
     ei_event_t* event = calloc(1,sizeof(ei_event_t));
     ei_bind_t* bind;
@@ -216,13 +220,6 @@ void ei_app_run(void){
         hw_surface_lock(root_surface);
     }
     free(event);
-
-    ei_unbind(ei_ev_mouse_buttondown,NULL,(ei_tag_t){"button\0"},ei_callback_clickbutton,NULL);
-    ei_unbind(ei_ev_mouse_buttonup,NULL,(ei_tag_t){"button\0"},ei_callback_clickbutton,NULL);
-
-    ei_unbind(ei_ev_mouse_buttondown, NULL,(ei_tag_t){"toplevel\0"},ei_callback_clickbutton,NULL);
-    ei_unbind(ei_ev_mouse_buttonup, NULL,(ei_tag_t){"toplevel\0"},ei_callback_clickbutton,NULL);
-    ei_unbind(ei_ev_mouse_move, NULL,(ei_tag_t){"toplevel\0"},ei_callback_clickbutton,NULL);
 }
 
 

@@ -167,11 +167,11 @@ void		ei_place	(ei_widget_t		widget,
         ei_widget_set_geom_manager(widget,ei_geometrymanager_from_name("placer\0"));
 
 
-        ei_widget_t child = widget->children_head;
-
-        while (child){
-                ei_place_xy(child, child->screen_location.top_left.x, child->screen_location.top_left.y);
-                child = child->next_sibling;
-        }
+//        ei_widget_t child = widget->children_head;
+//
+//        while (child){
+//                ei_place_xy(child, child->screen_location.top_left.x, child->screen_location.top_left.y);
+//                child = child->next_sibling;
+//        }
 }
 
