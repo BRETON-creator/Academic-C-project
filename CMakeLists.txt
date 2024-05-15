@@ -107,6 +107,11 @@ target_link_libraries(button		ei ${PLATFORM_LIB_FLAGS})
 add_executable(hello_world		${TEST_DIR}/hello_world.c)
 target_link_libraries(hello_world	ei ${PLATFORM_LIB_FLAGS})
 
+# target hello_world_bis
+
+add_executable(hello_world_bis		${TEST_DIR}/hello_world_bis.c)
+target_link_libraries(hello_world_bis	ei ${PLATFORM_LIB_FLAGS})
+
 # target entry
 
 add_executable(entry			${TEST_DIR}/entry.c)

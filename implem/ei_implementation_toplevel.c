@@ -11,6 +11,52 @@
 #include "ei_types.h"
 #include "ei_implementation.h"
 #include "ei_widget_configure.h"
+
+
+
+/**
+* \brief Fonction pour obtenir l'union de deux rectangles
+*
+*/
+
+//utile pour le redessin ?
+
+ei_rect_t get_rect_union( ei_rect_t old_rect , ei_rect_t new_rect){
+    ei_rect_t union_rect;
+    //pour le top_left on choisit entre les deux top_left des rectangles celui qui est le plus proche de l'origine
+    union_rect.top_left.x  = old_rect.top_left.x <= new_rect.top_left.x ? old_rect.top_left.x : new_rect.top_left.x;
+    union_rect.top_left.y  = old_rect.top_left.y <= new_rect.top_left.y ? old_rect.top_left.y : new_rect.top_left.y;
+    // On determine la size du rectangle englobant
+    int max_x  = old_rect.top_left.x + old_rect.size.width <= new_rect.top_left.x + new_rect.size.width ?  new_rect.top_left.x + new_rect.size.width: old_rect.top_left.x + old_rect.size.width;
+    int max_y  = old_rect.top_left.y + old_rect.size.height <= new_rect.top_left.y + new_rect.size.height ?  new_rect.top_left.y + new_rect.size.height: old_rect.top_left.y + old_rect.size.height;
+    union_rect.size.height = max_x  -  union_rect.top_left.x;
+    union_rect.size.width = max_y -  union_rect.top_left.y;
+
+    return union_rect;
+
+}
+
+/**
+* \brief Fonction pour obtenir l'intersection_rection de deux rectangles
+*
+*/
+
+ei_rect_t get_rect_intersection( ei_rect_t old_rect , ei_rect_t new_rect){
+    ei_rect_t intersection_rect;
+    intersection_rect.top_left.x = (old_rect.top_left.x > new_rect.top_left.x) ? old_rect.top_left.x : new_rect.top_left.x;
+    intersection_rect.top_left.y = (old_rect.top_left.y > new_rect.top_left.y) ? old_rect.top_left.y : new_rect.top_left.y;
+
+    intersection_rect.size.width = (( old_rect.top_left.x + old_rect.size.width < new_rect.top_left.x + new_rect.size.width) ?  old_rect.top_left.x + old_rect.size.width : new_rect.top_left.x + new_rect.size.width) - intersection_rect.top_left.x;
+    intersection_rect.size.height = ((old_rect.top_left.y + old_rect.size.height < new_rect.top_left.y + new_rect.size.height) ? old_rect.top_left.y + old_rect.size.height : new_rect.top_left.y + new_rect.size.height) - intersection_rect.top_left.y;
+
+    if (intersection_rect.size.width < 0 || intersection_rect.size.height < 0) {
+        intersection_rect.size.width = 0;
+        intersection_rect.size.height = 0;
+    }
+
+    return intersection_rect;
+}
+
 //============================= toplevel
 
 /**
@@ -122,7 +168,7 @@ void ei_impl_draw_toplevel(ei_widget_t widget, ei_surface_t surface, ei_surface_
 
         hw_surface_unlock(surface);
         ei_impl_toplevel_t* toplevel = (ei_impl_toplevel_t*)widget;
-
+        ei_rect_t new_clipper = get_rect_intersection(*clipper, widget->screen_location);
         ei_rect_t rect= widget->screen_location;
 
         ei_color_t color  = *toplevel->color;
@@ -151,11 +197,10 @@ void ei_impl_draw_toplevel(ei_widget_t widget, ei_surface_t surface, ei_surface_
                                              {rect.top_left.x + border, rect.top_left.y + rect.size.height - border}};
 
 
-        ei_draw_polygon(surface,square_frame,4, dark_color, clipper);
-        ei_draw_polygon(surface,rounded_frame_temp,21, dark_color, clipper);
-        ei_draw_polygon(surface,little_square_frame,4, color, clipper);
-
-        ei_draw_polygon(pick_surface,rounded_frame,40,*(widget->pick_color),clipper);
+        ei_draw_polygon(surface,square_frame,4, dark_color, &new_clipper);
+        ei_draw_polygon(surface,rounded_frame_temp,21, dark_color, &new_clipper);
+        ei_draw_polygon(surface,little_square_frame,4, color, &new_clipper);
+        ei_draw_polygon(pick_surface,rounded_frame,40,*(widget->pick_color),&new_clipper);
 
 
         ei_color_t white_color = (ei_color_t){255,255,255, 255};
@@ -224,6 +269,9 @@ bool ei_callback_toplevel(ei_widget_t		widget, struct ei_event_t*	event, ei_user
                 return 1;
         }
 }
+
+
+
 
 void ei_impl_geomnotify_toplevel(ei_widget_t widget){
     if (widget->geom_params) (widget->geom_params->manager->runfunc)(widget);
