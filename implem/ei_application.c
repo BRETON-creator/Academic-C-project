@@ -12,9 +12,9 @@
 #include "ei_implementation.h"
 #include "ei_implementation_toplevel.h"
 #include "ei_draw.h"
-#include "ei_placer.h"
 #include "ei_event.h"
-#include "ei_widget_configure.h"
+#include "ei_impl_binds.h"
+#include "ei_impl_placer.h"
 #include "var.h"
 
 
@@ -44,8 +44,6 @@ ei_linked_rect_t* rects = NULL;
  *					is a system window.
  */
 void ei_app_create(ei_size_t main_window_size, bool fullscreen){
-    //TODO : creer le off screen aussi !
-    // et initialiser le picking?...
 
     // initializes the hardware (calls \ref hw_init)
     hw_init();
@@ -161,14 +159,14 @@ void release_linked_rect(ei_linked_rect_t* list){
 void bind_widget(ei_widget_t widget){
         if (strcmp(widget->wclass->name, (ei_widgetclass_name_t){"button\0"})==0){
                 ei_user_param_t user_param = ((ei_impl_button_t*)(widget))->user_params;
-                ei_bind(ei_ev_mouse_buttondown, ((ei_impl_button_t*)widget),NULL,ei_callback_clickbutton,user_param);
-                ei_bind(ei_ev_mouse_buttonup,((ei_impl_button_t*)widget),NULL,ei_callback_clickbutton,user_param);
+                ei_bind(ei_ev_mouse_buttondown, widget,NULL,ei_callback_clickbutton,user_param);
+                ei_bind(ei_ev_mouse_buttonup,widget,NULL,ei_callback_clickbutton,user_param);
         }
 
         if (strcmp(widget->wclass->name, (ei_widgetclass_name_t){"toplevel\0"})==0){
-                ei_bind(ei_ev_mouse_buttondown, ((ei_impl_toplevel_t *)widget),NULL,ei_callback_toplevel,NULL);
-                ei_bind(ei_ev_mouse_move, ((ei_impl_toplevel_t *)widget),NULL,ei_callback_toplevel,NULL);
-                ei_bind(ei_ev_mouse_buttonup, ((ei_impl_toplevel_t *)widget),NULL,ei_callback_toplevel,NULL);
+                ei_bind(ei_ev_mouse_buttondown, widget,NULL,ei_callback_toplevel,NULL);
+                ei_bind(ei_ev_mouse_move, widget,NULL,ei_callback_toplevel,NULL);
+                ei_bind(ei_ev_mouse_buttonup, widget,NULL,ei_callback_toplevel,NULL);
 
         }
 
