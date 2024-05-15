@@ -151,8 +151,14 @@ void		ei_place	(ei_widget_t		widget,
         if (xpos!= 0) widget->screen_location.top_left.x = xpos;
         if (ypos!= 0) widget->screen_location.top_left.y = ypos;
 
-        //(normalement que lorsqu'uil le widget n'a pas de geomparam
-        ei_placer_t *geom_param = calloc(1,sizeof(ei_placer_t));
+        ei_placer_t *geom_param ;
+        if (widget->geom_params==NULL){
+                geom_param = calloc(1,sizeof(ei_placer_t));
+                ei_widget_set_geom_params(widget,(ei_geom_param_t)geom_param);
+                ei_widget_set_geom_manager(widget,ei_geometrymanager_from_name("placer\0"));
+        }
+        else geom_param = (ei_placer_t*)(widget->geom_params);
+
         //*x,*y,*height,*width,*rel_x,*rel_y,*rel_height,*rel_width,*anchor};
         geom_param->x           = x;
         geom_param->y           = y;
@@ -163,15 +169,17 @@ void		ei_place	(ei_widget_t		widget,
         geom_param->rel_height  = rel_height;
         geom_param->rel_width   = rel_width;
         geom_param->anchor      = anchor;
-        ei_widget_set_geom_params(widget,(ei_geom_param_t)geom_param);
-        ei_widget_set_geom_manager(widget,ei_geometrymanager_from_name("placer\0"));
 
+        if (strcmp(widget->wclass->name, (ei_widgetclass_name_t){"toplevel\0"})==0){
+                ei_impl_toplevel_t *toplevel = (ei_impl_toplevel_t *) widget;
 
-//        ei_widget_t child = widget->children_head;
-//
-//        while (child){
-//                ei_place_xy(child, child->screen_location.top_left.x, child->screen_location.top_left.y);
-//                child = child->next_sibling;
-//        }
+                ei_place(toplevel->button, &(ei_anchor_t){ei_anc_northwest},
+                         &(int){*toplevel->border_width + 4}, &(int){*toplevel->border_width + 4}, NULL,
+                         NULL, &(float){0.0}, &(float){0.0}, NULL, NULL);
+
+                ei_place(toplevel->frame, &(ei_anchor_t){ei_anc_southeast},
+                         NULL, NULL, NULL, NULL, &(float){1.0}, &(float){1.0}, NULL, NULL);
+
+        }
 }
 

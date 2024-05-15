@@ -58,7 +58,7 @@ void			ei_geometry_run_finalize(ei_widget_t widget, ei_rect_t* new_screen_locati
             //2) redessiner le widget sur la nouvelle location
 
             //on notifie le widget qu'on a changé sa géométrie
-            (widget->wclass->geomnotifyfunc)(widget);
+            if (widget->wclass->geomnotifyfunc)(widget->wclass->geomnotifyfunc)(widget);
             //on recalcule la géométrie des enfants
             ei_widget_t child = widget->children_head;
             while (child){

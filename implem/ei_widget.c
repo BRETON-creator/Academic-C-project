@@ -55,6 +55,7 @@ ei_widget_t		ei_widget_create		(ei_const_string_t	class_name,
     new_widget->pick_id = next_pick_id;
     next_pick_id += 0x00000100;
     new_widget->pick_color = give_color_pickid(new_widget->pick_id);
+
     return new_widget;
 }
 

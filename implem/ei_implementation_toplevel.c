@@ -239,10 +239,6 @@ void ei_impl_setdefaults_toplevel(ei_widget_t widget){
                                             NULL, NULL, NULL, NULL, NULL,
                                             &(ei_callback_t){toplevel_close}, NULL);
 
-
-
-        ei_place(button, &(ei_anchor_t){ei_anc_northwest}, &(int){*border + 4}, &(int){*border} + 4, NULL,
-                 NULL, &(float){0.0}, &(float){0.0}, NULL, NULL);
         toplevel->button = button;
 
         ei_color_t color  = *toplevel->color;
@@ -259,7 +255,7 @@ void ei_impl_setdefaults_toplevel(ei_widget_t widget){
         ei_bind(ei_ev_mouse_move, resize_frame,NULL,ei_resize_toplevel,NULL);
         ei_bind(ei_ev_mouse_buttonup, resize_frame,NULL,ei_resize_toplevel,NULL);
 
-        ei_place(resize_frame, &(ei_anchor_t){ei_anc_southeast}, NULL, NULL, NULL, NULL, &(float){1.0}, &(float){1.0}, NULL, NULL);
+        toplevel->frame = resize_frame;
 }
 
 /**

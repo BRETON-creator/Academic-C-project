@@ -293,9 +293,9 @@ void ei_impl_placer_runfunc(ei_widget_t widget){
                                           (ei_size_t){widget->screen_location.size.width,widget->screen_location.size.height}};
 
     ei_place(widget, ((ei_placer_t*)widget->geom_params)->anchor,x,y,width,height,rel_x,rel_y,rel_width,rel_height);
-    ei_rect_t *new_surface = &(widget->screen_location);
+    ei_rect_t new_surface = (widget->screen_location);
     widget->screen_location = *old_surface;
-    ei_geometry_run_finalize(widget,new_surface);
+    ei_geometry_run_finalize(widget, &new_surface);
 }
 
 /**
