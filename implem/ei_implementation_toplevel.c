@@ -85,6 +85,7 @@ bool ei_callback_toplevel(ei_widget_t	widget, struct ei_event_t*	event, ei_user_
                                                               *toplevel->border_width) {
                                 toplevel_move = 1;
                                 mouse_point = event->param.mouse.where;
+                                modify_hierarchy(toplevel, toplevel->widget.parent);
                                 return 1;
                         }
 
