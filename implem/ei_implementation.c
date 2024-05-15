@@ -194,7 +194,7 @@ void ei_impl_draw_frame(ei_widget_t widget,ei_surface_t surface,ei_surface_t pic
 
     ei_color_t light_color  = (ei_color_t){color.red + 20, color.green +20, color.blue +20, color.alpha};
 
-    ei_color_t dark_color  = (ei_color_t){color.red -20, color.green -20, color.blue -20, color.alpha};
+    ei_color_t dark_color  = (ei_color_t){abs(color.red -20), abs(color.green -20), abs(color.blue -20), color.alpha};
     switch (((ei_impl_frame_t*) widget)->frame_relief){
         case ei_relief_none:
             ei_draw_polygon(surface,lower_frame,23, color,clipper); //

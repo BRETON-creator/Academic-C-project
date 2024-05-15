@@ -270,7 +270,7 @@ void ei_impl_draw_toplevel(ei_widget_t widget, ei_surface_t surface, ei_surface_
         ei_rect_t rect= widget->screen_location;
 
         ei_color_t color  = *toplevel->color;
-        ei_color_t dark_color  = (ei_color_t){color.red -50, color.green -50, color.blue -50, color.alpha};
+        ei_color_t dark_color  = (ei_color_t){abs(color.red -50), abs(color.green -50) , abs(color.blue -50) , color.alpha};
 
         int border = *toplevel->border_width;
 
@@ -296,9 +296,9 @@ void ei_impl_draw_toplevel(ei_widget_t widget, ei_surface_t surface, ei_surface_
 
 
         ei_draw_polygon(surface,square_frame,4, dark_color, &new_clipper);
-        ei_draw_polygon(surface,rounded_frame_temp,21, dark_color, &new_clipper);
+        ei_draw_polygon(surface,rounded_frame_temp,40, dark_color, &new_clipper);
         ei_draw_polygon(surface,little_square_frame,4, color, &new_clipper);
-        ei_draw_polygon(pick_surface,rounded_frame,40,*(widget->pick_color),&new_clipper);
+        ei_draw_polygon(pick_surface,rounded_frame,21,*(widget->pick_color),&new_clipper);
 
 
         ei_color_t white_color = (ei_color_t){255,255,255, 255};
@@ -318,10 +318,45 @@ void ei_impl_draw_toplevel(ei_widget_t widget, ei_surface_t surface, ei_surface_
         hw_surface_lock(surface);
 }
 
+/**
+* \brief Fonction pour modifier la hiérarchie des widgets pour que le widget appelé écrase les autres fils de son parent : pour cela on le met à la fin
+* de la liste des enfants.
+*/
 
+void modify_hierarchy( ei_widget_t widget , ei_widget_t parent)
+{
+        ei_widget_t tmp = parent->children_head;
 
+        // Si le widget est déjà en dernier
+        if (!widget->next_sibling)
+                return;
 
+        // Trouver le widget dans la liste des enfants du parent
+        ei_widget_t prev = NULL;
+        ei_widget_t cur = parent->children_head;
 
+        while (cur != NULL) {
+                if (cur == widget)
+                        break;
+                prev = cur;
+                cur = cur->next_sibling;
+        }
+        if (!cur)
+                return;
+        if (prev)
+                prev->next_sibling = cur->next_sibling;
+        else
+                parent->children_head = cur->next_sibling;
+
+        cur->next_sibling = NULL;
+
+        // Trouver le dernier enfant et attacher le widget à sa suite
+        ei_widget_t last_child = parent->children_head;
+        while (last_child->next_sibling)
+                last_child = last_child->next_sibling;
+
+        last_child->next_sibling = cur;
+}
 
 void ei_impl_geomnotify_toplevel(ei_widget_t widget){
     if (widget->geom_params) (widget->geom_params->manager->runfunc)(widget);
