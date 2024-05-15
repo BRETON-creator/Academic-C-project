@@ -144,6 +144,7 @@ void ei_impl_release_toplevel(ei_widget_t toplevel){
                 if (widget->next_sibling) widget->children_head=widget->next_sibling;
                 else widget->children_head=NULL;
         }
+        //free(((ei_impl_toplevel_t*)toplevel)->border_width);
         free((ei_impl_toplevel_t*)toplevel);
 }
 

@@ -86,6 +86,7 @@ void ei_impl_release_frame(ei_widget_t frame){
                 if (widget->next_sibling) widget->children_head=widget->next_sibling;
                 else widget->children_head=NULL;
         }
+        free(frame->pick_color);
         free((ei_impl_frame_t*)frame);
 }
 
