@@ -225,4 +225,5 @@ void ei_impl_draw_button(ei_widget_t widget,ei_surface_t surface,ei_surface_t pi
  */
 bool ei_callback_clickbutton(ei_widget_t		widget, struct ei_event_t*	event, ei_user_param_t	user_param);
 
+void supr_hierachy(ei_widget_t widget, ei_widget_t widget_supr);
 #endif

@@ -172,18 +172,9 @@ ei_widget_t ei_impl_alloc_toplevel(){
  * \brief Fonction pour free un espace alloué a un widget toplevel.
  *
  */
+
 void ei_impl_release_toplevel(ei_widget_t toplevel){
-        ei_widget_t widget = ((ei_impl_toplevel_t*)(toplevel))->widget.parent;
-        ei_widget_t child=widget->next_sibling;
-        while (true){
-                if (child==NULL || child->pick_id==toplevel->pick_id) break;
-                child=child->next_sibling;
-        }
-        if (child) child->parent->next_sibling=toplevel->next_sibling;
-        if (widget->children_head->pick_id==toplevel->pick_id){
-                if (widget->next_sibling) widget->children_head=widget->next_sibling;
-                else widget->children_head=NULL;
-        }
+        supr_hierachy(ei_app_root_widget(), toplevel);
         free((ei_impl_toplevel_t*)toplevel);
 }
 
@@ -192,9 +183,7 @@ bool toplevel_close(ei_widget_t	widget,
                     ei_user_param_t user_param){
         widget->parent->geom_params->manager = NULL;
         ei_impl_widget_draw_children(ei_app_root_widget(),ei_app_root_surface(),pick_surface,&widget->parent->screen_location);
-        ei_impl_release_button(widget);
         ei_impl_release_toplevel(widget->parent);
-
         return true;
 }
 
