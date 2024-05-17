@@ -226,16 +226,15 @@ ei_widget_t ei_impl_alloc_toplevel(){
  */
 
 void ei_impl_release_toplevel(ei_widget_t toplevel){
-        supr_hierachy(ei_app_root_widget(), toplevel);
+        supr_hierachy(toplevel->parent, toplevel);
         free((ei_impl_toplevel_t*)toplevel);
 }
 
 bool toplevel_close(ei_widget_t	widget,
                     ei_event_t*	event,
                     ei_user_param_t user_param){
-        widget->parent->geom_params->manager = NULL;
+        ei_widget_destroy(widget->parent);
         ei_impl_widget_draw_children(ei_app_root_widget(),ei_app_root_surface(),pick_surface,&widget->parent->screen_location);
-        ei_impl_release_toplevel(widget->parent);
         return true;
 }
 

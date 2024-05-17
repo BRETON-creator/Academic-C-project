@@ -132,8 +132,8 @@ void ei_app_free(void){
     //free tous les widgets (parcours suffixe de l'arbre des widgets
     ei_widget_destroy(root);
 
-    //free les widgets_class (on en a que 2...
-    ei_widgetclass_t *tmp = ei_widgetclass_from_name("button\0");
+    //free les widgets_class (on en a que 3...
+    ei_widgetclass_t *tmp = ei_widgetclass_from_name("toplevel\0");
     ei_widgetclass_t *suiv= tmp->next;
     while (suiv){
         free(tmp);

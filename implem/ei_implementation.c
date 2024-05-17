@@ -75,8 +75,8 @@ ei_widget_t ei_impl_alloc_frame(){
  *
  */
 void ei_impl_release_frame(ei_widget_t frame){
-        supr_hierachy(ei_app_root_widget(), frame);
-        free(frame->pick_color);
+        supr_hierachy(frame->parent, frame);
+        if (((ei_impl_frame_t*)frame)->text) free((((ei_impl_frame_t*)frame)->text));
         free((ei_impl_frame_t*)frame);
 }
 
@@ -145,18 +145,23 @@ void ei_impl_draw_frame(ei_widget_t widget,ei_surface_t surface,ei_surface_t pic
 
     if (((ei_impl_frame_t*)widget)->text) {
         //printf("%s", ((ei_impl_frame_t*)widget)->text);
-        ei_point_t where = place_text(rect,((ei_impl_frame_t *) widget)->text_anchor, hw_surface_get_size(hw_text_create_surface(((ei_impl_frame_t *) widget)->text,((ei_impl_frame_t *) widget)->text_font,((ei_impl_frame_t *) widget)->text_color)));
+        ei_surface_t surface_text = hw_text_create_surface(((ei_impl_frame_t *) widget)->text,
+                                                           ((ei_impl_frame_t *) widget)->text_font,
+                                                           ((ei_impl_frame_t *) widget)->text_color);
+
+        ei_point_t where = place_text(rect,((ei_impl_frame_t *) widget)->text_anchor, hw_surface_get_size(surface_text));
         if (((ei_impl_frame_t*)widget)->frame_relief == ei_relief_sunken)
             where = (ei_point_t){where.x,where.y + 2};
         ei_draw_text(surface, &where, ((ei_impl_frame_t *) widget)->text,
                      ((ei_impl_frame_t *) widget)->text_font, ((ei_impl_frame_t *) widget)->text_color,
                      &widget->screen_location);
+        hw_surface_free(surface_text);
     }
     // intersect widget->screen_location et clipper
     ei_app_invalidate_rect(&widget->screen_location);
+
     hw_surface_lock(surface);
 }
-
 
 /**
  * \brief Fonction pour mettre les valeurs par defauts d'un widget frame
@@ -164,6 +169,7 @@ void ei_impl_draw_frame(ei_widget_t widget,ei_surface_t surface,ei_surface_t pic
  */
 void ei_impl_setdefaults_frame(ei_widget_t widget){
     ei_impl_frame_t* frame = (ei_impl_frame_t*)widget;
+    widget->destructor = NULL;
     frame->widget.wclass = ei_widgetclass_from_name((ei_const_string_t){"frame\0"});
     frame->widget.user_data = NULL;
     frame->widget.destructor = NULL;
@@ -217,7 +223,7 @@ ei_widget_t ei_impl_alloc_button(){
  *
  */
 void ei_impl_release_button(ei_widget_t button){
-        supr_hierachy(ei_app_root_widget(), button);
+        supr_hierachy(button->parent, button);
         free((ei_impl_button_t*)button);
 }
 
@@ -284,12 +290,21 @@ bool ei_callback_buttondown (ei_widget_t		widget, struct ei_event_t*	event, ei_u
 }
 
 void supr_hierachy(ei_widget_t widget, ei_widget_t widget_supr){
-
-        if (widget->children_head && widget->children_head->pick_id==widget_supr->pick_id) widget->children_head=widget_supr->next_sibling;
-        if (widget->next_sibling && widget->next_sibling->pick_id==widget_supr->pick_id) widget->next_sibling=widget_supr->next_sibling;
-        ei_widget_t child = widget->children_head;
-        while (child){
-                supr_hierachy(child, widget_supr);
-                child=child->next_sibling;
+        if (!widget) return;
+        ei_widget_t prec= widget->children_head;
+        if (prec==widget_supr) {
+            widget->children_head = widget->children_head->next_sibling;
+            return;
+        }else{
+            ei_widget_t current = prec->next_sibling;
+            while(current){
+                if (current==widget_supr){
+                    prec->next_sibling = current->next_sibling;
+                    if (current == widget->children_tail) widget->children_tail = prec;
+                    return;
+                }
+                prec=current;
+                current=current->next_sibling;
+            }
         }
 }
