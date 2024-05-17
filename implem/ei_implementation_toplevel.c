@@ -130,19 +130,33 @@ bool ei_resize_toplevel(ei_widget_t	widget, struct ei_event_t*	event, ei_user_pa
         }
 
         if (resize && event->type==ei_ev_mouse_move) {
-                //TODO gérer les contraintes
-                int x = cur_point.x - mouse_point.x;
-                int y = cur_point.y - mouse_point.y;
-
-                ei_rect_t rect = frame->widget.parent->screen_location;
+                ei_impl_toplevel_t *toplevel = (ei_impl_toplevel_t *) frame->widget.parent;
+                ei_rect_t rect = toplevel->widget.screen_location;
                 rect.size.width++;
                 rect.size.height++;
 
-                frame->widget.parent->screen_location.size.width += x;
-                frame->widget.parent->screen_location.size.height += y;
+                int x = 0;
+                int y = 0;
 
-                frame->widget.parent->requested_size.width += x;
-                frame->widget.parent->requested_size.height += y;
+                if (toplevel->resizable_axis==ei_axis_both || toplevel->resizable_axis==ei_axis_x){
+                        x = cur_point.x - mouse_point.x;
+                }
+
+                if (toplevel->resizable_axis==ei_axis_both || toplevel->resizable_axis==ei_axis_y){
+                        y = cur_point.y - mouse_point.y;
+                }
+
+                x +=toplevel->widget.requested_size.width;
+                y +=toplevel->widget.requested_size.height;
+
+                if (toplevel->minimal_size.width>x) x=toplevel->minimal_size.width;
+                if (toplevel->minimal_size.height>y) y=toplevel->minimal_size.height;
+
+                toplevel->widget.screen_location.size.width = x;
+                toplevel->widget.screen_location.size.height = y;
+
+                toplevel->widget.requested_size.width = x;
+                toplevel->widget.requested_size.height = y;
 
                 mouse_point = cur_point;
 
@@ -244,6 +258,13 @@ void ei_impl_setdefaults_toplevel(ei_widget_t widget){
         ei_bind(ei_ev_mouse_buttonup, resize_frame,NULL,ei_resize_toplevel,NULL);
 
         toplevel->frame = resize_frame;
+
+        ei_place(toplevel->button, &(ei_anchor_t){ei_anc_northwest},
+                 &(int){*toplevel->border_width + 4}, &(int){*toplevel->border_width + 4}, NULL,
+                 NULL, &(float){0.0}, &(float){0.0}, NULL, NULL);
+
+        ei_place(toplevel->frame, &(ei_anchor_t){ei_anc_southeast},
+                 NULL, NULL, NULL, NULL, &(float){1.0}, &(float){1.0}, NULL, NULL);
 }
 
 /**
@@ -307,5 +328,5 @@ void ei_impl_draw_toplevel(ei_widget_t widget, ei_surface_t surface, ei_surface_
 }
 
 void ei_impl_geomnotify_toplevel(ei_widget_t widget){
-        
+
 }
