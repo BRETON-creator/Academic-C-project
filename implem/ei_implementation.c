@@ -98,6 +98,7 @@ void ei_impl_draw_frame(ei_widget_t widget,ei_surface_t surface,ei_surface_t pic
     ei_color_t color  = ((ei_impl_button_t*)widget)->frame.frame_color;
     ei_size_t size= widget->requested_size;
     ei_rect_t rect= widget->screen_location;
+    ei_rect_t new_clipper = get_rect_intersection(rect,*clipper);
     h = size.height < size.width ? size.height /2 : size.width /2;
     int border = ((ei_impl_frame_t*)widget)->border_size;
 
@@ -122,24 +123,24 @@ void ei_impl_draw_frame(ei_widget_t widget,ei_surface_t surface,ei_surface_t pic
     ei_color_t dark_color  = (ei_color_t){abs(color.red -20), abs(color.green -20), abs(color.blue -20), color.alpha};
     switch (((ei_impl_frame_t*) widget)->frame_relief){
         case ei_relief_none:
-            ei_draw_polygon(surface,lower_frame,23, color,clipper); //
-            ei_draw_polygon(surface,upper_frame,23,color,clipper);
+            ei_draw_polygon(surface,lower_frame,23, color,&new_clipper); //
+            ei_draw_polygon(surface,upper_frame,23,color,&new_clipper);
             break;
         case ei_relief_raised:
-            ei_draw_polygon(surface,lower_frame,23, dark_color,clipper);
-            ei_draw_polygon(surface,upper_frame,23,light_color,clipper);
+            ei_draw_polygon(surface,lower_frame,23, dark_color,&new_clipper);
+            ei_draw_polygon(surface,upper_frame,23,light_color,&new_clipper);
             break;
         case ei_relief_sunken:
 
-            ei_draw_polygon(surface,lower_frame,23, light_color,clipper);
-            ei_draw_polygon(surface,upper_frame,23,dark_color,clipper);
+            ei_draw_polygon(surface,lower_frame,23, light_color,&new_clipper);
+            ei_draw_polygon(surface,upper_frame,23,dark_color,&new_clipper);
             break;
     }
 
-    ei_draw_polygon(surface,smaller_frame,40, color,clipper);
+    ei_draw_polygon(surface,smaller_frame,40, color,&new_clipper);
     //on dessine sur la pick surface aussi. pour afficher la pick surface decommenter la ligne du dessous
-    //ei_draw_polygon(surface,rounded_frame,40,*(widget->pick_color),clipper);
-    ei_draw_polygon(pick_surface,rounded_frame,40,*(widget->pick_color),clipper);
+    //ei_draw_polygon(surface,rounded_frame,40,*(widget->pick_color),&new_clipper);
+    ei_draw_polygon(pick_surface,rounded_frame,40,*(widget->pick_color),&new_clipper);
 
 
     if (((ei_impl_frame_t*)widget)->text) {
