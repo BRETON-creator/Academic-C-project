@@ -83,7 +83,6 @@ void ei_impl_release_frame(ei_widget_t frame){
 
 /**
  * \brief Fonction pour dessiner un widget frame.
- * TODO : dessiner correctement le frame
  * dans la surface de la fenetre root ou de la fenetre du parent ?
  * doit trouver le point ou on doit placer le frame
  * depend du point d'ancrage
@@ -224,6 +223,7 @@ ei_widget_t ei_impl_alloc_button(){
  */
 void ei_impl_release_button(ei_widget_t button){
         supr_hierachy(button->parent, button);
+        if (((ei_impl_frame_t*)button)->text) free((((ei_impl_frame_t*)button)->text));
         free((ei_impl_button_t*)button);
 }
 
