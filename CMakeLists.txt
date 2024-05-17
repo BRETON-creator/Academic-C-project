@@ -80,6 +80,7 @@ set(LIB_EI_SOURCES
 		${SRC}/ei_widget_attributes.c
 		${SRC}/ei_draw.c
 		${SRC}/ei_implementation_toplevel.c
+		${SRC}/ei_implementation_entry.c
 		${SRC}/ei_impl_placer.c
 		${SRC}/ei_impl_binds.c
 		${SRC}/ei_outil_geom.c

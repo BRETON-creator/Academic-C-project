@@ -180,6 +180,19 @@ void			ei_toplevel_configure		(ei_widget_t		widget,
                 ((ei_impl_button_t*)toplevel->button)->callback = NULL;
         }
 
+        ei_impl_frame_t * frame = ((ei_impl_frame_t*)toplevel->contain_frame);
+
+        int border = *toplevel->border_width;
+        ei_frame_configure		(frame, &(ei_size_t){toplevel->widget.requested_size.width-2*border,
+                                                               toplevel->widget.requested_size.height-2*border-k_default_button_corner_radius*2},
+                                           toplevel->color,
+                                           &(int){0}, NULL,NULL,
+                                           NULL, NULL,
+                                           NULL, NULL, NULL, NULL);
+
+        ei_place(frame, &(ei_anchor_t){ei_anc_northwest},
+                 &(int){border}, &(int){border+k_default_button_corner_radius*2}, NULL, NULL, &(float){0.0}, &(float){0.0}, NULL, NULL);
+
 }
 
 

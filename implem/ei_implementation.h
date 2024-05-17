@@ -93,6 +93,8 @@ typedef struct {
  * - bool can_close : specify if the window is closable
  * - ei_axis_set_t resizable_axis : specifie quels axes sont redimmensionnables
  * - ei_size_t minimal_size : size minimale que le gestionnaire de géométrie devra prendre en compte.
+ * -ei_widget_t button : bouton de fermeture du toplevel
+ * -ei_widget_t frame : frame pour redimmensionner le toplevel
  */
 typedef struct {
     ei_impl_widget_t widget;
@@ -104,7 +106,15 @@ typedef struct {
     ei_size_t minimal_size;
     ei_widget_t button;
     ei_widget_t frame;
+    ei_widget_t contain_frame;
 }ei_impl_toplevel_t;
+
+/**
+ * @brief Implementation of widget type entry
+ */
+typedef struct {
+
+}ei_impl_entry_t;
 
 /**
  * @brief	Draws the children of a widget.

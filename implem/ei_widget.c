@@ -11,6 +11,7 @@
 #include "ei_widget.h"
 #include "ei_implementation.h"
 #include "var.h"
+#include "ei_widgetclass.h"
 
 uint32_t next_pick_id = 0x00000FFF;
 
@@ -43,6 +44,13 @@ ei_widget_t		ei_widget_create		(ei_const_string_t	class_name,
 							 ei_widget_destructor_t destructor){
     ei_widget_t new_widget = ei_widgetclass_from_name(class_name)->allocfunc();
     ei_widgetclass_from_name(class_name)->setdefaultsfunc(new_widget);
+
+    if (strcmp(parent->wclass->name, (ei_widgetclass_name_t){"toplevel\0"})==0) {
+            if (((ei_impl_toplevel_t*)parent)->contain_frame) {
+                    parent=((ei_impl_toplevel_t*)parent)->contain_frame;
+            }
+    }
+
     new_widget->parent=parent;
     ei_widget_t tmp = parent->children_head;
     parent->children_head=new_widget;

@@ -15,7 +15,7 @@
 #include "ei_widget.h"
 #include "ei_implementation.h"
 #include "ei_geometrymanager.h"
-
+#include "ei_widget_configure.h"
 
 /**
  * \brief	Configures the geometry of a widget using the "placer" geometry manager.
@@ -110,6 +110,16 @@ void		ei_place	(ei_widget_t		widget,
         ei_anchor_t anc;
         if (!anchor) anc= ei_anc_northwest;
         else anc = *anchor;
+
+//        int border, radius;
+//        if (strcmp(widget->parent->wclass->name, (ei_widgetclass_name_t){"toplevel\0"})==0){
+//                ei_impl_toplevel_t* toplevel = (ei_impl_toplevel_t*)widget->parent;
+//                border = *toplevel->border_width;
+//                radius = k_default_button_corner_radius*2;
+//
+//                xpos += border;
+//                ypos += border + radius;
+//        }
         switch (anc){
             case ei_anc_northwest:
                 xpos = xpos;
@@ -148,6 +158,7 @@ void		ei_place	(ei_widget_t		widget,
                 ypos = ypos - widget->requested_size.height;
                 break;
         }
+
         if (xpos!= 0) widget->screen_location.top_left.x = xpos;
         if (ypos!= 0) widget->screen_location.top_left.y = ypos;
 
