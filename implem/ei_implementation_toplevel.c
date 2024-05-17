@@ -30,7 +30,11 @@ void modify_hierarchy( ei_widget_t widget , ei_widget_t parent)
                 modify_hierarchy(widget->parent, widget->parent->parent);
                 return;
         }
-
+        // Si le parent du widget est un toplevel alors on ne modifie pas sa hierarchie (elle sera toujours la meme)
+        if (strcmp(parent->wclass->name,"toplevel\0") == 0){
+            modify_hierarchy(widget->parent, widget->parent->parent);
+            return;
+        }
         // Trouver le widget dans la liste des enfants du parent
         ei_widget_t prev = NULL;
         ei_widget_t cur = parent->children_head;
