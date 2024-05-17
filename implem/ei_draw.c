@@ -11,7 +11,7 @@
 
 
 #include "ei_draw.h"
-#include "ei_implementation.h"
+#include "ei_outil_geom.h"
 
 /**
  * \brief	Draws text by calling \ref hw_text_create_surface.
@@ -32,11 +32,15 @@ void	ei_draw_text		(ei_surface_t		surface,
 				 ei_font_t		font,
 				 ei_color_t		color,
 				 const ei_rect_t*	clipper){
+
     ei_surface_t surfacetext = hw_text_create_surface(text,font,color);
-    ei_rect_t dst_rect = (ei_rect_t){*where, hw_surface_get_size(surfacetext)};
+    ei_rect_t rect_text = (ei_rect_t){*where, hw_surface_get_size(surfacetext)};
     hw_surface_lock(surface);
     hw_surface_lock(surfacetext);
-    ei_copy_surface(surface, &dst_rect, surfacetext, NULL, true);
+    ei_rect_t dst_rect = get_rect_intersection(*clipper,rect_text);
+    int decalage_x = abs(dst_rect.top_left.x - rect_text.top_left.x);
+    int decalage_y = abs(dst_rect.top_left.y - rect_text.top_left.y);
+    ei_copy_surface(surface, &dst_rect, surfacetext, &(ei_rect_t){{decalage_x,decalage_y},dst_rect.size}, true);
     hw_surface_unlock(surface);
     hw_surface_unlock(surfacetext);
     hw_surface_free(surfacetext);

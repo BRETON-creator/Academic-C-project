@@ -61,18 +61,48 @@ bool toplevel_move;
 bool resize;
 ei_impl_frame_t* frame;
 ei_point_t mouse_point;
+ei_impl_toplevel_t* current_moving_toplevel = NULL;
 
 
 bool ei_callback_toplevel(ei_widget_t	widget, struct ei_event_t*	event, ei_user_param_t	user_param) {
 
+         ei_point_t cur_point = event->param.mouse.where;
+
+        if (toplevel_move && event->type == ei_ev_mouse_move && current_moving_toplevel) {
+            int x = cur_point.x - mouse_point.x;
+            int y = cur_point.y - mouse_point.y;
+
+            ei_rect_t clip = current_moving_toplevel->widget.screen_location;
+
+            current_moving_toplevel->widget.screen_location.top_left.x += x;
+            current_moving_toplevel->widget.screen_location.top_left.y += y;
+            mouse_point = cur_point;
+
+
+            clip.size.width+=abs(x);
+            clip.size.height+=abs(y);
+            if (current_moving_toplevel->widget.screen_location.top_left.x < clip.top_left.x )
+                clip.top_left.x = current_moving_toplevel->widget.screen_location.top_left.x ;
+            if (current_moving_toplevel->widget.screen_location.top_left.y < clip.top_left.y )
+                clip.top_left.y = current_moving_toplevel->widget.screen_location.top_left.y ;
+
+            ei_widget_t child = current_moving_toplevel->widget.children_head;
+            while (child){
+                (child->geom_params->manager->runfunc)(child);
+                child=child->next_sibling;
+            }
+            ei_impl_widget_draw_children(ei_app_root_widget(), ei_app_root_surface(), pick_surface, &clip);
+
+            return 1;
+        }
         if (event->type == ei_ev_mouse_buttonup && toplevel_move) {
                 toplevel_move = 0;
+                current_moving_toplevel = NULL;
                 return 1;
         }
 
         if (!widget) return false;
 
-        ei_point_t cur_point = event->param.mouse.where;
 
         if (strcmp(widget->wclass->name, (ei_widgetclass_name_t) {"toplevel\0"}) == 0) {
 
@@ -84,34 +114,17 @@ bool ei_callback_toplevel(ei_widget_t	widget, struct ei_event_t*	event, ei_user_
                                                               rect.top_left.y + k_default_button_corner_radius * 2 +
                                                               *toplevel->border_width) {
                                 toplevel_move = 1;
+                                current_moving_toplevel = toplevel;
                                 mouse_point = event->param.mouse.where;
-                                modify_hierarchy(toplevel, toplevel->widget.parent);
+                                modify_hierarchy(widget, toplevel->widget.parent);
                                 return 1;
                         }
 
                 }
 
-                if (toplevel_move && event->type == ei_ev_mouse_move) {
-                        int x = cur_point.x - mouse_point.x;
-                        int y = cur_point.y - mouse_point.y;
 
-                        toplevel->widget.screen_location.top_left.x += x;
-                        toplevel->widget.screen_location.top_left.y += y;
-                        mouse_point = cur_point;
-
-                        rect.size.width++;
-                        rect.size.height++;
-
-                        ei_widget_t child = toplevel->widget.children_head;
-                        while (child){
-                                (child->geom_params->manager->runfunc)(child);
-                                child=child->next_sibling;
-                        }
-                        ei_impl_widget_draw_children(ei_app_root_widget(), ei_app_root_surface(), pick_surface, &rect);
-
-                        return 1;
-                }
         }
+
 }
 
 bool ei_resize_toplevel(ei_widget_t	widget, struct ei_event_t*	event, ei_user_param_t	user_param){
