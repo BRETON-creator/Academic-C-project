@@ -22,11 +22,14 @@
 
 void modify_hierarchy( ei_widget_t widget , ei_widget_t parent)
 {
+        if (!parent) return;
         ei_widget_t tmp = parent->children_head;
 
         // Si le widget est déjà en dernier
-        if (!widget->next_sibling)
+        if (!widget->next_sibling) {
+                modify_hierarchy(widget->parent, widget->parent->parent);
                 return;
+        }
 
         // Trouver le widget dans la liste des enfants du parent
         ei_widget_t prev = NULL;
@@ -53,6 +56,7 @@ void modify_hierarchy( ei_widget_t widget , ei_widget_t parent)
                 last_child = last_child->next_sibling;
 
         last_child->next_sibling = cur;
+        modify_hierarchy(widget->parent, widget->parent->parent);
 }
 
 //============================= toplevel
@@ -117,6 +121,7 @@ bool ei_callback_toplevel(ei_widget_t	widget, struct ei_event_t*	event, ei_user_
                                 current_moving_toplevel = toplevel;
                                 mouse_point = event->param.mouse.where;
                                 modify_hierarchy(widget, toplevel->widget.parent);
+                                ei_impl_widget_draw_children(ei_app_root_widget(), ei_app_root_surface(), pick_surface, &toplevel->widget.screen_location);
                                 return 1;
                         }
 
@@ -354,7 +359,7 @@ void ei_impl_draw_toplevel(ei_widget_t widget, ei_surface_t surface, ei_surface_
                 ei_font_t font = hw_text_font_create(ei_default_font_filename, ei_style_normal, 18);
                 ei_draw_text(surface, &where, toplevel->title,
                              font, white_color,
-                             clipper);
+                             &new_clipper);
                 hw_text_font_free(font);
         }
 

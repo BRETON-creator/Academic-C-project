@@ -276,6 +276,12 @@ bool ei_callback_clickbutton(ei_widget_t		widget, struct ei_event_t*	event, ei_u
     }
 }
 
+bool ei_callback_buttondown (ei_widget_t		widget, struct ei_event_t*	event, ei_user_param_t	user_param){
+    if (!widget) return false;
+    modify_hierarchy(widget,widget->parent);
+    ei_impl_widget_draw_children(ei_app_root_widget(),ei_app_root_surface(),pick_surface,&ei_app_root_widget()->screen_location);
+    return false;
+}
 
 void supr_hierachy(ei_widget_t widget, ei_widget_t widget_supr){
 

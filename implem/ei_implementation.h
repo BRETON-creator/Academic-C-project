@@ -15,6 +15,7 @@
 #include "ei_application.h"
 #include "ei_event.h"
 #include "ei_outil_geom.h"
+#include "ei_implementation_toplevel.h"
 
 
 
@@ -234,6 +235,8 @@ void ei_impl_draw_button(ei_widget_t widget,ei_surface_t surface,ei_surface_t pi
  * @return la fonction callback a bien été utilisée
  */
 bool ei_callback_clickbutton(ei_widget_t		widget, struct ei_event_t*	event, ei_user_param_t	user_param);
+
+bool ei_callback_buttondown(ei_widget_t		widget, struct ei_event_t*	event, ei_user_param_t	user_param);
 
 void supr_hierachy(ei_widget_t widget, ei_widget_t widget_supr);
 #endif
