@@ -187,6 +187,7 @@ void ei_app_run(void){
     ei_bind(ei_ev_mouse_move, NULL,"toplevel\0",ei_callback_toplevel,NULL);
     ei_bind(ei_ev_mouse_buttonup, NULL,"toplevel\0",ei_callback_toplevel,NULL);
 
+    ei_widget_t cur = ei_app_root_widget();
     ei_event_t* event = calloc(1,sizeof(ei_event_t));
     ei_bind_t* bind;
     ei_bind_t* binds;

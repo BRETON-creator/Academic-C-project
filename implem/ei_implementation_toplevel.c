@@ -136,10 +136,12 @@ bool ei_resize_toplevel(ei_widget_t	widget, struct ei_event_t*	event, ei_user_pa
         ei_point_t cur_point = event->param.mouse.where;
 
         if (widget && resize==0 && event->type==ei_ev_mouse_buttondown && strcmp(widget->wclass->name, (ei_widgetclass_name_t) {"frame\0"})==0){
-                resize=1;
-                mouse_point = event->param.mouse.where;
-                frame = (ei_impl_frame_t *)widget;
-                return 1;
+                if (strcmp(widget->parent->wclass->name, (ei_widgetclass_name_t) {"toplevel\0"})==0 && widget->pick_id==((ei_impl_toplevel_t*)widget->parent)->frame->pick_id){
+                        resize=1;
+                        mouse_point = event->param.mouse.where;
+                        frame = (ei_impl_frame_t *)widget;
+                        return 1;
+                }
         }
 
         if (resize && event->type==ei_ev_mouse_move) {
@@ -171,6 +173,13 @@ bool ei_resize_toplevel(ei_widget_t	widget, struct ei_event_t*	event, ei_user_pa
                 toplevel->widget.requested_size.width = x;
                 toplevel->widget.requested_size.height = y;
 
+                ei_impl_frame_t *contain_frame = (ei_impl_frame_t *) toplevel->contain_frame;
+                contain_frame->widget.screen_location.size.width = x- 2*(*toplevel->border_width);
+                contain_frame->widget.screen_location.size.height = y- 2*(*toplevel->border_width)-k_default_button_corner_radius*2;
+
+                contain_frame->widget.requested_size.width = x- 2*(*toplevel->border_width);
+                contain_frame->widget.requested_size.height = y- 2*(*toplevel->border_width)-k_default_button_corner_radius*2;
+
                 mouse_point = cur_point;
 
                 ei_widget_t child = frame->widget.parent->children_head;
@@ -178,6 +187,13 @@ bool ei_resize_toplevel(ei_widget_t	widget, struct ei_event_t*	event, ei_user_pa
                         (child->geom_params->manager->runfunc)(child);
                         child=child->next_sibling;
                 }
+
+                child = contain_frame->widget.children_head;
+                while (child){
+                        (child->geom_params->manager->runfunc)(child);
+                        child=child->next_sibling;
+                }
+
                 ei_impl_widget_draw_children(ei_app_root_widget(), ei_app_root_surface(), pick_surface, &rect);
 
                 return 1;
@@ -278,6 +294,19 @@ void ei_impl_setdefaults_toplevel(ei_widget_t widget){
 
         ei_place(toplevel->frame, &(ei_anchor_t){ei_anc_southeast},
                  NULL, NULL, NULL, NULL, &(float){1.0}, &(float){1.0}, NULL, NULL);
+
+        ei_widget_t frame = ei_widget_create	("frame", (ei_widget_t)(toplevel), NULL, NULL);
+        ei_frame_configure		(frame, &(ei_size_t){toplevel->widget.requested_size.width-2*(*border),
+                                                               toplevel->widget.requested_size.height-2*(*border)}-k_default_button_corner_radius*2,
+                                           &color,
+                                           &(int){0}, NULL,NULL,
+                                           NULL, NULL,
+                                           NULL, NULL, NULL, NULL);
+
+        ei_place(frame, &(ei_anchor_t){ei_anc_northwest},
+                 &(int){*border}, &(int){*border+k_default_button_corner_radius*2}, NULL, NULL, &(float){0.0}, &(float){0.0}, NULL, NULL);
+
+        toplevel->contain_frame = frame;
 }
 
 /**
@@ -311,15 +340,15 @@ void ei_impl_draw_toplevel(ei_widget_t widget, ei_surface_t surface, ei_surface_
                                       {rect.top_left.x + rect.size.width , rect.top_left.y + rect.size.height },
                                       {rect.top_left.x, rect.top_left.y + rect.size.height}};
 
-        ei_point_t little_square_frame[4] = {{rect.top_left.x + border , rect.top_left.y + 2*radius + border},
-                                             {rect.top_left.x + rect.size.width - border, rect.top_left.y + 2*radius + border},
-                                             {rect.top_left.x + rect.size.width - border, rect.top_left.y + rect.size.height - border},
-                                             {rect.top_left.x + border, rect.top_left.y + rect.size.height - border}};
+//        ei_point_t little_square_frame[4] = {{rect.top_left.x + border , rect.top_left.y + 2*radius + border},
+//                                             {rect.top_left.x + rect.size.width - border, rect.top_left.y + 2*radius + border},
+//                                             {rect.top_left.x + rect.size.width - border, rect.top_left.y + rect.size.height - border},
+//                                             {rect.top_left.x + border, rect.top_left.y + rect.size.height - border}};
 
 
         ei_draw_polygon(surface,square_frame,4, dark_color, &new_clipper);
         ei_draw_polygon(surface,rounded_frame_temp,40, dark_color, &new_clipper);
-        ei_draw_polygon(surface,little_square_frame,4, color, &new_clipper);
+        //ei_draw_polygon(surface,little_square_frame,4, color, &new_clipper);
         ei_draw_polygon(pick_surface,rounded_frame,21,*(widget->pick_color),&new_clipper);
 
 
