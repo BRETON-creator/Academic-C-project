@@ -11,6 +11,7 @@
 
 #include "ei_geometrymanager.h"
 #include "ei_implementation.h"
+#include "var.h"
 
 
 /**
@@ -65,8 +66,10 @@ void			ei_geometry_run_finalize(ei_widget_t widget, ei_rect_t* new_screen_locati
                 (child->geom_params->manager->runfunc)(child);
                 child=child->next_sibling;
             }
+
+            widget->screen_location = *new_screen_location;
     }
-    widget->screen_location = *new_screen_location;
+
 }
 
 

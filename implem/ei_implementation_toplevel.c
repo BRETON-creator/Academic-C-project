@@ -112,7 +112,7 @@ bool ei_callback_toplevel(ei_widget_t	widget, struct ei_event_t*	event, ei_user_
                 if (toplevel_move == 0 && event->type == ei_ev_mouse_buttondown) {
                         if (rect.top_left.y <= cur_point.y && cur_point.y <=
                                                               rect.top_left.y + k_default_button_corner_radius * 2 +
-                                                              *toplevel->border_width) {
+                                                              toplevel->border_width) {
                                 toplevel_move = 1;
                                 current_moving_toplevel = toplevel;
                                 mouse_point = event->param.mouse.where;
@@ -174,11 +174,11 @@ bool ei_resize_toplevel(ei_widget_t	widget, struct ei_event_t*	event, ei_user_pa
                 toplevel->widget.requested_size.height = y;
 
                 ei_impl_frame_t *contain_frame = (ei_impl_frame_t *) toplevel->contain_frame;
-                contain_frame->widget.screen_location.size.width = x- 2*(*toplevel->border_width);
-                contain_frame->widget.screen_location.size.height = y- 2*(*toplevel->border_width)-k_default_button_corner_radius*2;
+                contain_frame->widget.screen_location.size.width = x- 2*(toplevel->border_width);
+                contain_frame->widget.screen_location.size.height = y- 2*(toplevel->border_width)-k_default_button_corner_radius*2;
 
-                contain_frame->widget.requested_size.width = x- 2*(*toplevel->border_width);
-                contain_frame->widget.requested_size.height = y- 2*(*toplevel->border_width)-k_default_button_corner_radius*2;
+                contain_frame->widget.requested_size.width = x- 2*(toplevel->border_width);
+                contain_frame->widget.requested_size.height = y- 2*(toplevel->border_width)-k_default_button_corner_radius*2;
 
                 mouse_point = cur_point;
 
@@ -250,9 +250,9 @@ void ei_impl_setdefaults_toplevel(ei_widget_t widget){
         toplevel->widget.requested_size=(ei_size_t){320,240} ;	///< See \ref ei_widget_get_requested_size.
         toplevel->widget.screen_location=(ei_rect_t){(ei_point_t){0,0},(ei_size_t){320,240}};///< See \ref ei_widget_get_screen_location.
 
-        toplevel->color = &ei_default_background_color;
-        int* border = calloc(1, sizeof(int));
-        *border = 4;
+        toplevel->color = ei_default_background_color;
+
+        int border =4;
         toplevel->border_width = border;
         toplevel->title="Toplevel";
         toplevel->can_close = true;
@@ -272,7 +272,7 @@ void ei_impl_setdefaults_toplevel(ei_widget_t widget){
 
         toplevel->button = button;
 
-        ei_color_t color  = *toplevel->color;
+        ei_color_t color  = toplevel->color;
         ei_color_t dark_color  = (ei_color_t){color.red -50, color.green -50, color.blue -50, color.alpha};
 
         ei_widget_t resize_frame = ei_widget_create	("frame", (ei_widget_t)(toplevel), NULL, NULL);
@@ -289,22 +289,22 @@ void ei_impl_setdefaults_toplevel(ei_widget_t widget){
         toplevel->frame = resize_frame;
 
         ei_place(toplevel->button, &(ei_anchor_t){ei_anc_northwest},
-                 &(int){*toplevel->border_width + 4}, &(int){*toplevel->border_width + 4}, NULL,
+                 &(int){toplevel->border_width + 4}, &(int){toplevel->border_width + 4}, NULL,
                  NULL, &(float){0.0}, &(float){0.0}, NULL, NULL);
 
         ei_place(toplevel->frame, &(ei_anchor_t){ei_anc_southeast},
                  NULL, NULL, NULL, NULL, &(float){1.0}, &(float){1.0}, NULL, NULL);
 
         ei_widget_t frame = ei_widget_create	("frame", (ei_widget_t)(toplevel), NULL, NULL);
-        ei_frame_configure		(frame, &(ei_size_t){toplevel->widget.requested_size.width-2*(*border),
-                                                               toplevel->widget.requested_size.height-2*(*border)}-k_default_button_corner_radius*2,
+        ei_frame_configure		(frame, &(ei_size_t){toplevel->widget.requested_size.width-2*(border),
+                                                               toplevel->widget.requested_size.height-2*(border)}-k_default_button_corner_radius*2,
                                            &color,
                                            &(int){0}, NULL,NULL,
                                            NULL, NULL,
                                            NULL, NULL, NULL, NULL);
 
         ei_place(frame, &(ei_anchor_t){ei_anc_northwest},
-                 &(int){*border}, &(int){*border+k_default_button_corner_radius*2}, NULL, NULL, &(float){0.0}, &(float){0.0}, NULL, NULL);
+                 &(int){border}, &(int){border+k_default_button_corner_radius*2}, NULL, NULL, &(float){0.0}, &(float){0.0}, NULL, NULL);
 
         toplevel->contain_frame = frame;
 }
@@ -320,10 +320,10 @@ void ei_impl_draw_toplevel(ei_widget_t widget, ei_surface_t surface, ei_surface_
         ei_rect_t new_clipper = get_rect_intersection(*clipper, widget->screen_location);
         ei_rect_t rect= widget->screen_location;
 
-        ei_color_t color  = *toplevel->color;
-        ei_color_t dark_color  = (ei_color_t){abs(color.red -50), abs(color.green -50) , abs(color.blue -50) , color.alpha};
+        ei_color_t color  = ei_font_default_color;
+        ei_color_t dark_color  = (ei_color_t){abs(color.red +100), abs(color.green +100) , abs(color.blue +100) , color.alpha};
 
-        int border = *toplevel->border_width;
+        int border = toplevel->border_width;
 
         int radius = k_default_button_corner_radius;
         ei_point_t rounded_frame_temp[40];
@@ -340,15 +340,9 @@ void ei_impl_draw_toplevel(ei_widget_t widget, ei_surface_t surface, ei_surface_
                                       {rect.top_left.x + rect.size.width , rect.top_left.y + rect.size.height },
                                       {rect.top_left.x, rect.top_left.y + rect.size.height}};
 
-//        ei_point_t little_square_frame[4] = {{rect.top_left.x + border , rect.top_left.y + 2*radius + border},
-//                                             {rect.top_left.x + rect.size.width - border, rect.top_left.y + 2*radius + border},
-//                                             {rect.top_left.x + rect.size.width - border, rect.top_left.y + rect.size.height - border},
-//                                             {rect.top_left.x + border, rect.top_left.y + rect.size.height - border}};
-
 
         ei_draw_polygon(surface,square_frame,4, dark_color, &new_clipper);
         ei_draw_polygon(surface,rounded_frame_temp,40, dark_color, &new_clipper);
-        //ei_draw_polygon(surface,little_square_frame,4, color, &new_clipper);
         ei_draw_polygon(pick_surface,rounded_frame,21,*(widget->pick_color),&new_clipper);
 
 

@@ -98,8 +98,8 @@ typedef struct {
  */
 typedef struct {
     ei_impl_widget_t widget;
-    ei_color_t* color;
-    int* border_width;
+    ei_color_t color;
+    int border_width;
     char* title;
     bool can_close;
     ei_axis_set_t resizable_axis;
