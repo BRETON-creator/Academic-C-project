@@ -171,9 +171,15 @@ void			ei_toplevel_configure		(ei_widget_t		widget,
         if (color) toplevel->color = color;
         if (border_width) toplevel->border_width = border_width;
         if (title) toplevel->title = *title;
-        if (closable) toplevel->can_close = closable;
+        if (closable) toplevel->can_close = *closable;
+        else toplevel->can_close = true;
         if (resizable) toplevel->resizable_axis = *resizable;
         if (min_size) toplevel->minimal_size = **min_size;
+
+        if (toplevel->can_close==false){
+                ((ei_impl_button_t*)toplevel->button)->callback = NULL;
+        }
+
 }
 
 

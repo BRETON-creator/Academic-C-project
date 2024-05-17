@@ -15,6 +15,46 @@
 
 
 
+/**
+* \brief Fonction pour modifier la hiérarchie des widgets pour que le widget appelé écrase les autres fils de son parent : pour cela on le met à la fin
+* de la liste des enfants.
+*/
+
+void modify_hierarchy( ei_widget_t widget , ei_widget_t parent)
+{
+        ei_widget_t tmp = parent->children_head;
+
+        // Si le widget est déjà en dernier
+        if (!widget->next_sibling)
+                return;
+
+        // Trouver le widget dans la liste des enfants du parent
+        ei_widget_t prev = NULL;
+        ei_widget_t cur = parent->children_head;
+
+        while (cur != NULL) {
+                if (cur == widget)
+                        break;
+                prev = cur;
+                cur = cur->next_sibling;
+        }
+        if (!cur)
+                return;
+        if (prev)
+                prev->next_sibling = cur->next_sibling;
+        else
+                parent->children_head = cur->next_sibling;
+
+        cur->next_sibling = NULL;
+
+        // Trouver le dernier enfant et attacher le widget à sa suite
+        ei_widget_t last_child = parent->children_head;
+        while (last_child->next_sibling)
+                last_child = last_child->next_sibling;
+
+        last_child->next_sibling = cur;
+}
+
 //============================= toplevel
 
 bool toplevel_move;
@@ -90,19 +130,33 @@ bool ei_resize_toplevel(ei_widget_t	widget, struct ei_event_t*	event, ei_user_pa
         }
 
         if (resize && event->type==ei_ev_mouse_move) {
-                //TODO gérer les contraintes
-                int x = cur_point.x - mouse_point.x;
-                int y = cur_point.y - mouse_point.y;
-
-                ei_rect_t rect = frame->widget.parent->screen_location;
+                ei_impl_toplevel_t *toplevel = (ei_impl_toplevel_t *) frame->widget.parent;
+                ei_rect_t rect = toplevel->widget.screen_location;
                 rect.size.width++;
                 rect.size.height++;
 
-                frame->widget.parent->screen_location.size.width += x;
-                frame->widget.parent->screen_location.size.height += y;
+                int x = 0;
+                int y = 0;
 
-                frame->widget.parent->requested_size.width += x;
-                frame->widget.parent->requested_size.height += y;
+                if (toplevel->resizable_axis==ei_axis_both || toplevel->resizable_axis==ei_axis_x){
+                        x = cur_point.x - mouse_point.x;
+                }
+
+                if (toplevel->resizable_axis==ei_axis_both || toplevel->resizable_axis==ei_axis_y){
+                        y = cur_point.y - mouse_point.y;
+                }
+
+                x +=toplevel->widget.requested_size.width;
+                y +=toplevel->widget.requested_size.height;
+
+                if (toplevel->minimal_size.width>x) x=toplevel->minimal_size.width;
+                if (toplevel->minimal_size.height>y) y=toplevel->minimal_size.height;
+
+                toplevel->widget.screen_location.size.width = x;
+                toplevel->widget.screen_location.size.height = y;
+
+                toplevel->widget.requested_size.width = x;
+                toplevel->widget.requested_size.height = y;
 
                 mouse_point = cur_point;
 
@@ -132,36 +186,24 @@ ei_widget_t ei_impl_alloc_toplevel(){
  * \brief Fonction pour free un espace alloué a un widget toplevel.
  *
  */
+
 void ei_impl_release_toplevel(ei_widget_t toplevel){
-        ei_widget_t widget = ((ei_impl_toplevel_t*)(toplevel))->widget.parent;
-        ei_widget_t child=widget->next_sibling;
-        while (true){
-                if (child==NULL || child->pick_id==toplevel->pick_id) break;
-                child=child->next_sibling;
-        }
-        if (child) child->parent->next_sibling=toplevel->next_sibling;
-        if (widget->children_head->pick_id==toplevel->pick_id){
-                if (widget->next_sibling) widget->children_head=widget->next_sibling;
-                else widget->children_head=NULL;
-        }
-        //free(((ei_impl_toplevel_t*)toplevel)->border_width);
+        supr_hierachy(ei_app_root_widget(), toplevel);
         free((ei_impl_toplevel_t*)toplevel);
 }
 
-/**
-* \brief Fonction pour mettre les valeurs par defauts d'un widget toplevel
-*/
 bool toplevel_close(ei_widget_t	widget,
                     ei_event_t*	event,
                     ei_user_param_t user_param){
         widget->parent->geom_params->manager = NULL;
         ei_impl_widget_draw_children(ei_app_root_widget(),ei_app_root_surface(),pick_surface,&widget->parent->screen_location);
-        ei_impl_release_button(widget);
         ei_impl_release_toplevel(widget->parent);
-
         return true;
 }
 
+/**
+* \brief Fonction pour mettre les valeurs par defauts d'un widget toplevel
+*/
 void ei_impl_setdefaults_toplevel(ei_widget_t widget){
         ei_impl_toplevel_t* toplevel = (ei_impl_toplevel_t*)widget;
 
@@ -190,7 +232,7 @@ void ei_impl_setdefaults_toplevel(ei_widget_t widget){
 
 
 
-        ei_widget_t button = ei_widget_create	("button", toplevel, NULL, NULL);
+        ei_widget_t button = ei_widget_create	("button", (ei_widget_t)(toplevel), NULL, NULL);
         ei_button_configure		(button, &(ei_size_t){12, 12},
                                             &(ei_color_t){235, 20, 20, 255},
                                             &(int){1}, &(int){5},
@@ -204,7 +246,7 @@ void ei_impl_setdefaults_toplevel(ei_widget_t widget){
         ei_color_t color  = *toplevel->color;
         ei_color_t dark_color  = (ei_color_t){color.red -50, color.green -50, color.blue -50, color.alpha};
 
-        ei_widget_t resize_frame = ei_widget_create	("frame", toplevel, NULL, NULL);
+        ei_widget_t resize_frame = ei_widget_create	("frame", (ei_widget_t)(toplevel), NULL, NULL);
         ei_frame_configure		(resize_frame, &(ei_size_t){10, 10},
                                             &dark_color,
                                             &(int){0}, NULL,NULL,
@@ -216,6 +258,13 @@ void ei_impl_setdefaults_toplevel(ei_widget_t widget){
         ei_bind(ei_ev_mouse_buttonup, resize_frame,NULL,ei_resize_toplevel,NULL);
 
         toplevel->frame = resize_frame;
+
+        ei_place(toplevel->button, &(ei_anchor_t){ei_anc_northwest},
+                 &(int){*toplevel->border_width + 4}, &(int){*toplevel->border_width + 4}, NULL,
+                 NULL, &(float){0.0}, &(float){0.0}, NULL, NULL);
+
+        ei_place(toplevel->frame, &(ei_anchor_t){ei_anc_southeast},
+                 NULL, NULL, NULL, NULL, &(float){1.0}, &(float){1.0}, NULL, NULL);
 }
 
 /**
@@ -278,46 +327,6 @@ void ei_impl_draw_toplevel(ei_widget_t widget, ei_surface_t surface, ei_surface_
         hw_surface_lock(surface);
 }
 
-/**
-* \brief Fonction pour modifier la hiérarchie des widgets pour que le widget appelé écrase les autres fils de son parent : pour cela on le met à la fin
-* de la liste des enfants.
-*/
-
-void modify_hierarchy( ei_widget_t widget , ei_widget_t parent)
-{
-        ei_widget_t tmp = parent->children_head;
-
-        // Si le widget est déjà en dernier
-        if (!widget->next_sibling)
-                return;
-
-        // Trouver le widget dans la liste des enfants du parent
-        ei_widget_t prev = NULL;
-        ei_widget_t cur = parent->children_head;
-
-        while (cur != NULL) {
-                if (cur == widget)
-                        break;
-                prev = cur;
-                cur = cur->next_sibling;
-        }
-        if (!cur)
-                return;
-        if (prev)
-                prev->next_sibling = cur->next_sibling;
-        else
-                parent->children_head = cur->next_sibling;
-
-        cur->next_sibling = NULL;
-
-        // Trouver le dernier enfant et attacher le widget à sa suite
-        ei_widget_t last_child = parent->children_head;
-        while (last_child->next_sibling)
-                last_child = last_child->next_sibling;
-
-        last_child->next_sibling = cur;
-}
-
 void ei_impl_geomnotify_toplevel(ei_widget_t widget){
-    if (widget->geom_params) (widget->geom_params->manager->runfunc)(widget);
+
 }

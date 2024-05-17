@@ -156,6 +156,14 @@ void release_linked_rect(ei_linked_rect_t* list){
     }
 }
 
+void update_place(ei_widget_t widget){
+        if (widget->geom_params) ei_impl_placer_runfunc(widget);
+        ei_widget_t child = widget->children_head;
+        while (child){
+                update_place(child);
+                child = child->next_sibling;
+        }
+}
 
 
 /**
@@ -163,6 +171,8 @@ void release_linked_rect(ei_linked_rect_t* list){
  *		\ref ei_app_quit_request is called.
  */
 void ei_app_run(void){
+
+    update_place(root);
 
     ei_rect_t clipper           = hw_surface_get_rect(ei_app_root_surface());
     ei_impl_widget_draw_children(root, root_surface, pick_surface, &clipper);

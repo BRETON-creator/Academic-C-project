@@ -75,17 +75,7 @@ ei_widget_t ei_impl_alloc_frame(){
  *
  */
 void ei_impl_release_frame(ei_widget_t frame){
-        ei_widget_t widget = ((ei_impl_frame_t*)(frame))->widget.parent;
-        ei_widget_t child= widget ? widget->next_sibling : NULL;
-        while (true){
-                if (child==NULL || child->pick_id==frame->pick_id) break;
-                child=child->next_sibling;
-        }
-        if (child) child->parent->next_sibling=frame->next_sibling;
-        if (widget && widget->children_head && widget->children_head->pick_id==frame->pick_id){
-                if (widget->next_sibling) widget->children_head=widget->next_sibling;
-                else widget->children_head=NULL;
-        }
+        supr_hierachy(ei_app_root_widget(), frame);
         free(frame->pick_color);
         free((ei_impl_frame_t*)frame);
 }
@@ -226,17 +216,7 @@ ei_widget_t ei_impl_alloc_button(){
  *
  */
 void ei_impl_release_button(ei_widget_t button){
-        ei_widget_t widget = ((ei_impl_button_t*)(button))->frame.widget.parent;
-        ei_widget_t child=widget->next_sibling;
-        while (true){
-                if (child==NULL || child->pick_id==button->pick_id) break;
-                child=child->next_sibling;
-        }
-        if (child) child->parent->next_sibling=button->next_sibling;
-        if (widget->children_head && widget->children_head->pick_id==button->pick_id){
-                if (widget->next_sibling) widget->children_head=widget->next_sibling;
-                else widget->children_head=NULL;
-        }
+        supr_hierachy(ei_app_root_widget(), button);
         free((ei_impl_button_t*)button);
 }
 
@@ -284,7 +264,7 @@ bool ei_callback_clickbutton(ei_widget_t		widget, struct ei_event_t*	event, ei_u
                     //il manque la modification de l'ancrage du texte
                     //et geom notify ? ou que pour redimension
                     ei_impl_draw_button(widget,ei_app_root_surface(), pick_surface,&widget->parent->screen_location);
-                    ((ei_impl_button_t*)widget)->callback(widget,event,user_param);
+                    if (((ei_impl_button_t*)widget)->callback) ((ei_impl_button_t*)widget)->callback(widget,event,user_param);
                     current_button_down = NULL;
                 }
                 break;
@@ -296,3 +276,13 @@ bool ei_callback_clickbutton(ei_widget_t		widget, struct ei_event_t*	event, ei_u
 }
 
 
+void supr_hierachy(ei_widget_t widget, ei_widget_t widget_supr){
+
+        if (widget->children_head && widget->children_head->pick_id==widget_supr->pick_id) widget->children_head=widget_supr->next_sibling;
+        if (widget->next_sibling && widget->next_sibling->pick_id==widget_supr->pick_id) widget->next_sibling=widget_supr->next_sibling;
+        ei_widget_t child = widget->children_head;
+        while (child){
+                supr_hierachy(child, widget_supr);
+                child=child->next_sibling;
+        }
+}

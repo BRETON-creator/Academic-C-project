@@ -169,17 +169,5 @@ void		ei_place	(ei_widget_t		widget,
         if (rel_height) geom_param->rel_height  = *rel_height;
         if (rel_width) geom_param->rel_width   = *rel_width;
         if (anchor) geom_param->anchor      = *anchor;
-
-        if (strcmp(widget->wclass->name, (ei_widgetclass_name_t){"toplevel\0"})==0){
-                ei_impl_toplevel_t *toplevel = (ei_impl_toplevel_t *) widget;
-
-                ei_place(toplevel->button, &(ei_anchor_t){ei_anc_northwest},
-                         &(int){*toplevel->border_width + 4}, &(int){*toplevel->border_width + 4}, NULL,
-                         NULL, &(float){0.0}, &(float){0.0}, NULL, NULL);
-
-                ei_place(toplevel->frame, &(ei_anchor_t){ei_anc_southeast},
-                         NULL, NULL, NULL, NULL, &(float){1.0}, &(float){1.0}, NULL, NULL);
-
-        }
 }
 
