@@ -81,6 +81,7 @@ void ei_impl_release_frame(ei_widget_t frame){
 }
 
 
+
 /**
  * \brief Fonction pour dessiner un widget frame.
  * dans la surface de la fenetre root ou de la fenetre du parent ?
@@ -136,22 +137,24 @@ void ei_impl_draw_frame(ei_widget_t widget,ei_surface_t surface,ei_surface_t pic
             break;
     }
 
-
     if (((ei_impl_frame_t*)widget)->image){
             ei_surface_t surface_img = &(((ei_impl_frame_t*)widget)->image);
-            ei_rect_t * rect_img = ((ei_impl_frame_t*)widget)->rect_image;
+            //ei_surface_t surface_img = hw_image_load("misc/klimt.jpg", ei_app_root_surface());
+            ei_rect_t rect_img = *((ei_impl_frame_t*)widget)->rect_image;
 
-            ei_copy_surface		(surface,
-                                            &rect,
-                                            surface_img,
-                                            rect_img,
-                                            true);
-
+            hw_surface_lock(surface);
+            hw_surface_lock(surface_img);
+            ei_rect_t dst_rect = rect;
+            int decalage_x = abs(dst_rect.top_left.x - rect_img.top_left.x);
+            int decalage_y = abs(dst_rect.top_left.y - rect_img.top_left.y);
+            ei_copy_surface(surface, &dst_rect, surface_img, &(ei_rect_t){{decalage_x,decalage_y},dst_rect.size}, false);
+            hw_surface_unlock(surface);
+            hw_surface_unlock(surface_img);
+            hw_surface_free(surface_img);
 
     }
 
-
-    ei_draw_polygon(surface,smaller_frame,40, color,&new_clipper);
+    else ei_draw_polygon(surface,smaller_frame,40, color,&new_clipper);
     //on dessine sur la pick surface aussi. pour afficher la pick surface decommenter la ligne du dessous
     //ei_draw_polygon(surface,rounded_frame,40,*(widget->pick_color),&new_clipper);
     ei_draw_polygon(pick_surface,rounded_frame,40,*(widget->pick_color),&new_clipper);
@@ -288,8 +291,7 @@ bool ei_callback_clickbutton(ei_widget_t		widget, struct ei_event_t*	event, ei_u
 
                     if (((ei_impl_button_t*)widget)->callback) ((ei_impl_button_t*)widget)->callback(widget,event,((ei_impl_button_t*)widget)->user_params);
                     current_button_down = NULL;
-                    ei_impl_widget_draw_children(widget->parent,ei_app_root_surface(), pick_surface,&widget->parent->screen_location);
-
+                    ei_impl_draw_button(widget,ei_app_root_surface(), pick_surface,&widget->parent->screen_location);
                 }
                 break;
             default:
