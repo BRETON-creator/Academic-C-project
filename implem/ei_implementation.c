@@ -137,6 +137,21 @@ void ei_impl_draw_frame(ei_widget_t widget,ei_surface_t surface,ei_surface_t pic
             break;
     }
 
+
+    if (((ei_impl_frame_t*)widget)->image){
+            ei_surface_t surface_img = &(((ei_impl_frame_t*)widget)->image);
+            ei_rect_t * rect_img = ((ei_impl_frame_t*)widget)->rect_image;
+
+            ei_copy_surface		(surface,
+                                            &rect,
+                                            surface_img,
+                                            rect_img,
+                                            true);
+
+
+    }
+
+
     ei_draw_polygon(surface,smaller_frame,40, color,&new_clipper);
     //on dessine sur la pick surface aussi. pour afficher la pick surface decommenter la ligne du dessous
     //ei_draw_polygon(surface,rounded_frame,40,*(widget->pick_color),&new_clipper);
@@ -264,9 +279,11 @@ bool ei_callback_clickbutton(ei_widget_t		widget, struct ei_event_t*	event, ei_u
                     ((ei_impl_frame_t*) widget)->frame_relief =  ei_relief_raised;
                     //il manque la modification de l'ancrage du texte
                     //et geom notify ? ou que pour redimension
-                    ei_impl_draw_button(widget,ei_app_root_surface(), pick_surface,&widget->parent->screen_location);
+
                     if (((ei_impl_button_t*)widget)->callback) ((ei_impl_button_t*)widget)->callback(widget,event,((ei_impl_button_t*)widget)->user_params);
                     current_button_down = NULL;
+                    ei_impl_widget_draw_children(widget->parent,ei_app_root_surface(), pick_surface,&widget->parent->screen_location);
+
                 }
                 break;
             default:

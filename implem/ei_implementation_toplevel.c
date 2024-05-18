@@ -230,8 +230,9 @@ bool toplevel_close(ei_widget_t	widget,
                     ei_event_t*	event,
                     ei_user_param_t user_param){
         widget->parent->geom_params->manager = NULL;
-        ei_impl_widget_draw_children(ei_app_root_widget(),ei_app_root_surface(),pick_surface,&widget->parent->screen_location);
         ei_impl_release_toplevel(widget->parent);
+        ei_impl_widget_draw_children(ei_app_root_widget(),ei_app_root_surface(),pick_surface,&widget->parent->screen_location);
+
         return true;
 }
 

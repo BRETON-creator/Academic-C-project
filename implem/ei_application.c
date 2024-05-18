@@ -176,7 +176,7 @@ void ei_app_run(void){
 
     ei_rect_t clipper           = hw_surface_get_rect(ei_app_root_surface());
     ei_impl_widget_draw_children(root, root_surface, pick_surface, &clipper);
-
+    ei_widget_t cur = ei_app_root_widget();
     //boucle principale
 
     //binds interns
@@ -209,6 +209,7 @@ void ei_app_run(void){
             if (bind && ! change_event) { //si on a pas finit notre callback alors on regarde la suite
                 binds = bind->next_bind;
             }
+
         }while(!change_event && bind);
         hw_surface_unlock(root_surface);
         hw_surface_update_rects(root_surface,rects);
