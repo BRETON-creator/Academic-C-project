@@ -172,7 +172,6 @@ typedef struct {
  */
 ei_widget_t ei_impl_alloc_frame();
 
-
 /**
  * \brief Fonction pour free un espace alloué a un widget frame.
  *

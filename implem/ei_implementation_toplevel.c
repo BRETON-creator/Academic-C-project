@@ -30,7 +30,11 @@ void modify_hierarchy( ei_widget_t widget , ei_widget_t parent)
                 modify_hierarchy(widget->parent, widget->parent->parent);
                 return;
         }
-
+        // Si le parent du widget est un toplevel alors on ne modifie pas sa hierarchie (elle sera toujours la meme)
+        if (strcmp(parent->wclass->name,"toplevel\0") == 0){
+            modify_hierarchy(widget->parent, widget->parent->parent);
+            return;
+        }
         // Trouver le widget dans la liste des enfants du parent
         ei_widget_t prev = NULL;
         ei_widget_t cur = parent->children_head;
@@ -222,17 +226,15 @@ ei_widget_t ei_impl_alloc_toplevel(){
  */
 
 void ei_impl_release_toplevel(ei_widget_t toplevel){
-        supr_hierachy(ei_app_root_widget(), toplevel);
+        supr_hierachy(toplevel->parent, toplevel);
         free((ei_impl_toplevel_t*)toplevel);
 }
 
 bool toplevel_close(ei_widget_t	widget,
                     ei_event_t*	event,
                     ei_user_param_t user_param){
-        widget->parent->geom_params->manager = NULL;
-        ei_impl_release_toplevel(widget->parent);
+        ei_widget_destroy(widget->parent);
         ei_impl_widget_draw_children(ei_app_root_widget(),ei_app_root_surface(),pick_surface,&widget->parent->screen_location);
-
         return true;
 }
 
@@ -278,6 +280,10 @@ void ei_impl_setdefaults_toplevel(ei_widget_t widget){
 
         toplevel->button = button;
 
+        ei_place(toplevel->button, &(ei_anchor_t){ei_anc_northwest},
+                 &(int){toplevel->border_width + 4}, &(int){toplevel->border_width + 4}, NULL,
+                 NULL, &(float){0.0}, &(float){0.0}, NULL, NULL);
+
         ei_color_t color  = toplevel->color;
         ei_color_t dark_color  = (ei_color_t){color.red -50, color.green -50, color.blue -50, color.alpha};
 
@@ -293,10 +299,6 @@ void ei_impl_setdefaults_toplevel(ei_widget_t widget){
         ei_bind(ei_ev_mouse_buttonup, resize_frame,NULL,ei_resize_toplevel,NULL);
 
         toplevel->frame = resize_frame;
-
-        ei_place(toplevel->button, &(ei_anchor_t){ei_anc_northwest},
-                 &(int){toplevel->border_width + 4}, &(int){toplevel->border_width + 4}, NULL,
-                 NULL, &(float){0.0}, &(float){0.0}, NULL, NULL);
 
         ei_place(toplevel->frame, &(ei_anchor_t){ei_anc_southeast},
                  NULL, NULL, NULL, NULL, &(float){1.0}, &(float){1.0}, NULL, NULL);

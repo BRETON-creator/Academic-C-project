@@ -16,6 +16,7 @@
 #include "ei_implementation.h"
 #include "ei_geometrymanager.h"
 #include "ei_widget_configure.h"
+#include "var.h"
 
 /**
  * \brief	Configures the geometry of a widget using the "placer" geometry manager.
@@ -168,7 +169,10 @@ void		ei_place	(ei_widget_t		widget,
                 ei_widget_set_geom_params(widget,(ei_geom_param_t)geom_param);
                 ei_widget_set_geom_manager(widget,ei_geometrymanager_from_name("placer\0"));
         }
-        else geom_param = (ei_placer_t*)(widget->geom_params);
+        else{
+            geom_param = (ei_placer_t*)(widget->geom_params);
+            ei_impl_widget_draw_children(widget->parent,ei_app_root_surface(),pick_surface,&widget->parent->screen_location);
+        }
 
         //*x,*y,*height,*width,*rel_x,*rel_y,*rel_height,*rel_width,*anchor};
         if (x) geom_param->x           = *x;

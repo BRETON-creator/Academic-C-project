@@ -53,7 +53,7 @@ void ei_delete_bind(ei_eventtype_t		eventtype,
                     ei_tag_t		tag,
                     ei_callback_t		callback,
                     void*			user_param){
-    ei_bind_t *current;
+    ei_bind_t *current = NULL;
     ei_bind_t *prec = binds;
     if      (prec->eventtype==eventtype &&
              ((prec->bind_isWidget && prec->object.widget == widget) || (!prec->bind_isWidget && strcmp(prec->object.tag, tag)==0)) &&
@@ -70,6 +70,7 @@ void ei_delete_bind(ei_eventtype_t		eventtype,
                  current->callback == callback &&
                  current->user_param == user_param){
             prec->next_bind=current->next_bind;
+            if (!current->bind_isWidget) free(current->object.tag);
             free(current);
             return;
         }

@@ -44,5 +44,4 @@ void		ei_unbind		(ei_eventtype_t		eventtype,
                      ei_callback_t		callback,
                      void*			user_param){
     ei_delete_bind(eventtype,widget,tag,callback,user_param);
-
 }
