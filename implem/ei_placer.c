@@ -171,7 +171,7 @@ void		ei_place	(ei_widget_t		widget,
         }
         else{
             geom_param = (ei_placer_t*)(widget->geom_params);
-            ei_impl_widget_draw_children(widget->parent,ei_app_root_surface(),pick_surface,&widget->parent->screen_location);
+            //ei_impl_widget_draw_children(widget->parent,ei_app_root_surface(),pick_surface,&widget->parent->screen_location);
         }
 
         //*x,*y,*height,*width,*rel_x,*rel_y,*rel_height,*rel_width,*anchor};

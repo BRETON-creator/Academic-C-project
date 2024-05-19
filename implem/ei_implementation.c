@@ -271,7 +271,10 @@ bool ei_callback_clickbutton(ei_widget_t		widget, struct ei_event_t*	event, ei_u
                     //il manque la modification de l'ancrage du texte
                     //et geom notify ? ou que pour redimension
                     ei_impl_draw_button(widget,ei_app_root_surface(), pick_surface,&widget->parent->screen_location);
-                    if (((ei_impl_button_t*)widget)->callback) ((ei_impl_button_t*)widget)->callback(widget,event,((ei_impl_button_t*)widget)->user_params);
+                    if (((ei_impl_button_t*)widget)->callback){
+                        ((ei_impl_button_t*)widget)->callback(widget,event,((ei_impl_button_t*)widget)->user_params);
+
+                    }
                     current_button_down = NULL;
                 }
                 break;
