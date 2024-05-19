@@ -55,7 +55,7 @@ int main(int argc, char** argv)
 						 &(ei_string_t){"Hello "}, &(bool){false}, NULL, NULL);
 	window2 = ei_widget_create	("toplevel", ei_app_root_widget(), NULL, NULL);
 	ei_toplevel_configure		(window2, &(ei_size_t){400 , 300},
-							   &(ei_color_t){0x00,0x00,0xA0, 0xff},
+							   &(ei_color_t){0x00,0x00,0xA0, 0},
 						 &(int){2},
 						 &(ei_string_t){" World"}, NULL, NULL, NULL);
 	ei_place_xy			(window1, 30, 10);

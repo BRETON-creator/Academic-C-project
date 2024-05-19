@@ -86,7 +86,7 @@ void			ei_frame_configure		(ei_widget_t		widget,
 
     if (img){
             frame->image = hw_surface_create(ei_app_root_surface(),frame->rect_image->size,false);
-            ei_copy_surface(frame->image,&(ei_rect_t){{0,0},frame->rect_image->size}, img, frame->rect_image, false);
+            //ei_copy_surface(frame->image,&(ei_rect_t){{0,0},frame->rect_image->size}, img, frame->rect_image, false);
     }
     if (img_anchor) frame->image_anchor= *img_anchor;
 }
@@ -198,7 +198,7 @@ void			ei_toplevel_configure		(ei_widget_t		widget,
         int border =toplevel->border_width;
         ei_frame_configure		(frame, &(ei_size_t){toplevel->widget.requested_size.width-2*border,
                                                                toplevel->widget.requested_size.height-2*border-k_default_button_corner_radius*2},
-                                           color,
+                                           &toplevel->color,
                                            &(int){0}, NULL,NULL,
                                            NULL, NULL,
                                            NULL, NULL, NULL, NULL);

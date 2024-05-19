@@ -334,23 +334,33 @@ void ei_impl_draw_toplevel(ei_widget_t widget, ei_surface_t surface, ei_surface_
 
         int radius = k_default_button_corner_radius;
         ei_point_t rounded_frame_temp[40];
-        ei_point_t rounded_frame[21];
+        ei_point_t rounded_frame[22];
 
         give_rounded_frame(rounded_frame_temp, rect, radius);
 
-        for (int i=0; i<21;i++){
+        for (int i=0; i<20;i++){
                 rounded_frame[i] = rounded_frame_temp[i];
         }
 
-        ei_point_t square_frame[4] = {{rect.top_left.x , rect.top_left.y + radius},
-                                      {rect.top_left.x + rect.size.width , rect.top_left.y + radius},
-                                      {rect.top_left.x + rect.size.width , rect.top_left.y + rect.size.height },
-                                      {rect.top_left.x, rect.top_left.y + rect.size.height}};
+        rounded_frame[20]=(ei_point_t){rect.top_left.x,rect.top_left.y + radius*2+border};
+        rounded_frame[21]=(ei_point_t){rect.top_left.x+rect.size.width,rect.top_left.y + radius*2+border};
 
 
-        ei_draw_polygon(surface,square_frame,4, dark_color, &new_clipper);
-        ei_draw_polygon(surface,rounded_frame_temp,40, dark_color, &new_clipper);
-        ei_draw_polygon(pick_surface,rounded_frame,21,*(widget->pick_color),&new_clipper);
+
+        ei_point_t square_frame[8] = {{rect.top_left.x , rect.top_left.y + radius},
+                                      {rect.top_left.x , rect.top_left.y  + rect.size.height},
+                                      {rect.top_left.x + rect.size.width, rect.top_left.y + rect.size.height},
+                                      {rect.top_left.x + rect.size.width, rect.top_left.y + radius},
+                                      {rect.top_left.x - border + rect.size.width, rect.top_left.y + radius},
+                                      {rect.top_left.x - border + rect.size.width, rect.top_left.y - border + rect.size.height},
+                                      {rect.top_left.x + border-1, rect.top_left.y - border + rect.size.height},
+                                      {rect.top_left.x + border-1, rect.top_left.y + radius},
+        };
+
+
+        ei_draw_polygon(surface,square_frame,8, dark_color, &new_clipper);
+        ei_draw_polygon(surface,rounded_frame,22, dark_color, &new_clipper);
+        ei_draw_polygon(pick_surface,rounded_frame_temp,40,*(widget->pick_color),&new_clipper);
 
 
         ei_color_t white_color = (ei_color_t){255,255,255, 255};
