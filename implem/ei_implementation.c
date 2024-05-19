@@ -301,6 +301,7 @@ bool ei_callback_clickbutton(ei_widget_t		widget, struct ei_event_t*	event, ei_u
 bool ei_callback_buttondown (ei_widget_t		widget, struct ei_event_t*	event, ei_user_param_t	user_param){
     if (!widget) return false;
     modify_hierarchy(widget,widget->parent);
+    if (widget->parent->parent) ei_app_invalidate_rect(&widget->parent->parent->screen_location);
     return false;
 }
 
