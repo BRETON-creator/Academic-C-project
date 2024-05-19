@@ -112,15 +112,6 @@ void		ei_place	(ei_widget_t		widget,
         if (!anchor) anc= ei_anc_northwest;
         else anc = *anchor;
 
-//        int border, radius;
-//        if (strcmp(widget->parent->wclass->name, (ei_widgetclass_name_t){"toplevel\0"})==0){
-//                ei_impl_toplevel_t* toplevel = (ei_impl_toplevel_t*)widget->parent;
-//                border = *toplevel->border_width;
-//                radius = k_default_button_corner_radius*2;
-//
-//                xpos += border;
-//                ypos += border + radius;
-//        }
         switch (anc){
             case ei_anc_northwest:
                 xpos = xpos;
@@ -171,7 +162,6 @@ void		ei_place	(ei_widget_t		widget,
         }
         else{
             geom_param = (ei_placer_t*)(widget->geom_params);
-            ei_impl_widget_draw_children(widget->parent,ei_app_root_surface(),pick_surface,&widget->parent->screen_location);
         }
 
         //*x,*y,*height,*width,*rel_x,*rel_y,*rel_height,*rel_width,*anchor};
@@ -184,5 +174,7 @@ void		ei_place	(ei_widget_t		widget,
         if (rel_height) geom_param->rel_height  = *rel_height;
         if (rel_width) geom_param->rel_width   = *rel_width;
         if (anchor) geom_param->anchor      = *anchor;
+
+        ei_app_invalidate_rect(&widget->parent->screen_location);
 }
 

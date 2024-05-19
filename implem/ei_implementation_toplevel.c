@@ -81,6 +81,7 @@ bool ei_callback_toplevel(ei_widget_t	widget, struct ei_event_t*	event, ei_user_
             int y = cur_point.y - mouse_point.y;
 
             ei_rect_t clip = current_moving_toplevel->widget.screen_location;
+            ei_rect_t rect = current_moving_toplevel->widget.screen_location;
 
             current_moving_toplevel->widget.screen_location.top_left.x += x;
             current_moving_toplevel->widget.screen_location.top_left.y += y;
@@ -96,11 +97,10 @@ bool ei_callback_toplevel(ei_widget_t	widget, struct ei_event_t*	event, ei_user_
 
             ei_widget_t child = current_moving_toplevel->widget.children_head;
             while (child){
-                (child->geom_params->manager->runfunc)(child);
+                if (child->geom_params)(child->geom_params->manager->runfunc)(child);
                 child=child->next_sibling;
             }
-            ei_impl_widget_draw_children(ei_app_root_widget(), ei_app_root_surface(), pick_surface, &clip);
-
+            ei_app_invalidate_rect(&rect);
             return 1;
         }
         if (event->type == ei_ev_mouse_buttonup && toplevel_move) {
@@ -125,7 +125,6 @@ bool ei_callback_toplevel(ei_widget_t	widget, struct ei_event_t*	event, ei_user_
                                 current_moving_toplevel = toplevel;
                                 mouse_point = event->param.mouse.where;
                                 modify_hierarchy(widget, toplevel->widget.parent);
-                                ei_impl_widget_draw_children(ei_app_root_widget(), ei_app_root_surface(), pick_surface, &toplevel->widget.screen_location);
                                 return 1;
                         }
 
@@ -202,8 +201,7 @@ bool ei_resize_toplevel(ei_widget_t	widget, struct ei_event_t*	event, ei_user_pa
                         (child->geom_params->manager->runfunc)(child);
                         child=child->next_sibling;
                 }
-
-                ei_impl_widget_draw_children(ei_app_root_widget(), ei_app_root_surface(), pick_surface, &rect);
+                ei_app_invalidate_rect(&rect);
 
                 return 1;
         }
@@ -234,7 +232,7 @@ bool toplevel_close(ei_widget_t	widget,
                     ei_event_t*	event,
                     ei_user_param_t user_param){
         ei_widget_destroy(widget->parent);
-        ei_impl_widget_draw_children(ei_app_root_widget(),ei_app_root_surface(),pick_surface,&widget->parent->screen_location);
+        ei_app_invalidate_rect(&widget->parent->screen_location);
         return true;
 }
 
@@ -357,16 +355,15 @@ void ei_impl_draw_toplevel(ei_widget_t widget, ei_surface_t surface, ei_surface_
         ei_color_t white_color = (ei_color_t){255,255,255, 255};
 
         if (toplevel->title) {
-
-                ei_point_t where = (ei_point_t){ border + rect.top_left.x + 2*toplevel->button->requested_size.width, rect.top_left.y + border};
+                uint32_t size = 10;
+                if (toplevel->button) size = toplevel->button->requested_size.width;
+                ei_point_t where = (ei_point_t){ border + rect.top_left.x + 2*size, rect.top_left.y + border};
                 ei_font_t font = hw_text_font_create(ei_default_font_filename, ei_style_normal, 18);
                 ei_draw_text(surface, &where, toplevel->title,
                              font, white_color,
                              &new_clipper);
                 hw_text_font_free(font);
         }
-
-        ei_app_invalidate_rect(&widget->screen_location);
 
         hw_surface_lock(surface);
 }

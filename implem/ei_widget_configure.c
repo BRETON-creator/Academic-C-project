@@ -170,10 +170,7 @@ void			ei_toplevel_configure		(ei_widget_t		widget,
 
         ei_impl_toplevel_t * toplevel = ((ei_impl_toplevel_t*)widget);
 
-        if (requested_size) {
-                toplevel->widget.requested_size = *requested_size;
-                toplevel->widget.screen_location.size = *requested_size;
-        }
+
         if (color) toplevel->color = *color;
         if (border_width) toplevel->border_width = *border_width;
         if (title) toplevel->title = *title;
@@ -182,10 +179,18 @@ void			ei_toplevel_configure		(ei_widget_t		widget,
         if (resizable) toplevel->resizable_axis = *resizable;
         if (min_size) toplevel->minimal_size = **min_size;
 
+        if (requested_size) {
+                requested_size->width+=2*toplevel->border_width;
+                requested_size->height+=2*toplevel->border_width+2*k_default_button_corner_radius;
+                toplevel->widget.requested_size = *requested_size;
+                toplevel->widget.screen_location.size = *requested_size;
+        }
+
         if (toplevel->can_close==false){
                 (toplevel->button->geom_params->manager->releasefunc)(widget);
                 toplevel->button->geom_params = NULL;
-
+                ei_impl_release_button(toplevel->button);
+                toplevel->button=NULL;
         }
 
         ei_impl_frame_t * frame = ((ei_impl_frame_t*)toplevel->contain_frame);
