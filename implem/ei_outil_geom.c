@@ -27,7 +27,7 @@ ei_rect_t get_rect_union( ei_rect_t old_rect , ei_rect_t new_rect){
 }
 
 /**
-* \brief Fonction pour obtenir l'intersection_rection de deux rectangles
+* \brief Fonction pour obtenir l'intersection de deux rectangles
 *
 */
 

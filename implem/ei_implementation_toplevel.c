@@ -365,7 +365,6 @@ void ei_impl_draw_toplevel(ei_widget_t widget, ei_surface_t surface, ei_surface_
                              &new_clipper);
                 hw_text_font_free(font);
         }
-
         hw_surface_lock(surface);
 }
 
