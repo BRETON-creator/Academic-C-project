@@ -91,16 +91,16 @@ bool ei_callback_toplevel(ei_widget_t	widget, struct ei_event_t*	event, ei_user_
             clip.size.width+=abs(x);
             clip.size.height+=abs(y);
             if (current_moving_toplevel->widget.screen_location.top_left.x < clip.top_left.x )
-                clip.top_left.x = current_moving_toplevel->widget.screen_location.top_left.x ;
+                clip.top_left.x = current_moving_toplevel->widget.screen_location.top_left.x < 0 ? 0 : current_moving_toplevel->widget.screen_location.top_left.x ;
             if (current_moving_toplevel->widget.screen_location.top_left.y < clip.top_left.y )
-                clip.top_left.y = current_moving_toplevel->widget.screen_location.top_left.y ;
+                clip.top_left.y = current_moving_toplevel->widget.screen_location.top_left.y < 0 ? 0 : current_moving_toplevel->widget.screen_location.top_left.y ;
 
             ei_widget_t child = current_moving_toplevel->widget.children_head;
             while (child){
                 if (child->geom_params)(child->geom_params->manager->runfunc)(child);
                 child=child->next_sibling;
             }
-            ei_app_invalidate_rect(&rect);
+            ei_app_invalidate_rect(&clip);
             return 1;
         }
         if (event->type == ei_ev_mouse_buttonup && toplevel_move) {
@@ -125,6 +125,7 @@ bool ei_callback_toplevel(ei_widget_t	widget, struct ei_event_t*	event, ei_user_
                                 current_moving_toplevel = toplevel;
                                 mouse_point = event->param.mouse.where;
                                 modify_hierarchy(widget, toplevel->widget.parent);
+                                ei_app_invalidate_rect(&ei_app_root_widget()->screen_location);
                                 return 1;
                         }
 

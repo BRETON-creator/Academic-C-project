@@ -137,17 +137,14 @@ void ei_impl_draw_frame(ei_widget_t widget,ei_surface_t surface,ei_surface_t pic
     }
 
     if (((ei_impl_frame_t*)widget)->image){
-            ei_surface_t surface_img = &(((ei_impl_frame_t*)widget)->image);
+            ei_surface_t surface_img = (((ei_impl_frame_t*)widget)->image);
             //ei_surface_t surface_img = hw_image_load("misc/klimt.jpg", ei_app_root_surface());
-            ei_rect_t rect_img = *((ei_impl_frame_t*)widget)->rect_image;
+            ei_rect_t* rect_img = ((ei_impl_frame_t*)widget)->rect_image;
 
-            hw_surface_lock(surface);
             hw_surface_lock(surface_img);
-            ei_rect_t dst_rect = rect;
-            int decalage_x = abs(dst_rect.top_left.x - rect_img.top_left.x);
-            int decalage_y = abs(dst_rect.top_left.y - rect_img.top_left.y);
-            ei_copy_surface(surface, &dst_rect, surface_img, &(ei_rect_t){{decalage_x,decalage_y},dst_rect.size}, false);
-            hw_surface_unlock(surface);
+            ei_rect_t dst_rect = (ei_rect_t){{rect.top_left.x + border, rect.top_left.y + border},
+                                             rect_img->size};
+            ei_copy_surface(surface, &dst_rect, surface_img, rect_img, false);
             hw_surface_unlock(surface_img);
 
 
@@ -301,6 +298,7 @@ bool ei_callback_clickbutton(ei_widget_t		widget, struct ei_event_t*	event, ei_u
 bool ei_callback_buttondown (ei_widget_t		widget, struct ei_event_t*	event, ei_user_param_t	user_param){
     if (!widget) return false;
     modify_hierarchy(widget,widget->parent);
+    ei_app_invalidate_rect(&ei_app_root_widget()->screen_location);
     return false;
 }
 

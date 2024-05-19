@@ -91,7 +91,7 @@ int	ei_copy_surface		(ei_surface_t		destination,
 				 bool			alpha){
 
     /*On initialise les valeurs dont on aura besoin...*/
-
+    hw_surface_lock(destination);
     uint32_t *pixel_dst = (uint32_t*)hw_surface_get_buffer(destination);
     uint32_t *pixel_src = (uint32_t*)hw_surface_get_buffer(source);
     int x_dst,y_dst,x_src,y_src, width_src, width_dst, height_src, height_dst;
@@ -149,7 +149,7 @@ int	ei_copy_surface		(ei_surface_t		destination,
             }
         }
     }
-
+    hw_surface_unlock(destination);
     return 0;
 }
 
