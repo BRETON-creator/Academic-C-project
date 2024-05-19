@@ -142,6 +142,16 @@ void ei_impl_draw_frame(ei_widget_t widget,ei_surface_t surface,ei_surface_t pic
             //ei_surface_t surface_img = hw_image_load("misc/klimt.jpg", ei_app_root_surface());
             ei_rect_t rect_img = *((ei_impl_frame_t*)widget)->rect_image;
 
+            hw_surface_lock(surface);
+            hw_surface_lock(surface_img);
+            ei_rect_t dst_rect = rect;
+            int decalage_x = abs(dst_rect.top_left.x - rect_img.top_left.x);
+            int decalage_y = abs(dst_rect.top_left.y - rect_img.top_left.y);
+            ei_copy_surface(surface, &dst_rect, surface_img, &(ei_rect_t){{decalage_x,decalage_y},dst_rect.size}, false);
+            hw_surface_unlock(surface);
+            hw_surface_unlock(surface_img);
+            hw_surface_free(surface_img);
+
 
     }
 
