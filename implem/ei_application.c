@@ -176,7 +176,6 @@ void ei_app_run(void){
 
     ei_rect_t clipper           = hw_surface_get_rect(ei_app_root_surface());
     ei_impl_widget_draw_children(root, root_surface, pick_surface, &clipper);
-    ei_widget_t cur = ei_app_root_widget();
     //boucle principale
 
     //binds interns
@@ -221,7 +220,7 @@ void ei_app_run(void){
     ei_unbind(ei_ev_mouse_buttondown, NULL,"button\0",ei_callback_clickbutton,NULL);
     ei_unbind(ei_ev_mouse_buttonup,NULL,"button\0",ei_callback_clickbutton,NULL);
 
-    ei_bind(ei_ev_mouse_buttondown, NULL, "all\0", ei_callback_buttondown,NULL);
+    ei_unbind(ei_ev_mouse_buttondown, NULL, "all\0", ei_callback_buttondown,NULL);
 
     ei_unbind(ei_ev_mouse_buttondown, NULL,"toplevel\0",ei_callback_toplevel,NULL);
     ei_unbind(ei_ev_mouse_move, NULL,"toplevel\0",ei_callback_toplevel,NULL);
