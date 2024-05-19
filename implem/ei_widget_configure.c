@@ -81,13 +81,14 @@ void			ei_frame_configure		(ei_widget_t		widget,
         frame->text_color = *text_color;
     }
     if (text_anchor) frame->text_anchor = *text_anchor;
-    if (img) frame->image = *img;
-    if (img_rect) frame->rect_image = *img_rect;
-    if (img_anchor) frame->image_anchor= *img_anchor;
 
-    // si on configure lorsqu'il est affiché alors on notifie le widget d'un changement de géométrie (on le redessine)
-    if (strcmp(widget->wclass->name,"frame\0")==0 && widget->geom_params && widget->geom_params->manager )
-        ei_impl_widget_draw_children(widget->parent,ei_app_root_surface(),pick_surface,&widget->parent->screen_location);
+    if (img_rect) frame->rect_image = *img_rect;
+
+    if (img){
+            frame->image = hw_surface_create(ei_app_root_surface(),frame->rect_image->size,false);
+            ei_copy_surface(frame->image,&(ei_rect_t){{0,0},frame->rect_image->size}, img, frame->rect_image, false);
+    }
+    if (img_anchor) frame->image_anchor= *img_anchor;
 }
 
 
@@ -133,8 +134,6 @@ void			ei_button_configure		(ei_widget_t		widget,
 
         if (callback) ((ei_impl_button_t*)widget)->callback = *callback;
         if (user_param) ((ei_impl_button_t*)widget)->user_params = *user_param;
-
-        if (widget->geom_params ) ei_impl_widget_draw_children(widget->parent,ei_app_root_surface(),pick_surface,&widget->parent->screen_location);
 }
 
 
@@ -171,10 +170,7 @@ void			ei_toplevel_configure		(ei_widget_t		widget,
 
         ei_impl_toplevel_t * toplevel = ((ei_impl_toplevel_t*)widget);
 
-        if (requested_size) {
-                toplevel->widget.requested_size = *requested_size;
-                toplevel->widget.screen_location.size = *requested_size;
-        }
+
         if (color) toplevel->color = *color;
         if (border_width) toplevel->border_width = *border_width;
         if (title) toplevel->title = *title;
@@ -183,10 +179,18 @@ void			ei_toplevel_configure		(ei_widget_t		widget,
         if (resizable) toplevel->resizable_axis = *resizable;
         if (min_size) toplevel->minimal_size = **min_size;
 
+        if (requested_size) {
+                requested_size->width+=2*toplevel->border_width;
+                requested_size->height+=2*toplevel->border_width+2*k_default_button_corner_radius;
+                toplevel->widget.requested_size = *requested_size;
+                toplevel->widget.screen_location.size = *requested_size;
+        }
+
         if (toplevel->can_close==false){
                 (toplevel->button->geom_params->manager->releasefunc)(widget);
                 toplevel->button->geom_params = NULL;
-
+                ei_impl_release_button(toplevel->button);
+                toplevel->button=NULL;
         }
 
         ei_impl_frame_t * frame = ((ei_impl_frame_t*)toplevel->contain_frame);
@@ -201,8 +205,6 @@ void			ei_toplevel_configure		(ei_widget_t		widget,
 
         ei_place(frame, &(ei_anchor_t){ei_anc_northwest},
                  &(int){border}, &(int){border+k_default_button_corner_radius*2}, NULL, NULL, &(float){0.0}, &(float){0.0}, NULL, NULL);
-
-        if (widget->geom_params ) ei_impl_widget_draw_children(widget->parent,ei_app_root_surface(),pick_surface,&widget->parent->screen_location);
 }
 
 

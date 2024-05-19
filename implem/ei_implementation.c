@@ -136,7 +136,24 @@ void ei_impl_draw_frame(ei_widget_t widget,ei_surface_t surface,ei_surface_t pic
             break;
     }
 
-    ei_draw_polygon(surface,smaller_frame,40, color,&new_clipper);
+    if (((ei_impl_frame_t*)widget)->image){
+            ei_surface_t surface_img = &(((ei_impl_frame_t*)widget)->image);
+            //ei_surface_t surface_img = hw_image_load("misc/klimt.jpg", ei_app_root_surface());
+            ei_rect_t rect_img = *((ei_impl_frame_t*)widget)->rect_image;
+
+            hw_surface_lock(surface);
+            hw_surface_lock(surface_img);
+            ei_rect_t dst_rect = rect;
+            int decalage_x = abs(dst_rect.top_left.x - rect_img.top_left.x);
+            int decalage_y = abs(dst_rect.top_left.y - rect_img.top_left.y);
+            ei_copy_surface(surface, &dst_rect, surface_img, &(ei_rect_t){{decalage_x,decalage_y},dst_rect.size}, false);
+            hw_surface_unlock(surface);
+            hw_surface_unlock(surface_img);
+
+
+    }
+
+    else ei_draw_polygon(surface,smaller_frame,40, color,&new_clipper);
     //on dessine sur la pick surface aussi. pour afficher la pick surface decommenter la ligne du dessous
     //ei_draw_polygon(surface,rounded_frame,40,*(widget->pick_color),&new_clipper);
     ei_draw_polygon(pick_surface,rounded_frame,40,*(widget->pick_color),&new_clipper);
@@ -156,8 +173,6 @@ void ei_impl_draw_frame(ei_widget_t widget,ei_surface_t surface,ei_surface_t pic
                      &widget->screen_location);
         hw_surface_free(surface_text);
     }
-    // intersect widget->screen_location et clipper
-    ei_app_invalidate_rect(&widget->screen_location);
 
     hw_surface_lock(surface);
 }
@@ -258,8 +273,8 @@ bool ei_callback_clickbutton(ei_widget_t		widget, struct ei_event_t*	event, ei_u
                 //si on clique sur le bouton on modifie l'apparance du bouton up -> down
                 if (((ei_impl_button_t*) widget)->frame.frame_relief ==  ei_relief_raised){
                     ((ei_impl_button_t*) widget)->frame.frame_relief = ei_relief_sunken;
+                    ei_app_invalidate_rect(&widget->screen_location);
                     //il manque la modification de l'ancrage du texte
-                    ei_impl_draw_button(widget,ei_app_root_surface(), pick_surface,&widget->parent->screen_location);
                     current_button_down = widget;
                 }
                 break;
@@ -270,11 +285,9 @@ bool ei_callback_clickbutton(ei_widget_t		widget, struct ei_event_t*	event, ei_u
                     ((ei_impl_frame_t*) widget)->frame_relief =  ei_relief_raised;
                     //il manque la modification de l'ancrage du texte
                     //et geom notify ? ou que pour redimension
-                    ei_impl_draw_button(widget,ei_app_root_surface(), pick_surface,&widget->parent->screen_location);
-                    if (((ei_impl_button_t*)widget)->callback){
-                        ((ei_impl_button_t*)widget)->callback(widget,event,((ei_impl_button_t*)widget)->user_params);
+                    ei_app_invalidate_rect(&widget->screen_location);
 
-                    }
+                    if (((ei_impl_button_t*)widget)->callback) ((ei_impl_button_t*)widget)->callback(widget,event,((ei_impl_button_t*)widget)->user_params);
                     current_button_down = NULL;
                 }
                 break;
@@ -288,7 +301,6 @@ bool ei_callback_clickbutton(ei_widget_t		widget, struct ei_event_t*	event, ei_u
 bool ei_callback_buttondown (ei_widget_t		widget, struct ei_event_t*	event, ei_user_param_t	user_param){
     if (!widget) return false;
     modify_hierarchy(widget,widget->parent);
-    ei_impl_widget_draw_children(ei_app_root_widget(),ei_app_root_surface(),pick_surface,&ei_app_root_widget()->screen_location);
     return false;
 }
 

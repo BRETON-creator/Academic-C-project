@@ -176,7 +176,6 @@ void ei_app_run(void){
 
     ei_rect_t clipper           = hw_surface_get_rect(ei_app_root_surface());
     ei_impl_widget_draw_children(root, root_surface, pick_surface, &clipper);
-
     //boucle principale
 
     //binds interns
@@ -209,18 +208,24 @@ void ei_app_run(void){
             if (bind && ! change_event) { //si on a pas finit notre callback alors on regarde la suite
                 binds = bind->next_bind;
             }
+                if (rects) {
+                        hw_surface_unlock(root_surface);
+                        //TODO utiliser rects à la place de clipper (il faut calculer l'union de tout les rects)
+                        ei_impl_widget_draw_children(root, root_surface, pick_surface, &clipper);
+                        hw_surface_update_rects(root_surface, rects);
+                        // IL faut release tout les rects
+                        release_linked_rect(rects);
+                        rects = NULL;
+                        hw_surface_lock(root_surface);
+                }
+
         }while(!change_event && bind);
-        hw_surface_unlock(root_surface);
-        hw_surface_update_rects(root_surface,rects);
-        // IL faut release tout les rects
-        release_linked_rect(rects);
-        rects=NULL;
-        hw_surface_lock(root_surface);
+
     }
     ei_unbind(ei_ev_mouse_buttondown, NULL,"button\0",ei_callback_clickbutton,NULL);
     ei_unbind(ei_ev_mouse_buttonup,NULL,"button\0",ei_callback_clickbutton,NULL);
 
-    ei_bind(ei_ev_mouse_buttondown, NULL, "all\0", ei_callback_buttondown,NULL);
+    ei_unbind(ei_ev_mouse_buttondown, NULL, "all\0", ei_callback_buttondown,NULL);
 
     ei_unbind(ei_ev_mouse_buttondown, NULL,"toplevel\0",ei_callback_toplevel,NULL);
     ei_unbind(ei_ev_mouse_move, NULL,"toplevel\0",ei_callback_toplevel,NULL);
