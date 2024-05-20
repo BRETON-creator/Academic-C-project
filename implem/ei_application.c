@@ -236,7 +236,16 @@ void ei_app_run(void){
 
 
 
-
+void add_head_rects(const ei_rect_t* rect){
+    ei_linked_rect_t* new_rect = calloc(1,sizeof(ei_linked_rect_t));
+    ei_rect_t rect_correction = get_rect_intersection(*rect, root->screen_location);
+    new_rect->next = rects;
+    new_rect->rect.top_left.x = rect_correction.top_left.x;
+    new_rect->rect.top_left.y = rect_correction.top_left.y;
+    new_rect->rect.size.width = rect_correction.size.width;
+    new_rect->rect.size.height = rect_correction.size.height;
+    rects = new_rect;
+}
 /**
  * \brief	Adds a rectangle to the list of rectangles that must be updated on screen. The real
  *		update on the screen will be done at the right moment in the main loop.
@@ -245,13 +254,48 @@ void ei_app_run(void){
  *				A copy is made, so it is safe to release the rectangle on return.
  */
 void ei_app_invalidate_rect(const ei_rect_t* rect){
-    ei_linked_rect_t* new_rect = calloc(1,sizeof(ei_linked_rect_t));
-    new_rect->next = rects;
-    new_rect->rect.top_left.x = rect->top_left.x;
-    new_rect->rect.top_left.y = rect->top_left.y;
-    new_rect->rect.size.width = rect->size.width;
-    new_rect->rect.size.height = rect->size.height;
-    rects = new_rect;
+    if (!rects) {
+            add_head_rects(rect);
+            return;
+    }
+    ei_linked_rect_t* prec = rects;
+    ei_linked_rect_t* current;
+    ei_rect_t inter;
+    inter=get_rect_intersection(prec->rect,*rect);
+    if (inter.size.width == (prec->rect).size.width &&
+        inter.size.height == (prec->rect).size.height &&
+        inter.top_left.x == (prec->rect).top_left.x &&
+        inter.top_left.y == (prec->rect).top_left.y){
+
+            rects = rects->next;
+            free(prec);
+            ei_app_invalidate_rect(rect);
+            return;
+    }
+    while(prec->next){
+        current=prec->next;
+        inter=get_rect_intersection(current->rect,*rect);
+        // si l'intersection entre le nouveau rectangle et current est le rect current alors on supprime current (current est inclu dans le nouveau rect)
+        if (inter.size.width == (current->rect).size.width &&
+            inter.size.height == (current->rect).size.height &&
+            inter.top_left.x == (current->rect).top_left.x &&
+            inter.top_left.y == (current->rect).top_left.y){
+
+                prec->next = current->next;
+                free(current);
+
+        }
+        // si l'intersection entre le nouveau rectangle et current est le nouveau rectangle alors on ajoute pas le nouveau rectangle(current contient le nouveau rect)
+        if (inter.size.width == (*rect).size.width &&
+            inter.size.height == (*rect).size.height &&
+            inter.top_left.x == (*rect).top_left.x &&
+            inter.top_left.y == (*rect).top_left.y){
+
+            return;
+        }
+        prec = current;
+    }
+    add_head_rects(rect);
 }
 
 /**
