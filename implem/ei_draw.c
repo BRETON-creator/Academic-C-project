@@ -122,7 +122,7 @@ int	ei_copy_surface		(ei_surface_t		destination,
     pixel_dst= pixel_dst + x_dst + y_dst*dst_surf_rect.size.width;
     pixel_src = pixel_src + x_src + y_src*src_surf_rect.size.width;
     uint8_t *red_dst, *green_dst, *blue_dst, *alpha_dst;
-    uint8_t *red_src, *green_src, *blue_src, *alpha_src;
+    uint8_t *red_src, *green_src, *blue_src, alpha_src;
     /*On copie la source dans la destination*/
 
     if (width_dst != width_src || height_dst != height_src) {
@@ -134,7 +134,7 @@ int	ei_copy_surface		(ei_surface_t		destination,
     int min_height = height_src < height_dst ? height_src : height_dst;
     for (int y=0; y < min_height; y++){
         for (int x=0; x < min_width; x++){
-            if (x + x_dst < dst_surf_rect.size.width && x + x_dst > dst_surf_rect.top_left.x && y + y_dst > dst_surf_rect.top_left.y && y+y_dst<dst_surf_rect.size.height) {
+            if (x + x_dst < dst_surf_rect.size.width && x + x_dst >= dst_surf_rect.top_left.x && y + y_dst >= dst_surf_rect.top_left.y && y+y_dst<dst_surf_rect.size.height) {
                 red_dst = (uint8_t *) (pixel_dst + x + y * dst_surf_rect.size.width);
                 green_dst = red_dst + 1;
                 blue_dst = red_dst + 2;
@@ -142,10 +142,11 @@ int	ei_copy_surface		(ei_surface_t		destination,
                 red_src = (uint8_t *) (pixel_src + x + y * src_surf_rect.size.width);
                 green_src = red_src + 1;
                 blue_src = red_src + 2;
-                alpha_src = red_src + 3;
-                *(red_dst) = ((*red_dst) * (255 - (*alpha_src)) + (*red_src) * (*alpha_src)) / 255;
-                *(green_dst) = ((*green_dst) * (255 - (*alpha_src)) + (*green_src) * (*alpha_src)) / 255;
-                *(blue_dst) = ((*blue_dst) * (255 - (*alpha_src)) + (*blue_src) * (*alpha_src)) / 255;
+                if (alpha) alpha_src = *(red_src + 3);
+                else alpha_src = 0xFF;
+                *(red_dst) = ((*red_dst) * (255 - (alpha_src)) + (*red_src) * (alpha_src)) / 255;
+                *(green_dst) = ((*green_dst) * (255 - (alpha_src)) + (*green_src) * (alpha_src)) / 255;
+                *(blue_dst) = ((*blue_dst) * (255 - (alpha_src)) + (*blue_src) * (alpha_src)) / 255;
             }
         }
     }
