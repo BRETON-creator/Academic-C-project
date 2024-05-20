@@ -282,7 +282,7 @@ void ei_impl_setdefaults_toplevel(ei_widget_t widget){
         toplevel->button = button;
 
         ei_place(toplevel->button, &(ei_anchor_t){ei_anc_northwest},
-                 &(int){toplevel->border_width + 4}, &(int){toplevel->border_width + 4}, NULL,
+                 &(int){toplevel->border_width + 3}, &(int){toplevel->border_width+1}, NULL,
                  NULL, &(float){0.0}, &(float){0.0}, NULL, NULL);
 
         ei_color_t color  = toplevel->color;
@@ -370,7 +370,7 @@ void ei_impl_draw_toplevel(ei_widget_t widget, ei_surface_t surface, ei_surface_
         if (toplevel->title) {
                 uint32_t size = 10;
                 if (toplevel->button) size = toplevel->button->requested_size.width;
-                ei_point_t where = (ei_point_t){ border + rect.top_left.x + 2*size, rect.top_left.y  };
+                ei_point_t where = (ei_point_t){ border + rect.top_left.x + 2*size, rect.top_left.y -1 };
                 ei_font_t font = hw_text_font_create(ei_default_font_filename, ei_style_normal, 18);
                 ei_draw_text(surface, &where, toplevel->title,
                              font, white_color,
