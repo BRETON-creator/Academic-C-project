@@ -175,6 +175,7 @@ void		ei_place	(ei_widget_t		widget,
         if (rel_width) geom_param->rel_width   = *rel_width;
         if (anchor) geom_param->anchor      = *anchor;
 
-        ei_app_invalidate_rect(&widget->parent->screen_location);
+        ei_rect_t rect = get_rect_intersection(widget->parent->screen_location,ei_app_root_widget()->screen_location);
+        ei_app_invalidate_rect(&rect);
 }
 

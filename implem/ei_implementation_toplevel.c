@@ -85,6 +85,8 @@ bool ei_callback_toplevel(ei_widget_t	widget, struct ei_event_t*	event, ei_user_
 
             current_moving_toplevel->widget.screen_location.top_left.x += x;
             current_moving_toplevel->widget.screen_location.top_left.y += y;
+            if (current_moving_toplevel->widget.screen_location.top_left.y < 0)
+                current_moving_toplevel->widget.screen_location.top_left.y = 0;
             mouse_point = cur_point;
 
 
