@@ -120,6 +120,11 @@ target_link_libraries(hello_world_bis	ei ${PLATFORM_LIB_FLAGS})
 add_executable(entry			${TEST_DIR}/entry.c)
 target_link_libraries(entry		ei ${PLATFORM_LIB_FLAGS})
 
+# target image
+
+add_executable(image			${TEST_DIR}/image.c)
+target_link_libraries(image		ei ${PLATFORM_LIB_FLAGS})
+
 # target puzzle
 
 add_executable(puzzle			${TEST_DIR}/puzzle.c)
