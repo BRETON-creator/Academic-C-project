@@ -143,8 +143,8 @@ void ei_impl_draw_frame(ei_widget_t widget,ei_surface_t surface,ei_surface_t pic
 
             hw_surface_lock(surface_img);
             ei_rect_t dst_rect = (ei_rect_t){{rect.top_left.x + border, rect.top_left.y + border},
-                                             rect_img->size};
-            ei_copy_surface(surface, &dst_rect, surface_img, rect_img, false);
+                                             {124,124}};
+            ei_copy_surface(surface, &dst_rect, surface_img, &(ei_rect_t){rect_img->top_left, {124,124}}, false);
             hw_surface_unlock(surface_img);
 
 
