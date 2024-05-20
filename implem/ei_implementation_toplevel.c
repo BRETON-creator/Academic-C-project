@@ -330,7 +330,7 @@ void ei_impl_draw_toplevel(ei_widget_t widget, ei_surface_t surface, ei_surface_
         ei_rect_t rect= widget->screen_location;
 
         ei_color_t color  = ei_font_default_color;
-        ei_color_t dark_color  = (ei_color_t){abs(color.red +100), abs(color.green +100) , abs(color.blue +100) , color.alpha};
+        ei_color_t dark_color  = (ei_color_t){abs(color.red -100), abs(color.green -100) , abs(color.blue -100) , 210};
 
         int border = toplevel->border_width;
 
@@ -349,14 +349,14 @@ void ei_impl_draw_toplevel(ei_widget_t widget, ei_surface_t surface, ei_surface_
 
 
 
-        ei_point_t square_frame[8] = {{rect.top_left.x , rect.top_left.y + radius},
+        ei_point_t square_frame[8] = {{rect.top_left.x , rect.top_left.y + 2*radius + border + 1},
                                       {rect.top_left.x , rect.top_left.y  + rect.size.height},
                                       {rect.top_left.x + rect.size.width, rect.top_left.y + rect.size.height},
-                                      {rect.top_left.x + rect.size.width, rect.top_left.y + radius},
-                                      {rect.top_left.x - border + rect.size.width, rect.top_left.y + radius},
+                                      {rect.top_left.x + rect.size.width, rect.top_left.y + 2*radius + border +1 },
+                                      {rect.top_left.x - border + rect.size.width, rect.top_left.y + 2*radius + border +1 },
                                       {rect.top_left.x - border + rect.size.width, rect.top_left.y - border + rect.size.height},
                                       {rect.top_left.x + border-1, rect.top_left.y - border + rect.size.height},
-                                      {rect.top_left.x + border-1, rect.top_left.y + radius},
+                                      {rect.top_left.x + border-1, rect.top_left.y + 2*radius + border + 1},
         };
 
 
@@ -370,7 +370,7 @@ void ei_impl_draw_toplevel(ei_widget_t widget, ei_surface_t surface, ei_surface_
         if (toplevel->title) {
                 uint32_t size = 10;
                 if (toplevel->button) size = toplevel->button->requested_size.width;
-                ei_point_t where = (ei_point_t){ border + rect.top_left.x + 2*size, rect.top_left.y + border};
+                ei_point_t where = (ei_point_t){ border + rect.top_left.x + 2*size, rect.top_left.y  };
                 ei_font_t font = hw_text_font_create(ei_default_font_filename, ei_style_normal, 18);
                 ei_draw_text(surface, &where, toplevel->title,
                              font, white_color,
