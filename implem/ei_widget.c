@@ -148,6 +148,7 @@ ei_widget_t		ei_widget_pick			(ei_point_t*		where){
     //on trouve a quel widget il appartient et on renvoit ce widget, si c'est la racine on renvoie NULL
     ei_widget_t current = ei_app_root_widget();
     current = widget_from_pickid(current,pick_id);
+    //printf("Je suis sur le widget %s %08x\n", current->wclass->name, current->pick_id);
     if (current == ei_app_root_widget()) return NULL;
     return current;
 }

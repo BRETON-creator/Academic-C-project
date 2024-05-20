@@ -232,6 +232,8 @@ ei_widget_t ei_impl_alloc_button(){
  *
  */
 void ei_impl_release_button(ei_widget_t button){
+        if (current_button_down && button->pick_id == current_button_down->pick_id)
+            current_button_down = NULL;
         supr_hierachy(button->parent, button);
         if (((ei_impl_frame_t*)button)->text) free((((ei_impl_frame_t*)button)->text));
         free((ei_impl_button_t*)button);

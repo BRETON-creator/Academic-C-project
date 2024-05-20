@@ -36,5 +36,6 @@ void ei_impl_placer_runfunc(ei_widget_t widget){
  * @brief Release function of placer
  */
 void  ei_impl_placer_releasefunc(ei_widget_t widget){
+    ei_app_invalidate_rect(&widget->screen_location);
     free((ei_placer_t*)widget->geom_params);
 }

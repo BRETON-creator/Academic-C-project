@@ -74,7 +74,12 @@ ei_impl_toplevel_t* current_moving_toplevel = NULL;
 
 bool ei_callback_toplevel(ei_widget_t	widget, struct ei_event_t*	event, ei_user_param_t	user_param) {
 
-         ei_point_t cur_point = event->param.mouse.where;
+        ei_point_t cur_point = event->param.mouse.where;
+        if (event->type == ei_ev_mouse_buttonup && toplevel_move) {
+            toplevel_move = 0;
+            current_moving_toplevel = NULL;
+            return 1;
+        }
 
         if (toplevel_move && event->type == ei_ev_mouse_move && current_moving_toplevel) {
             int x = cur_point.x - mouse_point.x;
@@ -105,11 +110,7 @@ bool ei_callback_toplevel(ei_widget_t	widget, struct ei_event_t*	event, ei_user_
             ei_app_invalidate_rect(&clip);
             return 1;
         }
-        if (event->type == ei_ev_mouse_buttonup && toplevel_move) {
-                toplevel_move = 0;
-                current_moving_toplevel = NULL;
-                return 1;
-        }
+
 
         if (!widget) return false;
 
@@ -135,12 +136,13 @@ bool ei_callback_toplevel(ei_widget_t	widget, struct ei_event_t*	event, ei_user_
 
 
         }
+        return false;
 
 }
 
 bool ei_resize_toplevel(ei_widget_t	widget, struct ei_event_t*	event, ei_user_param_t	user_param){
 
-        if (event->type == ei_ev_mouse_buttonup) {
+        if (event->type == ei_ev_mouse_buttonup && resize) {
                 resize= 0;
                 return 1;
         }
@@ -157,6 +159,8 @@ bool ei_resize_toplevel(ei_widget_t	widget, struct ei_event_t*	event, ei_user_pa
 
         if (resize && event->type==ei_ev_mouse_move) {
                 ei_impl_toplevel_t *toplevel = (ei_impl_toplevel_t *) frame->widget.parent;
+                if (toplevel->resizable_axis==ei_axis_none)
+                    return true;
                 ei_rect_t rect = toplevel->widget.screen_location;
                 rect.size.width++;
                 rect.size.height++;
@@ -227,6 +231,14 @@ ei_widget_t ei_impl_alloc_toplevel(){
  */
 
 void ei_impl_release_toplevel(ei_widget_t toplevel){
+        if (current_moving_toplevel && toplevel->pick_id==current_moving_toplevel->widget.pick_id) {
+            current_moving_toplevel = NULL;
+            toplevel_move = false;
+        }
+        if (resize && frame->widget.pick_id == ((ei_impl_toplevel_t*)toplevel)->frame->pick_id){
+            frame = NULL;
+            resize= false;
+        }
         supr_hierachy(toplevel->parent, toplevel);
         free((ei_impl_toplevel_t*)toplevel);
 }
@@ -312,8 +324,8 @@ void ei_impl_setdefaults_toplevel(ei_widget_t widget){
                                            NULL, NULL,
                                            NULL, NULL, NULL, NULL);
 
-        ei_place(frame, &(ei_anchor_t){ei_anc_northwest},
-                 &(int){border}, &(int){border+k_default_button_corner_radius*2}, NULL, NULL, &(float){0.0}, &(float){0.0}, NULL, NULL);
+        ei_place(frame, &(ei_anchor_t){ei_anc_southeast},
+                 &(int){-border}, &(int){-border}, NULL, NULL, &(float){1}, &(float){1}, NULL, NULL);
 
         toplevel->contain_frame = frame;
 }
