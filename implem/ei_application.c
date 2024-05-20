@@ -72,7 +72,7 @@ void ei_app_create(ei_size_t main_window_size, bool fullscreen){
     strcpy(buttonclass->name,(ei_widgetclass_name_t){"button\0"});
     ei_widgetclass_register(buttonclass);
 
-    //      register button class of widget
+    //      register toplevel class of widget
     ei_widgetclass_t* toplevelclass = calloc(1,sizeof(ei_widgetclass_t));
     toplevelclass->allocfunc        = ei_impl_alloc_toplevel;
     toplevelclass->releasefunc      = ei_impl_release_toplevel;
@@ -191,7 +191,7 @@ void ei_app_run(void){
     ei_event_t* event = calloc(1,sizeof(ei_event_t));
     ei_bind_t* bind;
     ei_bind_t* binds;
-    bool change_event;
+    bool change_event = true;
     while(!quit){
         binds=ei_get_head_binds();
         hw_event_wait_next(event);
