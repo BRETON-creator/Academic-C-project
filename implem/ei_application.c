@@ -214,6 +214,7 @@ void ei_app_run(void){
         if (rects) {
             hw_surface_unlock(root_surface);
             //TODO utiliser rects à la place de clipper (il faut calculer l'union de tout les rects)
+            clipper = get_smallest_containing_rect(rects);
             ei_impl_widget_draw_children(root, root_surface, pick_surface, &clipper);
             hw_surface_update_rects(root_surface, rects);
             // IL faut release tout les rects

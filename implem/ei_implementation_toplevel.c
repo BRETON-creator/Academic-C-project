@@ -149,7 +149,10 @@ bool ei_resize_toplevel(ei_widget_t	widget, struct ei_event_t*	event, ei_user_pa
         ei_point_t cur_point = event->param.mouse.where;
 
         if (widget && resize==0 && event->type==ei_ev_mouse_buttondown && strcmp(widget->wclass->name, (ei_widgetclass_name_t) {"frame\0"})==0){
-                if (strcmp(widget->parent->wclass->name, (ei_widgetclass_name_t) {"toplevel\0"})==0 && widget->pick_id==((ei_impl_toplevel_t*)widget->parent)->frame->pick_id){
+                if      (widget->parent &&  strcmp(widget->parent->wclass->name, (ei_widgetclass_name_t) {"toplevel\0"})==0 &&
+                        ((ei_impl_toplevel_t*)widget->parent)->resizable_axis!=ei_axis_none &&
+                        widget->pick_id==((ei_impl_toplevel_t*)widget->parent)->frame->pick_id){
+
                         resize=1;
                         mouse_point = event->param.mouse.where;
                         frame = (ei_impl_frame_t *)widget;
@@ -231,6 +234,7 @@ ei_widget_t ei_impl_alloc_toplevel(){
  */
 
 void ei_impl_release_toplevel(ei_widget_t toplevel){
+        if (! toplevel) return;
         if (current_moving_toplevel && toplevel->pick_id==current_moving_toplevel->widget.pick_id) {
             current_moving_toplevel = NULL;
             toplevel_move = false;
@@ -279,6 +283,7 @@ void ei_impl_setdefaults_toplevel(ei_widget_t widget){
         toplevel->can_close = true;
         toplevel->resizable_axis = ei_axis_both;
         toplevel->minimal_size = (ei_size_t){160, 120};
+        toplevel->contain_frame=NULL;
 
 
 
@@ -293,28 +298,17 @@ void ei_impl_setdefaults_toplevel(ei_widget_t widget){
 
         toplevel->button = button;
 
+        ei_color_t color  = toplevel->color;
+        ei_color_t dark_color  = (ei_color_t){abs(ei_font_default_color.red -100),
+                                              abs(ei_font_default_color.green -100) ,
+                                              abs(ei_font_default_color.blue -100) ,
+                                              200};
+
+
         ei_place(toplevel->button, &(ei_anchor_t){ei_anc_northwest},
-                 &(int){toplevel->border_width + 3}, &(int){toplevel->border_width+1}, NULL,
+                 &(int){widget->screen_location.top_left.x + 6}, &(int){widget->screen_location.top_left.y +6}, NULL,
                  NULL, &(float){0.0}, &(float){0.0}, NULL, NULL);
 
-        ei_color_t color  = toplevel->color;
-        ei_color_t dark_color  = (ei_color_t){abs(color.red -50), abs(color.green -50), abs(color.blue -50), 50};
-
-        ei_widget_t resize_frame = ei_widget_create	("frame", (ei_widget_t)(toplevel), NULL, NULL);
-        ei_frame_configure		(resize_frame, &(ei_size_t){10, 10},
-                                            &dark_color,
-                                            &(int){0}, NULL,NULL,
-                                            NULL, NULL,
-                                            NULL, NULL, NULL, NULL);
-
-        ei_bind(ei_ev_mouse_buttondown, resize_frame,NULL,ei_resize_toplevel,NULL);
-        ei_bind(ei_ev_mouse_move, resize_frame,NULL,ei_resize_toplevel,NULL);
-        ei_bind(ei_ev_mouse_buttonup, resize_frame,NULL,ei_resize_toplevel,NULL);
-
-        toplevel->frame = resize_frame;
-
-        ei_place(toplevel->frame, &(ei_anchor_t){ei_anc_southeast},
-                 NULL, NULL, NULL, NULL, &(float){1.0}, &(float){1.0}, NULL, NULL);
 
         ei_widget_t frame = ei_widget_create	("frame", (ei_widget_t)(toplevel), NULL, NULL);
         ei_frame_configure		(frame, &(ei_size_t){toplevel->widget.requested_size.width-2*(border),
@@ -327,7 +321,25 @@ void ei_impl_setdefaults_toplevel(ei_widget_t widget){
         ei_place(frame, &(ei_anchor_t){ei_anc_southeast},
                  &(int){-border}, &(int){-border}, NULL, NULL, &(float){1}, &(float){1}, NULL, NULL);
 
+        ei_widget_t resize_frame = ei_widget_create	("frame", (ei_widget_t)(toplevel), NULL, NULL);
+        ei_frame_configure		(resize_frame, &(ei_size_t){10, 10},
+                                   &dark_color,
+                                   &(int){0}, NULL,NULL,
+                                   NULL, NULL,
+                                   NULL, NULL, NULL, NULL);
+
+        ei_bind(ei_ev_mouse_buttondown, resize_frame,NULL,ei_resize_toplevel,NULL);
+        ei_bind(ei_ev_mouse_move, resize_frame,NULL,ei_resize_toplevel,NULL);
+        ei_bind(ei_ev_mouse_buttonup, resize_frame,NULL,ei_resize_toplevel,NULL);
+
+        toplevel->frame = resize_frame;
+
+        ei_place(toplevel->frame, &(ei_anchor_t){ei_anc_southeast},
+                 NULL, NULL, NULL, NULL, &(float){1.0}, &(float){1.0}, NULL, NULL);
+
         toplevel->contain_frame = frame;
+
+
 }
 
 /**
@@ -342,7 +354,7 @@ void ei_impl_draw_toplevel(ei_widget_t widget, ei_surface_t surface, ei_surface_
         ei_rect_t rect= widget->screen_location;
 
         ei_color_t color  = ei_font_default_color;
-        ei_color_t dark_color  = (ei_color_t){abs(color.red -100), abs(color.green -100) , abs(color.blue -100) , 210};
+        ei_color_t dark_color  = (ei_color_t){abs(color.red -100), abs(color.green -100) , abs(color.blue -100) , 200};
 
         int border = toplevel->border_width;
 
@@ -382,7 +394,7 @@ void ei_impl_draw_toplevel(ei_widget_t widget, ei_surface_t surface, ei_surface_
         if (toplevel->title) {
                 uint32_t size = 10;
                 if (toplevel->button) size = toplevel->button->requested_size.width;
-                ei_point_t where = (ei_point_t){ border + rect.top_left.x + 2*size, rect.top_left.y -1 };
+                ei_point_t where = (ei_point_t){ rect.top_left.x + 2 * size, rect.top_left.y };
                 ei_font_t font = hw_text_font_create(ei_default_font_filename, ei_style_normal, 18);
                 ei_draw_text(surface, &where, toplevel->title,
                              font, white_color,

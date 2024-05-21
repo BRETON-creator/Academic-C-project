@@ -5,6 +5,31 @@
 #include "ei_outil_geom.h"
 
 /**
+ * @brief fonction pour avoir le plus petit rectangle contenant une liste de rectangle
+ *
+ * @return renvoie le plus petit rectangle contenant tout les rectangles de la liste
+ */
+ei_rect_t get_smallest_containing_rect(ei_linked_rect_t* list){
+    if (!list) return ei_app_root_widget()->screen_location ;
+    int max_x, max_y, min_x, min_y;
+    ei_linked_rect_t* current= list;
+    max_x = current->rect.top_left.x + current->rect.size.width;
+    max_y = current->rect.top_left.y + current->rect.size.height;
+    min_x = current->rect.top_left.x;
+    min_y = current->rect.top_left.y;
+
+    while (current){
+        if (current->rect.top_left.x < min_x) min_x = current->rect.top_left.x;
+        if (current->rect.top_left.y < min_y) min_y = current->rect.top_left.y;
+        if (current->rect.top_left.x + current->rect.size.width > max_x) max_x = current->rect.top_left.x + current->rect.size.width;
+        if (current->rect.top_left.y + current->rect.size.height > max_y) max_y = current->rect.top_left.y + current->rect.size.height;
+        current=current->next;
+    }
+    return (ei_rect_t){{min_x,min_y}, {max_x-min_x,max_y-min_y}};
+}
+
+
+/**
 * \brief Fonction pour obtenir l'union de deux rectangles
 *
 */
