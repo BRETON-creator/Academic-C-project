@@ -144,12 +144,32 @@ bool ei_callback_entry(ei_widget_t		widget, struct ei_event_t*	event, ei_user_pa
 
             ei_string_t letter = event->param.key_code;
             insert_at_cursor_position( ((ei_impl_entry_t*)widget)->text , ((ei_impl_entry_t*)widget)->position , letter);
+
+            switch ((event->type == ei_ev_keydown) && (event->param.key_code == SDLK_DELETE)) {
+                delete_at_cursor_position( ((ei_impl_entry_t*)widget)->text , ((ei_impl_entry_t*)widget)->position );
+
+            }
+
         }
 
     }
 }
 
+/**
+ * @brief	Sets the text displayed in the entry widget.
+ *
+ * @param	widget		The widget to set.
+ * @param	text		The text to show in the widget.
+ */
+void			ei_entry_set_text		(ei_widget_t		widget,
+                             ei_const_string_t 	text){
 
+
+        size_t length = strlen(text) + 1;
+        char* new_text = (char*)malloc(length * sizeof(char));
+        strncpy(new_text, text, length);
+        ((ei_impl_entry_t*)widget)->text = new_text;
+}
 
 /**
  * \brief Fonction pour dessiner un widget entry.
