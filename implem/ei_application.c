@@ -11,6 +11,7 @@
 #include "ei_widgetclass.h"
 #include "ei_implementation.h"
 #include "ei_implementation_toplevel.h"
+#include "ei_implementation_entry.h"
 #include "ei_draw.h"
 #include "ei_event.h"
 #include "ei_impl_binds.h"
@@ -82,6 +83,17 @@ void ei_app_create(ei_size_t main_window_size, bool fullscreen){
     toplevelclass->next             = NULL;
     strcpy(toplevelclass->name,(ei_widgetclass_name_t){"toplevel\0"});
     ei_widgetclass_register(toplevelclass);
+
+    //      register entry class of widget
+    ei_widgetclass_t* entryclass = calloc(1,sizeof(ei_widgetclass_t));
+    entryclass->allocfunc        = ei_impl_alloc_entry;
+    entryclass->releasefunc      = ei_impl_release_entry;
+    entryclass->drawfunc         = ei_impl_draw_entry;
+    entryclass->setdefaultsfunc  = ei_impl_setdefaults_entry;
+    entryclass->geomnotifyfunc   = ei_impl_geomnotify_entry;
+    entryclass->next             = NULL;
+    strcpy(entryclass->name,(ei_widgetclass_name_t){"entry\0"});
+    ei_widgetclass_register(entryclass);
 
     //      register geometry manager "placer"
     ei_geometrymanager_t* placer = calloc(1,sizeof(ei_geometrymanager_t));
@@ -214,6 +226,7 @@ void ei_app_run(void){
         if (rects) {
             hw_surface_unlock(root_surface);
             //TODO utiliser rects à la place de clipper (il faut calculer l'union de tout les rects)
+            clipper = get_smallest_containing_rect(rects);
             ei_impl_widget_draw_children(root, root_surface, pick_surface, &clipper);
             hw_surface_update_rects(root_surface, rects);
             // IL faut release tout les rects

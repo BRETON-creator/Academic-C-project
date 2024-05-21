@@ -34,9 +34,18 @@ void		ei_impl_widget_draw_children	(ei_widget_t		widget,
     (widget->wclass->drawfunc)(widget,surface,pick_surface,clipper);
 
     ei_widget_t child = widget->children_head;
+    ei_rect_t new_clipper;
+    if (child) {
+        new_clipper = get_rect_intersection(*clipper, child->screen_location);
+    }
     while (child){
-        ei_impl_widget_draw_children(child, surface,pick_surface,&(widget->screen_location));
+        if (new_clipper.size.width != 0 && new_clipper.size.height != 0) {
+            ei_impl_widget_draw_children(child, surface, pick_surface, &new_clipper);
+        }
         child = child->next_sibling;
+        if (child) {
+            new_clipper = get_rect_intersection(*clipper, child->screen_location);
+        }
     }
 }
 
@@ -59,55 +68,6 @@ uint32_t	ei_impl_map_rgba(ei_surface_t surface, ei_color_t color);
 
 //================================================================================================
 
-
-/**
- * \brief Fonction pour dessiner un widget entry.
- * On suppose qu'a chaque evenement, on met à jour le texte à afficher
- * la fonction dessine simplement un carré blanc avec le texte à afficher + curseur
- *
- */
-void ei_impl_draw_entry(ei_widget_t widget,ei_surface_t surface,ei_surface_t pick_surface,ei_rect_t* clipper){
-    hw_surface_unlock(surface);
-    int h;
-    ei_color_t white  = {0xff , 0xff , 0xff , 0xff };
-    ei_color_t black  = {0x00 , 0x00 , 0x00 , 0xff };
-    ei_color_t bg_color= ei_default_background_color;
-
-    ei_size_t size= widget->requested_size;
-    ei_rect_t rect= widget->screen_location;
-    ei_rect_t new_clipper = get_rect_intersection(rect,*clipper);
-    h = size.height < size.width ? size.height /2 : size.width /2;
-    int border = ((ei_impl_entry_t*)widget)->border_size;
-
-    ei_point_t white_frame[4] = { (ei_point_t){rect.top_left.x+border,rect.top_left.y+border},
-                    (ei_point_t){rect.top_left.x+border,rect.top_left.y+ size.height + border},
-                    (ei_point_t){rect.top_left.x+border + size.width,rect.top_left.y+border},
-                    (ei_point_t){rect.top_left.x+border + size.width,rect.top_left.y+border+ size.height}};
-
-    ei_point_t bigger_frame[4] = { (ei_point_t){rect.top_left.x,rect.top_left.y},
-                    (ei_point_t){rect.top_left.x,rect.top_left.y+ size.height },
-                    (ei_point_t){rect.top_left.x + size.width,rect.top_left.y},
-                    (ei_point_t){rect.top_left.x + size.width,rect.top_left.y + size.height}};
-
-    ei_draw_polygon(surface,white_frame,4, white,&new_clipper);
-    ei_draw_polygon(surface,white_frame,4, bg_color ,&new_clipper);
-    ei_draw_polygon(pick_surface,bigger_frame,4,*(widget->pick_color),&new_clipper);
-
-    if (((ei_impl_frame_t*)widget)->text) {
-        //printf("%s", ((ei_impl_frame_t*)widget)->text);
-        ei_surface_t surface_text = hw_text_create_surface(((ei_impl_frame_t *) widget)->text,
-                                                           ((ei_impl_frame_t *) widget)->text_font,
-                                                           ((ei_impl_frame_t *) widget)->text_color);
-
-        ei_point_t where = place_text(rect,((ei_impl_frame_t *) widget)->text_anchor, hw_surface_get_size(surface_text));
-        ei_draw_text(surface, &where, ((ei_impl_frame_t *) widget)->text,
-                     ((ei_impl_frame_t *) widget)->text_font, ((ei_impl_frame_t *) widget)->text_color,
-                     &widget->screen_location);
-        hw_surface_free(surface_text);
-    }
-
-    hw_surface_lock(surface);
-}
 /**
  *  \brief fonction pour alloué un espace pour un widget frame.
  *
@@ -170,8 +130,9 @@ void ei_impl_draw_frame(ei_widget_t widget,ei_surface_t surface,ei_surface_t pic
     ei_color_t dark_color  = (ei_color_t){abs(color.red -20), abs(color.green -20), abs(color.blue -20), color.alpha};
     switch (((ei_impl_frame_t*) widget)->frame_relief){
         case ei_relief_none:
-            ei_draw_polygon(surface,lower_frame,23, color,&new_clipper); //
-            ei_draw_polygon(surface,upper_frame,23,color,&new_clipper);
+            //ei_draw_polygon(surface,lower_frame,23, color,&new_clipper); //
+            //ei_draw_polygon(surface,upper_frame,23,color,&new_clipper);
+            ei_fill(surface,&color,&new_clipper);
             break;
         case ei_relief_raised:
             ei_draw_polygon(surface,lower_frame,23, dark_color,&new_clipper);
@@ -195,8 +156,10 @@ void ei_impl_draw_frame(ei_widget_t widget,ei_surface_t surface,ei_surface_t pic
             ei_copy_surface(surface, &dst_rect, surface_img, &(ei_rect_t){{0,0},rect_img->size}, false);
             hw_surface_unlock(surface_img);
     }
-
-    else ei_draw_polygon(surface,smaller_frame,40, color,&new_clipper);
+    else{
+        if (((ei_impl_frame_t*) widget)->frame_relief != ei_relief_none)
+            ei_draw_polygon(surface, smaller_frame, 40, color, &new_clipper);
+    }
     //on dessine sur la pick surface aussi. pour afficher la pick surface decommenter la ligne du dessous
     //ei_draw_polygon(surface,rounded_frame,40,*(widget->pick_color),&new_clipper);
     ei_draw_polygon(pick_surface,rounded_frame,40,*(widget->pick_color),&new_clipper);
@@ -349,15 +312,10 @@ bool ei_callback_buttondown (ei_widget_t		widget, struct ei_event_t*	event, ei_u
     ei_app_invalidate_rect(&ei_app_root_widget()->screen_location);
     return false;
 }
+int size = 1;
 
 
-bool ei_callback_entry(ei_widget_t		widget, struct ei_event_t*	event, ei_user_param_t	user_param)
-{
-    if (!widget) return false;
-    if (strcmp( widget->wclass->name, (ei_widgetclass_name_t){"entry\0"}) != 0 ){
-        return false; //Si le widget n'est pas un entry on retourne false
-    }
-}
+
 void supr_hierachy(ei_widget_t widget, ei_widget_t widget_supr){
         if (!widget) return;
         ei_widget_t prec= widget->children_head;

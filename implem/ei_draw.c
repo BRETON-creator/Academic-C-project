@@ -59,7 +59,23 @@ void	ei_draw_text		(ei_surface_t		surface,
  */
 void	ei_fill			(ei_surface_t		surface,
 				 const ei_color_t*	color,
-				 const ei_rect_t*	clipper);
+				 const ei_rect_t*	clipper){
+
+    if (clipper){
+        ei_point_t array[4] ={ {clipper->top_left.x,clipper->top_left.y},
+                             {clipper->top_left.x + clipper->size.width, clipper->top_left.y},
+                             {clipper->top_left.x + clipper->size.width, clipper->top_left.y + clipper->size.height},
+                             {clipper->top_left.x, clipper->top_left.y + clipper->size.height}};
+        ei_draw_polygon(surface,array,4,*color,clipper);
+    }else{
+        ei_size_t size = hw_surface_get_size(surface);
+        ei_point_t array[4] ={ {0,0},
+                               {size.width, 0},
+                               {size.width, size.height},
+                               {0, size.height}};
+        ei_draw_polygon(surface,array,4,*color,clipper);
+    }
+}
 
 
 /**

@@ -66,7 +66,7 @@ void			ei_frame_configure		(ei_widget_t		widget,
     if (color)
         frame->frame_color = *color;
     if (!relief && !(frame->frame_relief) ) frame->frame_relief = ei_relief_none;
-    else frame->frame_relief = *relief;
+    else if (relief) frame->frame_relief = *relief;
     if (border_width) ((ei_impl_frame_t*)widget)->border_size =*border_width;
     if (requested_size) {
         widget->requested_size=*requested_size;
@@ -88,6 +88,7 @@ void			ei_frame_configure		(ei_widget_t		widget,
         frame->rect_image->size = (*img_rect)->size;
     }
     if (img){
+            if (!frame->rect_image) frame->rect_image=&frame->widget.screen_location.size;//TODO changer cette ligne: bugs avec minesweeper
             frame->image = hw_surface_create(ei_app_root_surface(),frame->rect_image->size,false);
 
             hw_surface_lock(frame->image);
@@ -205,7 +206,7 @@ void			ei_toplevel_configure		(ei_widget_t		widget,
                          NULL, &(float){0.0}, &(float){0.0}, NULL, NULL);
         }
 
-        if (toplevel->resizable_axis==ei_axis_none){
+        if (toplevel->resizable_axis==ei_axis_none && toplevel->frame->geom_params){
                 (toplevel->frame->geom_params->manager->releasefunc)(toplevel->frame);
                 toplevel->frame->geom_params = NULL;
                 ei_impl_release_frame(toplevel->frame);
@@ -220,23 +221,14 @@ void			ei_toplevel_configure		(ei_widget_t		widget,
         int border =toplevel->border_width;
         ei_frame_configure		(frame, &(ei_size_t){toplevel->widget.requested_size.width-2*border,
                                                                toplevel->widget.requested_size.height-2*border-k_default_button_corner_radius*2},
-                                           &toplevel->color,
+                                           color,
                                            &(int){0}, NULL,NULL,
                                            NULL, NULL,
                                            NULL, NULL, NULL, NULL);
 
-		if (!color) color = &ei_default_background_color;
-		ei_color_t new_color;
-		new_color.alpha = 200;
-		new_color.red = color->red;
-		new_color.green = color->green;
-		new_color.blue = color->blue;
-
-		frame->frame_color = new_color;
 
         ei_place(frame, &(ei_anchor_t){ei_anc_northwest},
                  &(int){border}, &(int){border+k_default_button_corner_radius*2}, NULL, NULL, &(float){0.0}, &(float){0.0}, NULL, NULL);
-
 
 }
 
