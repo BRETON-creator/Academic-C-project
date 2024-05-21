@@ -34,7 +34,6 @@ void ei_impl_draw_entry(ei_widget_t widget, ei_surface_t surface, ei_surface_t p
 
 void ei_impl_geomnotify_entry(ei_widget_t widget);
 
-void ei_entryconfigure(ei_widget_t widget, int* border_size,char* text,ei_font_t* text_font,int* text_size,ei_color_t* text_color,ei_anchor_t* text_anchor);
 
 #endif //PROJETC_IG_EI_IMPLEMENTATION_ENTRY_H
 

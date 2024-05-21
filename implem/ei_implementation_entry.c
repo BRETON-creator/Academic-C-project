@@ -52,19 +52,6 @@ void ei_impl_geomnotify_entry(ei_widget_t widget){
 
 }
 
-void ei_entryconfigure(ei_widget_t widget, int* border_size,char* text,ei_font_t* text_font,int* text_size,ei_color_t* text_color,ei_anchor_t* text_anchor){
-    ei_impl_entry_t * entry = (ei_impl_entry_t*)widget;
-    if (border_size) entry->border_size= *border_size;
-    if (text){
-        if (entry->text) free(entry->text);
-        entry->text = calloc(50,sizeof(char));
-        strcpy(entry->text,text);
-    }
-    if (text_font) entry->text_font = *text_font;
-    if (text_size) entry->text_size = *text_size;
-    if (text_color) entry->text_color = *text_color;
-    if (text_anchor) entry->text_anchor = *text_anchor;
-}
 
 
 
