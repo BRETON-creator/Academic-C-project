@@ -176,6 +176,12 @@ void		ei_place	(ei_widget_t		widget,
         if (anchor) geom_param->anchor      = *anchor;
 
         ei_rect_t rect = get_rect_intersection(widget->parent->screen_location,ei_app_root_widget()->screen_location);
+
         ei_app_invalidate_rect(&rect);
+        ei_widget_t child = widget->children_head;
+        while (child){
+            (child->geom_params->manager->runfunc)(child);
+            child=child->next_sibling;
+        }
 }
 

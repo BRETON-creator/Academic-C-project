@@ -94,7 +94,7 @@ void ei_impl_release_frame(ei_widget_t frame){
 void ei_impl_draw_frame(ei_widget_t widget,ei_surface_t surface,ei_surface_t pick_surface,ei_rect_t* clipper){
     hw_surface_unlock(surface);
     int h;
-    ei_color_t color  = ((ei_impl_button_t*)widget)->frame.frame_color;
+    ei_color_t color  = ((ei_impl_frame_t*)widget)->frame_color;
     ei_size_t size= widget->requested_size;
     ei_rect_t rect= widget->screen_location;
     ei_rect_t new_clipper = get_rect_intersection(rect,*clipper);
@@ -232,6 +232,8 @@ ei_widget_t ei_impl_alloc_button(){
  *
  */
 void ei_impl_release_button(ei_widget_t button){
+        if (current_button_down && button->pick_id == current_button_down->pick_id)
+            current_button_down = NULL;
         supr_hierachy(button->parent, button);
         if (((ei_impl_frame_t*)button)->text) free((((ei_impl_frame_t*)button)->text));
         free((ei_impl_button_t*)button);
