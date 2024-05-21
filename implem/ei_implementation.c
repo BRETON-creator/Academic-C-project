@@ -349,7 +349,13 @@ bool ei_callback_buttondown (ei_widget_t		widget, struct ei_event_t*	event, ei_u
     ei_app_invalidate_rect(&ei_app_root_widget()->screen_location);
     return false;
 }
+int size = 1;
 
+void add_element(char** tab, int* size, const char* element) {
+    tab = realloc(tab, *size* sizeof(char*));
+    tab[*size] = strdup(element);
+    (*size)++;
+}
 
 bool ei_callback_entry(ei_widget_t		widget, struct ei_event_t*	event, ei_user_param_t	user_param)
 {
@@ -357,7 +363,52 @@ bool ei_callback_entry(ei_widget_t		widget, struct ei_event_t*	event, ei_user_pa
     if (strcmp( widget->wclass->name, (ei_widgetclass_name_t){"entry\0"}) != 0 ){
         return false; //Si le widget n'est pas un entry on retourne false
     }
+    if (event->type == ei_ev_mouse_buttondown){
+        ei_app_invalidate_rect(&widget->screen_location);
+        ei_point_t where_cursor;
+        ei_point_t where;
+        where_cursor = where;
+        char* tmp;
+        tmp = ((ei_impl_entry_t*)widget)->text;
+    }
+    if (event->type == ei_ev_keydown)
+    {
+     // switch ((event->type == ei_ev_keydown) && (event->param.key_code == SDLK_ESCAPE)
+        switch ((event->type == ei_ev_keydown) && (event->param.key_code == SDLK_a ||
+            event->param.key_code == SDLK_b ||
+            event->param.key_code == SDLK_c ||
+            event->param.key_code == SDLK_d ||
+            event->param.key_code == SDLK_e ||
+            event->param.key_code == SDLK_f ||
+            event->param.key_code == SDLK_g ||
+            event->param.key_code == SDLK_h )||
+            event->param.key_code == SDLK_i ||
+            event->param.key_code == SDLK_j ||
+            event->param.key_code == SDLK_k ||
+            event->param.key_code == SDLK_l ||
+            event->param.key_code == SDLK_m ||
+            event->param.key_code == SDLK_n ||
+            event->param.key_code == SDLK_o ||
+            event->param.key_code == SDLK_p ||
+            event->param.key_code == SDLK_q ||
+            event->param.key_code == SDLK_r ||
+            event->param.key_code == SDLK_s ||
+            event->param.key_code == SDLK_t ||
+            event->param.key_code == SDLK_u ||
+            event->param.key_code == SDLK_v ||
+            event->param.key_code == SDLK_w ||
+            event->param.key_code == SDLK_x ||
+            event->param.key_code == SDLK_y ||
+            event->param.key_code == SDLK_z)
+        {
+            ei_string_t letter = event->param.key_code;
+            add_element( ((ei_impl_entry_t*)widget)->text , size , event->param.key_code );
+        }
+
+    }
 }
+
+
 void supr_hierachy(ei_widget_t widget, ei_widget_t widget_supr){
         if (!widget) return;
         ei_widget_t prec= widget->children_head;
