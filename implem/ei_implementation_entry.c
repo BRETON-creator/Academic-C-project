@@ -52,6 +52,7 @@ typedef struct letter {
     struct letter* next;
 } letter;
 
+
 // Pour créer une nouvelle lettre
 letter* create_letter(char data) {
     letter* new_letter = (letter*)malloc(sizeof(letter));
@@ -59,7 +60,35 @@ letter* create_letter(char data) {
     new_letter->next = NULL;
     return new_letter;
 }
+// Fonction pour convertir la liste chaînée de lettre en texte (chaîne de caractères) pour utilier ensuite la fonction hw_text_create_surface
+const char* from_list_to_string(letter* tab) {
+    int length = 0;
+    letter* current = tab;
+    while (current != NULL) {
+        length++;
+        current = current->next;
+    }
+    char* str = (char*)malloc((length + 1) * sizeof(char));
+    current = tab;
+    for (int i = 0; i < length; i++) {
+        str[i] = current->data;
+        current = current->next;
+    }
+    str[length] = '\0';
+    return str;
+}
 
+// Fonction pour convertir une chaîne de caractères en liste chaînée
+letter* from_string_to_list(const char* str) {
+    letter* tab = create_letter(str[0]);
+    letter* current = tab;
+
+    for (int i = 1; str[i] != '\0'; i++) {
+        current->next = create_letter(str[i]);
+        current = current->next;
+    }
+    return tab;
+}
 // Fonction pour insérer une lettre à une position donnée par le curseur
 void insert_at_cursor_position(letter** tab, int position, char data) {
     letter* new_letter = create_letter(data);
@@ -78,17 +107,17 @@ void insert_at_cursor_position(letter** tab, int position, char data) {
 }
 
 // Fonction pour supprimer un élément à une position donnée par le curseur
-void delete_at_cursor_position(letter** tab, int position) {
-
-    letter* tmp = *tab;
+void delete_at_cursor_position(const char* text, int position) {
+    letter* tab = from_string_to_list(text);
+    letter* tmp = tab;
 
     if (position == 0) {
-        *tab = tmp->next;
+        tab = tmp->next;
         free(tmp);
         return;
     }
 
-    letter* current = *tab;
+    letter* current = tab;
     for (int i = 0; i < position - 1 && current != NULL; i++) {
         current = current->next;
     }
@@ -155,35 +184,7 @@ bool ei_callback_entry(ei_widget_t		widget, struct ei_event_t*	event, ei_user_pa
     }
 }
 
-// Fonction pour convertir la liste chaînée de lettre en texte (chaîne de caractères) pour utilier ensuite la fonction hw_text_create_surface
-const char* from_list_to_string(letter* tab) {
-    int length = 0;
-    letter* current = tab;
-    while (current != NULL) {
-        length++;
-        current = current->next;
-    }
-    char* str = (char*)malloc((length + 1) * sizeof(char));
-    current = tab;
-    for (int i = 0; i < length; i++) {
-        str[i] = current->data;
-        current = current->next;
-    }
-    str[length] = '\0';
-    return str;
-}
 
-// Fonction pour convertir une chaîne de caractères en liste chaînée
-letter* from_string_to_List(const char* str) {
-    letter* tab = create_letter(str[0]);
-    letter* current = tab;
-
-    for (int i = 1; str[i] != '\0'; i++) {
-        current->next = create_letter(str[i]);
-        current = current->next;
-    }
-    return tab;
-}
 
 
 /**
