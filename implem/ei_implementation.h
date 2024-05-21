@@ -122,6 +122,8 @@ typedef struct {
     ei_color_t text_color;
     ei_anchor_t text_anchor;
     int position;
+    int requested_char_size;
+    ei_color_t* color;
 }ei_impl_entry_t;
 
 /**

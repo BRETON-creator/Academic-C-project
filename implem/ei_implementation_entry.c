@@ -37,8 +37,31 @@ void ei_impl_release_entry(ei_widget_t entry){
 * \brief Fonction pour mettre les valeurs par defauts d'un widget entry
 */
 void ei_impl_setdefaults_entry(ei_widget_t widget){
+    ei_impl_frame_t* entry = (ei_impl_frame_t*)widget;
+    widget->destructor = NULL;
+    entry->widget.wclass = ei_widgetclass_from_name((ei_const_string_t){"entry\0"});
+    entry->widget.user_data = NULL;
+    entry->widget.destructor = NULL;
+    /* Widget Hierachy Management */
+    entry->widget.parent = ei_app_root_widget();		///< Pointer to the parent of this widget.
+    entry->widget.children_head=NULL;	///< Pointer to the first child of this widget.	Children are chained with the "next_sibling" field.
+    entry->widget.children_tail=NULL;	///< Pointer to the last child of this widget.
+    entry->widget.next_sibling=NULL;	///< Pointer to the next child of this widget's parent widget.
+
+    /* Geometry Management */
+    entry->widget.geom_params = (ei_geom_param_t){NULL};	///< Pointer to the geometry management parameters for this widget. If NULL, the widget is not currently managed and thus, is not displayed on the screen.
+    entry->widget.requested_size=(ei_size_t){40,30} ;	///< See \ref ei_widget_get_requested_size.
+    entry->widget.screen_location=(ei_rect_t){(ei_point_t){0,0},(ei_size_t){40,30}};///< See \ref ei_widget_get_screen_location.
+    //frame->widget.content_rect;	///< See ei_widget_get_content_rect. By defaults, points to the screen_location.
+
+    entry->text=NULL;
+    entry->text_font=ei_default_font;
+    entry->text_size=ei_font_default_size;
+    entry->text_color=ei_font_default_color;
+    entry->text_anchor=ei_anc_center;
 
 }
+
 
 
 void ei_impl_geomnotify_entry(ei_widget_t widget){
@@ -185,24 +208,6 @@ bool ei_callback_entry(ei_widget_t		widget, struct ei_event_t*	event, ei_user_pa
 }
 
 
-
-
-/**
- * @brief	Sets the text displayed in the entry widget.
- *
- * @param	widget		The widget to set.
- * @param	text		The text to show in the widget.
- */
-void			ei_entry_set_text		(ei_widget_t		widget,
-                             ei_const_string_t 	text){
-
-
-        size_t length = strlen(text) + 1;
-        char* new_text = (char*)malloc(length * sizeof(char));
-        strncpy(new_text, text, length);
-        ((ei_impl_entry_t*)widget)->text = new_text;
-}
-
 /**
  * \brief Fonction pour dessiner un widget entry.
  * On suppose qu'a chaque evenement, on met à jour le texte à afficher
@@ -237,15 +242,14 @@ void ei_impl_draw_entry(ei_widget_t widget,ei_surface_t surface,ei_surface_t pic
     ei_draw_polygon(surface,white_frame,4, bg_color ,&new_clipper);
     ei_draw_polygon(pick_surface,bigger_frame,4,*(widget->pick_color),&new_clipper);
 
-    if (((ei_impl_frame_t*)widget)->text) {
-        //printf("%s", ((ei_impl_frame_t*)widget)->text);
-        ei_surface_t surface_text = hw_text_create_surface(((ei_impl_frame_t *) widget)->text,
-                                                           ((ei_impl_frame_t *) widget)->text_font,
-                                                           ((ei_impl_frame_t *) widget)->text_color);
+    if (((ei_impl_entry_t*)widget)->text) {
+        ei_surface_t surface_text = hw_text_create_surface(((ei_impl_entry_t *) widget)->text,
+                                                           ((ei_impl_entry_t *) widget)->text_font,
+                                                           ((ei_impl_entry_t *) widget)->text_color);
 
-        ei_point_t where = place_text(rect,((ei_impl_frame_t *) widget)->text_anchor, hw_surface_get_size(surface_text));
-        ei_draw_text(surface, &where, ((ei_impl_frame_t *) widget)->text,
-                     ((ei_impl_frame_t *) widget)->text_font, ((ei_impl_frame_t *) widget)->text_color,
+        ei_point_t where = place_text(rect,((ei_impl_entry_t *) widget)->text_anchor, hw_surface_get_size(surface_text));
+        ei_draw_text(surface, &where, ((ei_impl_entry_t *) widget)->text,
+                     ((ei_impl_entry_t *) widget)->text_font, ((ei_impl_entry_t *) widget)->text_color,
                      &widget->screen_location);
         hw_surface_free(surface_text);
     }

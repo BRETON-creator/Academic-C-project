@@ -47,7 +47,10 @@ void			ei_entry_configure		(ei_widget_t		widget,
  */
 void			ei_entry_set_text		(ei_widget_t		widget,
 							 ei_const_string_t 	text){
-
+    size_t length = strlen(text) + 1;
+    char* new_text = (char*)malloc(length * sizeof(char));
+    strncpy(new_text, text, length);
+    ((ei_impl_entry_t*)widget)->text = new_text;
 }
 
 /**

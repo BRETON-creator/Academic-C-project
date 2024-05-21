@@ -34,7 +34,7 @@ void		ei_impl_widget_draw_children	(ei_widget_t		widget,
     (widget->wclass->drawfunc)(widget,surface,pick_surface,clipper);
 
     ei_widget_t child = widget->children_head;
-jsp     ei_rect_t new_clipper;
+    ei_rect_t new_clipper;
     if (child) {
         new_clipper = get_rect_intersection(*clipper, child->screen_location);
     }
