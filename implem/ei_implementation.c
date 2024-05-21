@@ -61,6 +61,54 @@ uint32_t	ei_impl_map_rgba(ei_surface_t surface, ei_color_t color);
 
 
 /**
+ * \brief Fonction pour dessiner un widget entry.
+ * On suppose qu'a chaque evenement, on met à jour le texte à afficher
+ * la fonction dessine simplement un carré blanc avec le texte à afficher + curseur
+ *
+ */
+void ei_impl_draw_entry(ei_widget_t widget,ei_surface_t surface,ei_surface_t pick_surface,ei_rect_t* clipper){
+    hw_surface_unlock(surface);
+    int h;
+    ei_color_t white  = {0xff , 0xff , 0xff , 0xff };
+    ei_color_t black  = {0x00 , 0x00 , 0x00 , 0xff };
+    ei_color_t bg_color= ei_default_background_color;
+
+    ei_size_t size= widget->requested_size;
+    ei_rect_t rect= widget->screen_location;
+    ei_rect_t new_clipper = get_rect_intersection(rect,*clipper);
+    h = size.height < size.width ? size.height /2 : size.width /2;
+    int border = ((ei_impl_entry_t*)widget)->border_size;
+
+    ei_point_t white_frame[4] = { (ei_point_t){rect.top_left.x+border,rect.top_left.y+border},
+                    (ei_point_t){rect.top_left.x+border,rect.top_left.y+ size.height + border},
+                    (ei_point_t){rect.top_left.x+border + size.width,rect.top_left.y+border},
+                    (ei_point_t){rect.top_left.x+border + size.width,rect.top_left.y+border+ size.height}};
+
+    ei_point_t bigger_frame[4] = { (ei_point_t){rect.top_left.x,rect.top_left.y},
+                    (ei_point_t){rect.top_left.x,rect.top_left.y+ size.height },
+                    (ei_point_t){rect.top_left.x + size.width,rect.top_left.y},
+                    (ei_point_t){rect.top_left.x + size.width,rect.top_left.y + size.height}};
+
+    ei_draw_polygon(surface,white_frame,4, white,&new_clipper);
+    ei_draw_polygon(surface,white_frame,4, bg_color ,&new_clipper);
+    ei_draw_polygon(pick_surface,bigger_frame,4,*(widget->pick_color),&new_clipper);
+
+    if (((ei_impl_frame_t*)widget)->text) {
+        //printf("%s", ((ei_impl_frame_t*)widget)->text);
+        ei_surface_t surface_text = hw_text_create_surface(((ei_impl_frame_t *) widget)->text,
+                                                           ((ei_impl_frame_t *) widget)->text_font,
+                                                           ((ei_impl_frame_t *) widget)->text_color);
+
+        ei_point_t where = place_text(rect,((ei_impl_frame_t *) widget)->text_anchor, hw_surface_get_size(surface_text));
+        ei_draw_text(surface, &where, ((ei_impl_frame_t *) widget)->text,
+                     ((ei_impl_frame_t *) widget)->text_font, ((ei_impl_frame_t *) widget)->text_color,
+                     &widget->screen_location);
+        hw_surface_free(surface_text);
+    }
+
+    hw_surface_lock(surface);
+}
+/**
  *  \brief fonction pour alloué un espace pour un widget frame.
  *
  * @return un espace assez grand pour stocker un widget de classe frame.
@@ -302,6 +350,14 @@ bool ei_callback_buttondown (ei_widget_t		widget, struct ei_event_t*	event, ei_u
     return false;
 }
 
+
+bool ei_callback_entry(ei_widget_t		widget, struct ei_event_t*	event, ei_user_param_t	user_param)
+{
+    if (!widget) return false;
+    if (strcmp( widget->wclass->name, (ei_widgetclass_name_t){"entry\0"}) != 0 ){
+        return false; //Si le widget n'est pas un entry on retourne false
+    }
+}
 void supr_hierachy(ei_widget_t widget, ei_widget_t widget_supr){
         if (!widget) return;
         ei_widget_t prec= widget->children_head;
