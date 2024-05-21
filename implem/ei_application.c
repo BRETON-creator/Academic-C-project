@@ -256,14 +256,15 @@ void add_head_rects(const ei_rect_t* rect){
  *				A copy is made, so it is safe to release the rectangle on return.
  */
 void ei_app_invalidate_rect(const ei_rect_t* rect){
+    ei_rect_t rect_correct = get_rect_intersection(*rect,root->screen_location);
     if (!rects) {
-            add_head_rects(rect);
+            add_head_rects(&rect_correct);
             return;
     }
     ei_linked_rect_t* prec = rects;
     ei_linked_rect_t* current;
     ei_rect_t inter;
-    inter=get_rect_intersection(prec->rect,*rect);
+    inter=get_rect_intersection(prec->rect,rect_correct);
     if (inter.size.width == (prec->rect).size.width &&
         inter.size.height == (prec->rect).size.height &&
         inter.top_left.x == (prec->rect).top_left.x &&
@@ -276,7 +277,7 @@ void ei_app_invalidate_rect(const ei_rect_t* rect){
     }
     while(prec->next){
         current=prec->next;
-        inter=get_rect_intersection(current->rect,*rect);
+        inter=get_rect_intersection(current->rect,rect_correct);
         // si l'intersection entre le nouveau rectangle et current est le rect current alors on supprime current (current est inclu dans le nouveau rect)
         if (inter.size.width == (current->rect).size.width &&
             inter.size.height == (current->rect).size.height &&
@@ -288,16 +289,16 @@ void ei_app_invalidate_rect(const ei_rect_t* rect){
 
         }
         // si l'intersection entre le nouveau rectangle et current est le nouveau rectangle alors on ajoute pas le nouveau rectangle(current contient le nouveau rect)
-        if (inter.size.width == (*rect).size.width &&
-            inter.size.height == (*rect).size.height &&
-            inter.top_left.x == (*rect).top_left.x &&
-            inter.top_left.y == (*rect).top_left.y){
+        if (inter.size.width == (rect_correct).size.width &&
+            inter.size.height == (rect_correct).size.height &&
+            inter.top_left.x == (rect_correct).top_left.x &&
+            inter.top_left.y == (rect_correct).top_left.y){
 
             return;
         }
         prec = current;
     }
-    add_head_rects(rect);
+    add_head_rects(&rect_correct);
 }
 
 /**
