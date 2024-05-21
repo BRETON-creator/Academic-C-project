@@ -114,7 +114,13 @@ typedef struct {
  * @brief Implementation of widget type entry
  */
 typedef struct {
-
+    ei_impl_widget_t widget;
+    int border_size;
+    char* text;
+    ei_font_t text_font;
+    int text_size;
+    ei_color_t text_color;
+    ei_anchor_t text_anchor;
 }ei_impl_entry_t;
 
 /**
