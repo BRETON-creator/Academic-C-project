@@ -84,6 +84,7 @@ set(LIB_EI_SOURCES
 		${SRC}/ei_impl_placer.c
 		${SRC}/ei_impl_binds.c
 		${SRC}/ei_outil_geom.c
+		${SRC}/ei_entry.c
 
 		#     ${SRC}/un_autre_fichier_source.c
 )
