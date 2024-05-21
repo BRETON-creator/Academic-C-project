@@ -7,6 +7,8 @@
 
 #include "ei_implementation.h"
 
+ei_rect_t get_smallest_containing_rect(ei_linked_rect_t *list);
+
 ei_rect_t get_rect_union( ei_rect_t old_rect , ei_rect_t new_rect);
 
 ei_rect_t get_rect_intersection( ei_rect_t old_rect , ei_rect_t new_rect);

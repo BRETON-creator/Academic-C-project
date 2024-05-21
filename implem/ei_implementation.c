@@ -34,9 +34,18 @@ void		ei_impl_widget_draw_children	(ei_widget_t		widget,
     (widget->wclass->drawfunc)(widget,surface,pick_surface,clipper);
 
     ei_widget_t child = widget->children_head;
+    ei_rect_t new_clipper;
+    if (child) {
+        new_clipper = get_rect_intersection(*clipper, child->screen_location);
+    }
     while (child){
-        ei_impl_widget_draw_children(child, surface,pick_surface,&(widget->screen_location));
+        if (new_clipper.size.width != 0 && new_clipper.size.height != 0) {
+            ei_impl_widget_draw_children(child, surface, pick_surface, &new_clipper);
+        }
         child = child->next_sibling;
+        if (child) {
+            new_clipper = get_rect_intersection(*clipper, child->screen_location);
+        }
     }
 }
 
