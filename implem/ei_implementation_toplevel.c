@@ -149,6 +149,7 @@ bool ei_resize_toplevel(ei_widget_t	widget, struct ei_event_t*	event, ei_user_pa
         ei_point_t cur_point = event->param.mouse.where;
 
         if (widget && resize==0 && event->type==ei_ev_mouse_buttondown && strcmp(widget->wclass->name, (ei_widgetclass_name_t) {"frame\0"})==0){
+                ei_impl_toplevel_t* t =(ei_impl_toplevel_t*)widget->parent;
                 if (strcmp(widget->parent->wclass->name, (ei_widgetclass_name_t) {"toplevel\0"})==0 && widget->pick_id==((ei_impl_toplevel_t*)widget->parent)->frame->pick_id){
                         resize=1;
                         mouse_point = event->param.mouse.where;
@@ -294,7 +295,7 @@ void ei_impl_setdefaults_toplevel(ei_widget_t widget){
         toplevel->button = button;
 
         ei_place(toplevel->button, &(ei_anchor_t){ei_anc_northwest},
-                 &(int){toplevel->border_width + 3}, &(int){toplevel->border_width+1}, NULL,
+                 &(int){toplevel->border_width + 3}, &(int){toplevel->border_width+3}, NULL,
                  NULL, &(float){0.0}, &(float){0.0}, NULL, NULL);
 
         ei_color_t color  = toplevel->color;
