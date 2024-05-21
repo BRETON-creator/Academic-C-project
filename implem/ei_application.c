@@ -195,7 +195,7 @@ void ei_app_run(void){
     while(!quit){
         binds=ei_get_head_binds();
         hw_event_wait_next(event);
-
+        change_event = true;
         do {
             bind = ei_bind_from_event(event,binds); // on cherche si on a un bind en lien avec l'evenement
             if (bind) {
@@ -208,6 +208,7 @@ void ei_app_run(void){
             if (bind && ! change_event) { //si on a pas finit notre callback alors on regarde la suite
                 binds = bind->next_bind;
             }
+
 
         }while(!change_event && bind);
         if (rects) {
