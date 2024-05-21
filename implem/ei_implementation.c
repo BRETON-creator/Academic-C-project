@@ -350,6 +350,14 @@ bool ei_callback_buttondown (ei_widget_t		widget, struct ei_event_t*	event, ei_u
     return false;
 }
 
+
+bool ei_callback_entry(ei_widget_t		widget, struct ei_event_t*	event, ei_user_param_t	user_param)
+{
+    if (!widget) return false;
+    if (strcmp( widget->wclass->name, (ei_widgetclass_name_t){"entry\0"}) != 0 ){
+        return false; //Si le widget n'est pas un entry on retourne false
+    }
+}
 void supr_hierachy(ei_widget_t widget, ei_widget_t widget_supr){
         if (!widget) return;
         ei_widget_t prec= widget->children_head;

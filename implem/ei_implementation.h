@@ -243,5 +243,7 @@ bool ei_callback_clickbutton(ei_widget_t		widget, struct ei_event_t*	event, ei_u
 
 bool ei_callback_buttondown(ei_widget_t		widget, struct ei_event_t*	event, ei_user_param_t	user_param);
 
+bool ei_callback_entry(ei_widget_t		widget, struct ei_event_t*	event, ei_user_param_t	user_param);
+
 void supr_hierachy(ei_widget_t widget, ei_widget_t widget_supr);
 #endif
