@@ -225,6 +225,15 @@ void			ei_toplevel_configure		(ei_widget_t		widget,
                                            NULL, NULL,
                                            NULL, NULL, NULL, NULL);
 
+		if (!color) color = &ei_default_background_color;
+		ei_color_t new_color;
+		new_color.alpha = 200;
+		new_color.red = color->red;
+		new_color.green = color->green;
+		new_color.blue = color->blue;
+
+		frame->frame_color = new_color;
+
         ei_place(frame, &(ei_anchor_t){ei_anc_northwest},
                  &(int){border}, &(int){border+k_default_button_corner_radius*2}, NULL, NULL, &(float){0.0}, &(float){0.0}, NULL, NULL);
 

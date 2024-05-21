@@ -299,7 +299,7 @@ void ei_impl_setdefaults_toplevel(ei_widget_t widget){
                  NULL, &(float){0.0}, &(float){0.0}, NULL, NULL);
 
         ei_color_t color  = toplevel->color;
-        ei_color_t dark_color  = (ei_color_t){color.red -50, color.green -50, color.blue -50, color.alpha};
+        ei_color_t dark_color  = (ei_color_t){abs(color.red -50), abs(color.green -50), abs(color.blue -50), 50};
 
         ei_widget_t resize_frame = ei_widget_create	("frame", (ei_widget_t)(toplevel), NULL, NULL);
         ei_frame_configure		(resize_frame, &(ei_size_t){10, 10},
