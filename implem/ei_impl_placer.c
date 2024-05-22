@@ -11,24 +11,23 @@
 * @brief   Fonction run geometrymanager de PLACER
 */
 void ei_impl_placer_runfunc(ei_widget_t widget){
-    int x              = ((ei_placer_t*)widget->geom_params)->x;
-    int y              = ((ei_placer_t*)widget->geom_params)->y;
-    int width          =  ((ei_placer_t*)widget->geom_params)->width;
-    int height         =  ((ei_placer_t*)widget->geom_params)->height;
-    float rel_x        =  ((ei_placer_t*)widget->geom_params)->rel_x;
-    float rel_y        =  ((ei_placer_t*)widget->geom_params)->rel_y;
-    float rel_width    =  ((ei_placer_t*)widget->geom_params)->rel_width;
-    float rel_height   =  ((ei_placer_t*)widget->geom_params)->rel_height;
-    ei_anchor_t anchor =  ((ei_placer_t*)widget->geom_params)->anchor;
+        int x              = ((ei_placer_t*)widget->geom_params)->x;
+        int y              = ((ei_placer_t*)widget->geom_params)->y;
+        int width          =  ((ei_placer_t*)widget->geom_params)->width;
+        int height         =  ((ei_placer_t*)widget->geom_params)->height;
+        float rel_x        =  ((ei_placer_t*)widget->geom_params)->rel_x;
+        float rel_y        =  ((ei_placer_t*)widget->geom_params)->rel_y;
+        float rel_width    =  ((ei_placer_t*)widget->geom_params)->rel_width;
+        float rel_height   =  ((ei_placer_t*)widget->geom_params)->rel_height;
+        ei_anchor_t anchor =  ((ei_placer_t*)widget->geom_params)->anchor;
 
+        ei_rect_t *old_surface = &(ei_rect_t){(ei_point_t){widget->screen_location.top_left.x, widget->screen_location.top_left.y},
+                                                  (ei_size_t){widget->screen_location.size.width,widget->screen_location.size.height}};
 
-    ei_rect_t *old_surface = &(ei_rect_t){(ei_point_t){widget->screen_location.top_left.x, widget->screen_location.top_left.y},
-                                          (ei_size_t){widget->screen_location.size.width,widget->screen_location.size.height}};
-
-    ei_place(widget, &anchor, &x, &y, &width, &height, &rel_x, &rel_y, &rel_width, &rel_height);
-    ei_rect_t new_surface = (widget->screen_location);
-    widget->screen_location = *old_surface;
-    ei_geometry_run_finalize(widget, &new_surface);
+        ei_place(widget, &anchor, &x, &y, &width, &height, &rel_x, &rel_y, &rel_width, &rel_height);
+        ei_rect_t new_surface = (widget->screen_location);
+        widget->screen_location = *old_surface;//on remet old_surface car on ferat la mise à jour de la surface dans ei_geometry_run_finalize
+        ei_geometry_run_finalize(widget, &new_surface);
 }
 
 
@@ -36,7 +35,7 @@ void ei_impl_placer_runfunc(ei_widget_t widget){
  * @brief Release function of placer
  */
 void  ei_impl_placer_releasefunc(ei_widget_t widget){
-    ei_app_invalidate_rect(&widget->screen_location);
-    free((ei_placer_t*)widget->geom_params);
-    widget->geom_params=NULL;
+        ei_app_invalidate_rect(&widget->screen_location);
+        free((ei_placer_t*)widget->geom_params);
+        widget->geom_params=NULL;
 }
