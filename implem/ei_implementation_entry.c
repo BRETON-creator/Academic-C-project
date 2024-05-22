@@ -224,6 +224,7 @@ void ei_impl_draw_entry(ei_widget_t widget,ei_surface_t surface,ei_surface_t pic
     ei_color_t white  = {0xff , 0xff , 0xff , 0xff };
     ei_color_t black  = {0x00 , 0x00 , 0x00 , 0xff };
     ei_color_t bg_color= ei_default_background_color;
+    //if (current_entry_focus == (ei_impl_entry_t*)widget) bg_color = black;
 
     ei_size_t size= widget->requested_size;
     ei_rect_t rect= widget->screen_location;
@@ -232,17 +233,19 @@ void ei_impl_draw_entry(ei_widget_t widget,ei_surface_t surface,ei_surface_t pic
     int border = ((ei_impl_entry_t*)widget)->border_size;
 
     ei_point_t white_frame[4] = { (ei_point_t){rect.top_left.x+border,rect.top_left.y+border},
-                    (ei_point_t){rect.top_left.x+border,rect.top_left.y+ size.height + border},
                     (ei_point_t){rect.top_left.x+border + size.width,rect.top_left.y+border},
-                    (ei_point_t){rect.top_left.x+border + size.width,rect.top_left.y+border+ size.height}};
+                    (ei_point_t){rect.top_left.x+border + size.width,rect.top_left.y+border+ size.height},
+                    (ei_point_t){rect.top_left.x+border,rect.top_left.y+ size.height + border}};
+
 
     ei_point_t bigger_frame[4] = { (ei_point_t){rect.top_left.x,rect.top_left.y},
-                    (ei_point_t){rect.top_left.x,rect.top_left.y+ size.height },
                     (ei_point_t){rect.top_left.x + size.width,rect.top_left.y},
-                    (ei_point_t){rect.top_left.x + size.width,rect.top_left.y + size.height}};
+                    (ei_point_t){rect.top_left.x + size.width,rect.top_left.y + size.height},
+                    (ei_point_t){rect.top_left.x,rect.top_left.y+ size.height }};
 
-    ei_draw_polygon(surface,white_frame,4, white,&new_clipper);
-    ei_draw_polygon(surface,white_frame,4, bg_color ,&new_clipper);
+
+    ei_draw_polygon(surface,bigger_frame,4, black,&new_clipper);
+    ei_draw_polygon(surface,white_frame,4, white ,&new_clipper);
     ei_draw_polygon(pick_surface,bigger_frame,4,*(widget->pick_color),&new_clipper);
 
     if (((ei_impl_entry_t*)widget)->text) {
