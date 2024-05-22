@@ -37,7 +37,7 @@ void ei_impl_release_entry(ei_widget_t entry){
 * \brief Fonction pour mettre les valeurs par defauts d'un widget entry
 */
 void ei_impl_setdefaults_entry(ei_widget_t widget){
-    ei_impl_frame_t* entry = (ei_impl_frame_t*)widget;
+    ei_impl_entry_t* entry = (ei_impl_entry_t*)widget;
     widget->destructor = NULL;
     entry->widget.wclass = ei_widgetclass_from_name((ei_const_string_t){"entry\0"});
     entry->widget.user_data = NULL;
@@ -243,6 +243,7 @@ void ei_impl_draw_entry(ei_widget_t widget,ei_surface_t surface,ei_surface_t pic
     ei_draw_polygon(pick_surface,bigger_frame,4,*(widget->pick_color),&new_clipper);
 
     if (((ei_impl_entry_t*)widget)->text) {
+            ei_impl_entry_t* cc = ((ei_impl_entry_t *) widget);
         ei_surface_t surface_text = hw_text_create_surface(((ei_impl_entry_t *) widget)->text,
                                                            ((ei_impl_entry_t *) widget)->text_font,
                                                            ((ei_impl_entry_t *) widget)->text_color);

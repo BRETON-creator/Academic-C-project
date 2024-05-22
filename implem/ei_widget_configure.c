@@ -66,7 +66,7 @@ void			ei_frame_configure		(ei_widget_t		widget,
     if (color)
         frame->frame_color = *color;
     if (!relief && !(frame->frame_relief) ) frame->frame_relief = ei_relief_none;
-    else frame->frame_relief = *relief;
+    else if (relief) frame->frame_relief = *relief;
     if (border_width) ((ei_impl_frame_t*)widget)->border_size =*border_width;
     if (requested_size) {
         widget->requested_size=*requested_size;
@@ -206,13 +206,26 @@ void			ei_toplevel_configure		(ei_widget_t		widget,
                 (toplevel->button->geom_params->manager->releasefunc)(toplevel->button);
                 toplevel->button->geom_params = NULL;
                 ei_impl_release_button(toplevel->button);
-                toplevel->button=NULL;
+        }
+        else{
+                ei_place(toplevel->button, &(ei_anchor_t){ei_anc_northwest},
+                         &(int){toplevel->border_width + 3}, &(int){toplevel->border_width+3}, NULL,
+                         NULL, &(float){0.0}, &(float){0.0}, NULL, NULL);
+        }
+
+        if (toplevel->resizable_axis==ei_axis_none && toplevel->frame->geom_params){
+                (toplevel->frame->geom_params->manager->releasefunc)(toplevel->frame);
+                toplevel->frame->geom_params = NULL;
+                ei_impl_release_frame(toplevel->frame);
+        }
+        else{
+                ei_place(toplevel->frame, &(ei_anchor_t){ei_anc_southeast},
+                         NULL, NULL, NULL, NULL, &(float){1.0}, &(float){1.0}, NULL, NULL);
         }
 
         ei_impl_frame_t * frame = ((ei_impl_frame_t*)toplevel->contain_frame);
 
         int border =toplevel->border_width;
-
         ei_frame_configure		(frame, &(ei_size_t){toplevel->widget.requested_size.width-2*border,
                                                                toplevel->widget.requested_size.height-2*border-k_default_button_corner_radius*2},
                                            color,
