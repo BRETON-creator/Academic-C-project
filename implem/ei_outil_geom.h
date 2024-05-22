@@ -14,17 +14,20 @@
  */
 ei_rect_t get_smallest_containing_rect(ei_linked_rect_t *list);
 
+
 /**
 * \brief Fonction pour obtenir l'union de deux rectangles
 *
 */
 ei_rect_t get_rect_union( ei_rect_t old_rect , ei_rect_t new_rect);
 
+
 /**
 * \brief Fonction pour obtenir l'intersection de deux rectangles
 *
 */
 ei_rect_t get_rect_intersection( ei_rect_t old_rect , ei_rect_t new_rect);
+
 
 /**
  * fonction permettant qui ecrit dans circle l'ensemble des points pour creer une frame arrondie aux bords.
@@ -33,6 +36,7 @@ ei_rect_t get_rect_intersection( ei_rect_t old_rect , ei_rect_t new_rect);
  * @param radius
  */
 void give_rounded_frame(ei_point_t* circle, ei_rect_t rect, int radius);
+
 
 /**
  * Fonction qui ecrit dans lower_frame la partie basse du relief d'un bouton/frame
@@ -43,6 +47,7 @@ void give_rounded_frame(ei_point_t* circle, ei_rect_t rect, int radius);
  */
 void give_lower_frame(ei_point_t* rounded_frame,ei_rect_t rect, int h, ei_point_t* lower_frame);
 
+
 /**
  * Fonction qui ecrit dans upper_frame la partie haute du relief d'un bouton/frame
  * @param rounded_frame
@@ -51,6 +56,7 @@ void give_lower_frame(ei_point_t* rounded_frame,ei_rect_t rect, int h, ei_point_
  * @param upper_frame
  */
 void give_upper_frame(ei_point_t* rounded_frame,ei_rect_t rect, int h, ei_point_t* upper_frame);
+
 
 /**
  * Donne le coin topleft pour placer un rectangle de texte de taille size_text

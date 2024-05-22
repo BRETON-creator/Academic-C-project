@@ -18,8 +18,6 @@
 #include "ei_implementation_toplevel.h"
 
 
-
-
 /**
  * \brief	Fields common to all types of widget. Every widget classes specializes this base
  *		class by adding its own fields.
@@ -59,19 +57,20 @@ typedef struct ei_impl_widget_t {
  *          - ei_surface_t rect_image : give the surface of the image to use.
  */
 typedef struct ei_impl_frame_t {
-    ei_impl_widget_t widget;
-    ei_relief_t frame_relief;
-    ei_color_t frame_color;
-    int border_size;
-    char* text;
-    ei_font_t text_font;
-    int text_size;
-    ei_color_t text_color;
-    ei_anchor_t text_anchor;
-    ei_surface_t image;
-    ei_anchor_t image_anchor;
-    ei_rect_ptr_t rect_image;
+        ei_impl_widget_t widget;
+        ei_relief_t frame_relief;
+        ei_color_t frame_color;
+        int border_size;
+        char* text;
+        ei_font_t text_font;
+        int text_size;
+        ei_color_t text_color;
+        ei_anchor_t text_anchor;
+        ei_surface_t image;
+        ei_anchor_t image_anchor;
+        ei_rect_ptr_t rect_image;
 } ei_impl_frame_t;
+
 
 /**
  * @brief Implementation of the widget type button
@@ -81,11 +80,12 @@ typedef struct ei_impl_frame_t {
  *  - void* user_params : adresse memoire permettant a l'utilisateur de passser un parametre spécifique a ce bouton lors de l'appel du traitant.
  */
 typedef struct {
-    ei_impl_frame_t frame;
-    int rayon;
-    ei_callback_t callback;
-    void* user_params;
+        ei_impl_frame_t frame;
+        int rayon;
+        ei_callback_t callback;
+        void* user_params;
 } ei_impl_button_t;
+
 
 /**
  * @brief Implementation of widget type toplevel
@@ -98,33 +98,35 @@ typedef struct {
  * -ei_widget_t frame : frame pour redimmensionner le toplevel
  */
 typedef struct {
-    ei_impl_widget_t widget;
-    ei_color_t color;
-    int border_width;
-    char* title;
-    bool can_close;
-    ei_axis_set_t resizable_axis;
-    ei_size_t minimal_size;
-    ei_widget_t button;
-    ei_widget_t frame;
-    ei_widget_t contain_frame;
+        ei_impl_widget_t widget;
+        ei_color_t color;
+        int border_width;
+        char* title;
+        bool can_close;
+        ei_axis_set_t resizable_axis;
+        ei_size_t minimal_size;
+        ei_widget_t button;
+        ei_widget_t frame;
+        ei_widget_t contain_frame;
 }ei_impl_toplevel_t;
+
 
 /**
  * @brief Implementation of widget type entry
  */
 typedef struct {
-    ei_impl_widget_t widget;
-    int border_size;
-    char* text;
-    ei_font_t text_font;
-    int text_size;
-    ei_color_t text_color;
-    ei_anchor_t text_anchor;
-    int position;
-    int requested_char_size;
-    ei_color_t* color;
+        ei_impl_widget_t widget;
+        int border_size;
+        char* text;
+        ei_font_t text_font;
+        int text_size;
+        ei_color_t text_color;
+        ei_anchor_t text_anchor;
+        int position;
+        int requested_char_size;
+        ei_color_t* color;
 }ei_impl_entry_t;
+
 
 /**
  * @brief	Draws the children of a widget.
@@ -141,7 +143,6 @@ void		ei_impl_widget_draw_children	(ei_widget_t		widget,
 						 ei_surface_t		surface,
 						 ei_surface_t		pick_surface,
 						 ei_rect_t*		clipper);
-
 
 
 /**
@@ -164,16 +165,17 @@ uint32_t	ei_impl_map_rgba(ei_surface_t surface, ei_color_t color);
  */
 typedef struct ei_impl_geom_param_t {
 	ei_geometrymanager_t*		manager;	///< The geometry managers that manages this widget.
-} ei_impl_geom_param_t;
+}ei_impl_geom_param_t;
+
 
 /**
  * @brief Structure definissant le geom_param de type placer, il prend en memoire les parametres de position du widget
  */
 typedef struct {
-    ei_impl_geom_param_t geom_param;
-    int x, y, height, width;
-    float rel_x, rel_y, rel_height, rel_width;
-    ei_anchor_t anchor;
+        ei_impl_geom_param_t geom_param;
+        int x, y, height, width;
+        float rel_x, rel_y, rel_height, rel_width;
+        ei_anchor_t anchor;
 } ei_placer_t;
 
 //================================================================================================
@@ -210,17 +212,20 @@ void ei_impl_setdefaults_frame(ei_widget_t);
  */
 ei_widget_t ei_impl_alloc_button();
 
+
 /**
  * \brief Fonction pour free un espace alloué a un widget button.
  *
  */
 void ei_impl_release_button(ei_widget_t button);
 
+
 /**
 * \brief Fonction pour mettre les valeurs par defauts d'un widget button
 */
 
 void ei_impl_setdefaults_button(ei_widget_t widget);
+
 
 /**
 * \brief Fonction pour dessiner un widget button.
@@ -233,9 +238,6 @@ void ei_impl_setdefaults_button(ei_widget_t widget);
 *
 */
 void ei_impl_draw_button(ei_widget_t widget,ei_surface_t surface,ei_surface_t pick_surface,ei_rect_t* clipper);
-
-
-
 
 
 /**
@@ -256,6 +258,7 @@ bool ei_callback_clickbutton(ei_widget_t		widget, struct ei_event_t*	event, ei_u
  * @return false, on peut continuer d'utiliser l'eventtype buttondown pour un autre bind.
  */
 bool ei_callback_buttondown (ei_widget_t		widget, struct ei_event_t*	event, ei_user_param_t	user_param);
+
 
 /**
  * @brief Supprime widget_supr des enfants de widget.

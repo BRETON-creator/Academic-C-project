@@ -83,39 +83,39 @@ bool ei_callback_toplevel(ei_widget_t	widget, struct ei_event_t*	event, ei_user_
 
         ei_point_t cur_point = event->param.mouse.where;
         if (event->type == ei_ev_mouse_buttonup && toplevel_move) {
-            toplevel_move = 0;
-            current_moving_toplevel = NULL;
-            return 1;
+                toplevel_move = 0;
+                current_moving_toplevel = NULL;
+                return 1;
         }
 
         if (toplevel_move && event->type == ei_ev_mouse_move && current_moving_toplevel) {
-            int x = cur_point.x - mouse_point.x;
-            int y = cur_point.y - mouse_point.y;
+                int x = cur_point.x - mouse_point.x;
+                int y = cur_point.y - mouse_point.y;
 
-            ei_rect_t clip = current_moving_toplevel->widget.screen_location;
-            ei_rect_t rect = current_moving_toplevel->widget.screen_location;
+                ei_rect_t clip = current_moving_toplevel->widget.screen_location;
+                ei_rect_t rect = current_moving_toplevel->widget.screen_location;
 
-            current_moving_toplevel->widget.screen_location.top_left.x += x;
-            current_moving_toplevel->widget.screen_location.top_left.y += y;
-            if (current_moving_toplevel->widget.screen_location.top_left.y < 0)
-                current_moving_toplevel->widget.screen_location.top_left.y = 0;
-            mouse_point = cur_point;
+                current_moving_toplevel->widget.screen_location.top_left.x += x;
+                current_moving_toplevel->widget.screen_location.top_left.y += y;
+                if (current_moving_toplevel->widget.screen_location.top_left.y < 0)
+                        current_moving_toplevel->widget.screen_location.top_left.y = 0;
+                mouse_point = cur_point;
 
 
-            clip.size.width+=abs(x);
-            clip.size.height+=abs(y);
-            if (current_moving_toplevel->widget.screen_location.top_left.x < clip.top_left.x )
-                clip.top_left.x = current_moving_toplevel->widget.screen_location.top_left.x < 0 ? 0 : current_moving_toplevel->widget.screen_location.top_left.x ;
-            if (current_moving_toplevel->widget.screen_location.top_left.y < clip.top_left.y )
-                clip.top_left.y = current_moving_toplevel->widget.screen_location.top_left.y < 0 ? 0 : current_moving_toplevel->widget.screen_location.top_left.y ;
+                clip.size.width+=abs(x);
+                clip.size.height+=abs(y);
+                if (current_moving_toplevel->widget.screen_location.top_left.x < clip.top_left.x )
+                        clip.top_left.x = current_moving_toplevel->widget.screen_location.top_left.x < 0 ? 0 : current_moving_toplevel->widget.screen_location.top_left.x ;
+                if (current_moving_toplevel->widget.screen_location.top_left.y < clip.top_left.y )
+                        clip.top_left.y = current_moving_toplevel->widget.screen_location.top_left.y < 0 ? 0 : current_moving_toplevel->widget.screen_location.top_left.y ;
 
-            ei_widget_t child = current_moving_toplevel->widget.children_head;
-            while (child){
-                if (child->geom_params)(child->geom_params->manager->runfunc)(child);
-                child=child->next_sibling;
-            }
-            ei_app_invalidate_rect(&clip);
-            return 1;
+                ei_widget_t child = current_moving_toplevel->widget.children_head;
+                while (child){
+                        if (child->geom_params)(child->geom_params->manager->runfunc)(child);
+                        child=child->next_sibling;
+                }
+                ei_app_invalidate_rect(&clip);
+                return 1;
         }
 
 
@@ -138,14 +138,12 @@ bool ei_callback_toplevel(ei_widget_t	widget, struct ei_event_t*	event, ei_user_
                                 ei_app_invalidate_rect(&ei_app_root_widget()->screen_location);
                                 return 1;
                         }
-
                 }
-
-
         }
         return false;
-
 }
+
+
 /**
  * Callback interne des toplevels permettant de redimensionner les toplevel l'autorisant.
  * @param widget
@@ -176,7 +174,7 @@ bool ei_resize_toplevel(ei_widget_t	widget, struct ei_event_t*	event, ei_user_pa
         if (resize && event->type==ei_ev_mouse_move) {
                 ei_impl_toplevel_t *toplevel = (ei_impl_toplevel_t *) frame->widget.parent;
                 if (toplevel->resizable_axis==ei_axis_none)
-                    return true;
+                        return true;
                 ei_rect_t rect = toplevel->widget.screen_location;
                 rect.size.width++;
                 rect.size.height++;
@@ -235,20 +233,20 @@ ei_widget_t ei_impl_alloc_toplevel(){
         return calloc(1,sizeof(ei_impl_toplevel_t));
 }
 
+
 /**
  * \brief Fonction pour free un espace alloué a un widget toplevel.
  *
  */
-
 void ei_impl_release_toplevel(ei_widget_t toplevel){
         if (! toplevel) return;
         if (current_moving_toplevel && toplevel->pick_id==current_moving_toplevel->widget.pick_id) {
-            current_moving_toplevel = NULL;
-            toplevel_move = false;
+                current_moving_toplevel = NULL;
+                toplevel_move = false;
         }
         if (resize && frame->widget.pick_id == ((ei_impl_toplevel_t*)toplevel)->frame->pick_id){
-            frame = NULL;
-            resize= false;
+                frame = NULL;
+                resize= false;
         }
         supr_hierachy(toplevel->parent, toplevel);
         free((ei_impl_toplevel_t*)toplevel);
@@ -268,6 +266,7 @@ bool toplevel_close(ei_widget_t	widget,
         ei_app_invalidate_rect(&widget->parent->screen_location);
         return true;
 }
+
 
 /**
 * \brief Fonction pour mettre les valeurs par defauts d'un widget toplevel
@@ -299,8 +298,6 @@ void ei_impl_setdefaults_toplevel(ei_widget_t widget){
         toplevel->minimal_size = (ei_size_t){160, 120};
         toplevel->contain_frame=NULL;
 
-
-
         ei_widget_t button = ei_widget_create	("button", (ei_widget_t)(toplevel), NULL, NULL);
         ei_button_configure		(button, &(ei_size_t){13, 13},
                                             &(ei_color_t){235, 20, 20, 255},
@@ -318,11 +315,9 @@ void ei_impl_setdefaults_toplevel(ei_widget_t widget){
                                               abs(ei_font_default_color.blue -100) ,
                                               200};
 
-
         ei_place(toplevel->button, &(ei_anchor_t){ei_anc_northwest},
                  &(int){6}, &(int){6}, NULL,
                  NULL, &(float){0.0}, &(float){0.0}, NULL, NULL);
-
 
         ei_widget_t frame = ei_widget_create	("frame", (ei_widget_t)(toplevel), NULL, NULL);
         ei_frame_configure		(frame, &(ei_size_t){toplevel->widget.requested_size.width-2*(border),
@@ -352,8 +347,6 @@ void ei_impl_setdefaults_toplevel(ei_widget_t widget){
                  NULL, NULL, NULL, NULL, &(float){1.0}, &(float){1.0}, NULL, NULL);
 
         toplevel->contain_frame = frame;
-
-
 }
 
 /**
@@ -385,8 +378,6 @@ void ei_impl_draw_toplevel(ei_widget_t widget, ei_surface_t surface, ei_surface_
         rounded_frame[20]=(ei_point_t){rect.top_left.x,rect.top_left.y + radius*2+border};
         rounded_frame[21]=(ei_point_t){rect.top_left.x+rect.size.width,rect.top_left.y + radius*2+border};
 
-
-
         ei_point_t square_frame[8] = {{rect.top_left.x , rect.top_left.y + 2*radius + border + 1},
                                       {rect.top_left.x , rect.top_left.y  + rect.size.height},
                                       {rect.top_left.x + rect.size.width, rect.top_left.y + rect.size.height},
@@ -396,7 +387,6 @@ void ei_impl_draw_toplevel(ei_widget_t widget, ei_surface_t surface, ei_surface_
                                       {rect.top_left.x + border-1, rect.top_left.y - border + rect.size.height},
                                       {rect.top_left.x + border-1, rect.top_left.y + 2*radius + border + 1},
         };
-
 
         ei_draw_polygon(surface,square_frame,8, dark_color, &new_clipper);
         ei_draw_polygon(surface,rounded_frame,22, dark_color, &new_clipper);
