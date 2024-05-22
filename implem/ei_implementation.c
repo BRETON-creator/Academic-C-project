@@ -165,9 +165,8 @@ void ei_impl_draw_frame(ei_widget_t widget,ei_surface_t surface,ei_surface_t pic
                         &clipper_smaller_frame);
     }
 
-    if (((ei_impl_frame_t*)widget)->image){
+    if (((ei_impl_frame_t*)widget)->image){//dessin de l'image
             ei_surface_t surface_img = (((ei_impl_frame_t*)widget)->image);
-            //ei_surface_t surface_img = hw_image_load("misc/klimt.jpg", ei_app_root_surface());
             ei_rect_t* rect_img = ((ei_impl_frame_t*)widget)->rect_image;
             ei_point_t where_img = place_text(rect_smaller_frame,((ei_impl_frame_t*)widget)->image_anchor,rect_img->size);
             hw_surface_lock(surface_img);
@@ -184,8 +183,7 @@ void ei_impl_draw_frame(ei_widget_t widget,ei_surface_t surface,ei_surface_t pic
     ei_draw_polygon(pick_surface,rounded_frame,40,*(widget->pick_color),&new_clipper);
 
 
-    if (((ei_impl_frame_t*)widget)->text) {
-        //printf("%s", ((ei_impl_frame_t*)widget)->text);
+    if (((ei_impl_frame_t*)widget)->text) {//dessin du text
         ei_surface_t surface_text = hw_text_create_surface(((ei_impl_frame_t *) widget)->text,
                                                            ((ei_impl_frame_t *) widget)->text_font,
                                                            ((ei_impl_frame_t *) widget)->text_color);
@@ -239,9 +237,7 @@ void ei_impl_setdefaults_frame(ei_widget_t widget){
 //======================================= button
 void ei_impl_draw_button(ei_widget_t widget,ei_surface_t surface,ei_surface_t pick_surface,ei_rect_t* clipper){
     //dessin du cadre
-
     ei_impl_draw_frame(widget,surface,pick_surface,clipper);
-    //dessin des attributs propres au button?
 }
 
 
@@ -319,10 +315,9 @@ bool ei_callback_clickbutton(ei_widget_t		widget, struct ei_event_t*	event, ei_u
 
                 if (((ei_impl_frame_t*) widget)->frame_relief ==  ei_relief_sunken) {
                     ((ei_impl_frame_t*) widget)->frame_relief =  ei_relief_raised;
-                    //il manque la modification de l'ancrage du texte
-                    //et geom notify ? ou que pour redimension
-                    ei_app_invalidate_rect(&widget->screen_location);
 
+                    ei_app_invalidate_rect(&widget->screen_location);
+                    //on appel la fonction associee au bouton
                     if (((ei_impl_button_t*)widget)->callback) ((ei_impl_button_t*)widget)->callback(widget,event,((ei_impl_button_t*)widget)->user_params);
                     current_button_down = NULL;
                 }

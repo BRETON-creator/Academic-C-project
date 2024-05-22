@@ -212,25 +212,29 @@ void			ei_toplevel_configure		(ei_widget_t		widget,
                 toplevel->widget.screen_location.size = *requested_size;
         }
 
-        if (toplevel->can_close==false){
-                (toplevel->button->geom_params->manager->releasefunc)(toplevel->button);
+        if (toplevel->can_close==false){//on supprime le bouton pour fermer le toplevel
+                if (toplevel->button->geom_params && toplevel->button->geom_params->manager)
+                        (toplevel->button->geom_params->manager->releasefunc)(toplevel->button);
                 toplevel->button->geom_params = NULL;
-                ei_impl_release_button(toplevel->button);
-                toplevel->button=NULL;
+        }
+        else{//on place le bouton pour fermer le toplevel
+                ei_place(toplevel->button, &(ei_anchor_t){ei_anc_northwest},
+                         &(int){6}, &(int){6}, NULL,
+                         NULL, &(float){0.0}, &(float){0.0}, NULL, NULL);
         }
 
-        if (toplevel->frame && toplevel->resizable_axis==ei_axis_none){
+        if (toplevel->frame && toplevel->resizable_axis==ei_axis_none){//on supprime la frame pour redimenssionner
             if (toplevel->frame->geom_params && toplevel->frame->geom_params->manager)
                 (toplevel->frame->geom_params->manager->releasefunc)(toplevel->frame);
             toplevel->frame->geom_params = NULL;
-            ei_widget_destroy(toplevel->frame);
-            toplevel->frame=NULL;
+
         }
-        else{
+        else{//on place la frame pour redimenssionner
                 ei_place(toplevel->frame, &(ei_anchor_t){ei_anc_southeast},
                          NULL, NULL, NULL, NULL, &(float){1.0}, &(float){1.0}, NULL, NULL);
         }
 
+        //on configure la frame qui va contenir les widgets que l'utilisateur va placer dans le toplevel
         ei_impl_frame_t * frame = ((ei_impl_frame_t*)toplevel->contain_frame);
 
         int border =toplevel->border_width;
@@ -246,7 +250,7 @@ void			ei_toplevel_configure		(ei_widget_t		widget,
                  &(int){border}, &(int){border+k_default_button_corner_radius*2}, NULL, NULL, &(float){0.0}, &(float){0.0}, NULL, NULL);
 
 
-    ei_app_invalidate_rect(&widget->screen_location);
+        ei_app_invalidate_rect(&widget->screen_location);
 }
 
 

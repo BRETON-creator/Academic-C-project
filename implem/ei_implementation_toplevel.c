@@ -320,7 +320,7 @@ void ei_impl_setdefaults_toplevel(ei_widget_t widget){
 
 
         ei_place(toplevel->button, &(ei_anchor_t){ei_anc_northwest},
-                 &(int){widget->screen_location.top_left.x + 6}, &(int){widget->screen_location.top_left.y +6}, NULL,
+                 &(int){6}, &(int){6}, NULL,
                  NULL, &(float){0.0}, &(float){0.0}, NULL, NULL);
 
 
