@@ -5,6 +5,7 @@
 
 #include "ei_entry.h"
 #include "ei_implementation.h"
+#include "ei_implementation_entry.h"
 
 //variable globale designant l'entry qui possède le focus.
 ei_impl_entry_t *current_entry_focus = NULL;

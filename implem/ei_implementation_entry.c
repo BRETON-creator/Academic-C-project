@@ -13,6 +13,9 @@
 #include "ei_types.h"
 #include "ei_widget_configure.h"
 #include "ei_impl_placer.h"
+#include "ei_implementation_entry.h"
+
+extern ei_impl_entry_t *current_entry_focus;
 
 /**
  *  \brief fonction pour alloué un espace pour un widget entry.
