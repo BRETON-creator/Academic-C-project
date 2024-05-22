@@ -206,17 +206,15 @@ void			ei_toplevel_configure		(ei_widget_t		widget,
                 (toplevel->button->geom_params->manager->releasefunc)(toplevel->button);
                 toplevel->button->geom_params = NULL;
                 ei_impl_release_button(toplevel->button);
-        }
-        else{
-                ei_place(toplevel->button, &(ei_anchor_t){ei_anc_northwest},
-                         &(int){toplevel->border_width + 3}, &(int){toplevel->border_width+3}, NULL,
-                         NULL, &(float){0.0}, &(float){0.0}, NULL, NULL);
+                toplevel->button=NULL;
         }
 
-        if (toplevel->resizable_axis==ei_axis_none && toplevel->frame->geom_params){
+        if (toplevel->frame && toplevel->resizable_axis==ei_axis_none){
+            if (toplevel->frame->geom_params && toplevel->frame->geom_params->manager)
                 (toplevel->frame->geom_params->manager->releasefunc)(toplevel->frame);
-                toplevel->frame->geom_params = NULL;
-                ei_impl_release_frame(toplevel->frame);
+            toplevel->frame->geom_params = NULL;
+            ei_widget_destroy(toplevel->frame);
+            toplevel->frame=NULL;
         }
         else{
                 ei_place(toplevel->frame, &(ei_anchor_t){ei_anc_southeast},
@@ -237,12 +235,7 @@ void			ei_toplevel_configure		(ei_widget_t		widget,
         ei_place(frame, &(ei_anchor_t){ei_anc_northwest},
                  &(int){border}, &(int){border+k_default_button_corner_radius*2}, NULL, NULL, &(float){0.0}, &(float){0.0}, NULL, NULL);
 
-        if (toplevel->resizable_axis==ei_axis_none){
-            (toplevel->frame->geom_params->manager->releasefunc)(toplevel->frame);
-            toplevel->frame->geom_params = NULL;
-            ei_widget_destroy(toplevel->frame);
-            toplevel->frame=NULL;
-        }
+
     ei_app_invalidate_rect(&widget->screen_location);
 }
 

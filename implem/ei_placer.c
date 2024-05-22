@@ -79,7 +79,7 @@ void		ei_place	(ei_widget_t		widget,
          *
          *  c'est au programmeur d'appeler cette fonction.
          */
-
+        if (!widget) return;
         if (rel_height && *rel_height!=0) {
             widget->requested_size.height = (widget->parent->requested_size.height) * (*rel_height);
             widget->screen_location.size.height = widget->requested_size.height;
