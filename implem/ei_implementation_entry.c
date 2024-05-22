@@ -159,16 +159,19 @@ void delete_at_cursor_position(const char* text, int position) {
 
 
 bool ei_callback_entry(ei_widget_t		widget, struct ei_event_t*	event, ei_user_param_t	user_param){
-    if (!widget) return false;
-    if (strcmp( widget->wclass->name, (ei_widgetclass_name_t){"entry\0"}) != 0 ){
-        return false; //Si le widget n'est pas un entry on retourne false
-    }
+    // if (!widget) return false;
+    // if (strcmp( widget->wclass->name, (ei_widgetclass_name_t){"entry\0"}) != 0 ){
+    //     return false; //Si le widget n'est pas un entry on retourne false
+    // }
     if (event->type == ei_ev_mouse_buttondown){
         ei_app_invalidate_rect(&widget->screen_location);
         ei_entry_give_focus(widget);
+
         //return true;
     }
-    if (event->type == ei_ev_keydown && current_entry_focus == (ei_impl_entry_t*)widget){
+    if (event->type == ei_ev_keydown){
+        printf("test !\n");
+        widget = current_entry_focus ;
         if ((event->param.key_code == SDLK_a ||
             event->param.key_code == SDLK_b ||
             event->param.key_code == SDLK_c ||
