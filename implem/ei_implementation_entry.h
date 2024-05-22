@@ -32,6 +32,8 @@ void ei_impl_setdefaults_entry(ei_widget_t widget);
 */
 void ei_impl_draw_entry(ei_widget_t widget, ei_surface_t surface, ei_surface_t pick_surface, ei_rect_t* clipper);
 
+bool ei_callback_entry(ei_widget_t		widget, struct ei_event_t*	event, ei_user_param_t	user_param);
+
 void ei_impl_geomnotify_entry(ei_widget_t widget);
 
 #endif //PROJETC_IG_EI_IMPLEMENTATION_ENTRY_H

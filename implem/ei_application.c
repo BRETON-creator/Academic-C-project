@@ -12,6 +12,7 @@
 #include "ei_implementation.h"
 #include "ei_implementation_toplevel.h"
 #include "ei_implementation_entry.h"
+#include "ei_implementation_entry.h"
 #include "ei_draw.h"
 #include "ei_event.h"
 #include "ei_impl_binds.h"
@@ -206,6 +207,9 @@ void ei_app_run(void){
     ei_bind(ei_ev_mouse_buttondown, NULL,"toplevel\0",ei_callback_toplevel,NULL);
     ei_bind(ei_ev_mouse_move, NULL,"toplevel\0",ei_callback_toplevel,NULL);
     ei_bind(ei_ev_mouse_buttonup, NULL,"toplevel\0",ei_callback_toplevel,NULL);
+
+    ei_bind(ei_ev_mouse_buttondown, NULL,"entry\0",ei_callback_entry,NULL);
+    ei_bind(ei_ev_keydown, NULL,"entry\0",ei_callback_entry,NULL);
 
     ei_event_t* event = calloc(1,sizeof(ei_event_t));
     ei_bind_t* bind;
