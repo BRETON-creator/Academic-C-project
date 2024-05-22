@@ -221,6 +221,7 @@ void ei_impl_draw_entry(ei_widget_t widget,ei_surface_t surface,ei_surface_t pic
     ei_color_t white  = {0xff , 0xff , 0xff , 0xff };
     ei_color_t black  = {0x00 , 0x00 , 0x00 , 0xff };
     ei_color_t bg_color= ei_default_background_color;
+    //if (current_entry_focus == (ei_impl_entry_t*)widget) bg_color = black;
 
     ei_size_t size= widget->requested_size;
     ei_rect_t rect= widget->screen_location;
