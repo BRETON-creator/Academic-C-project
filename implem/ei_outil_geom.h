@@ -1,6 +1,3 @@
-//
-// Created by anto on 15/05/24.
-//
 
 #ifndef PROJETC_IG_EI_OUTIL_GEOM_H
 #define PROJETC_IG_EI_OUTIL_GEOM_H

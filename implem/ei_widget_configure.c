@@ -62,62 +62,57 @@ void			ei_frame_configure		(ei_widget_t		widget,
 							 ei_surface_t*		img,
 							 ei_rect_ptr_t*		img_rect,
 							 ei_anchor_t*		img_anchor){
-    ei_impl_frame_t* frame = ((ei_impl_frame_t*)widget);
-    if (color)
-        frame->frame_color = *color;
-    if (!relief && !(frame->frame_relief) ) frame->frame_relief = ei_relief_none;
-    else if (relief) frame->frame_relief = *relief;
-    if (border_width) ((ei_impl_frame_t*)widget)->border_size =*border_width;
-    if (requested_size) {
-        widget->requested_size=*requested_size;
-        widget->screen_location.size=*requested_size;
-    }
-    if (text) {
-        if (!frame->text) frame->text = calloc(50, sizeof(char));
-        strcpy(frame->text, *text);
-    }
-    if (text_font) frame->text_font = *text_font;
-    if (text_color) {
-        frame->text_color = *text_color;
-    }
-    if (text_anchor) frame->text_anchor = *text_anchor;
+	    ei_impl_frame_t* frame = ((ei_impl_frame_t*)widget);
+	    if (color) frame->frame_color = *color;
+	    if (!relief && !(frame->frame_relief) ) frame->frame_relief = ei_relief_none;
+	    else if (relief) frame->frame_relief = *relief;
+	    if (border_width) ((ei_impl_frame_t*)widget)->border_size =*border_width;
+	    if (requested_size) {
+		        widget->requested_size=*requested_size;
+		        widget->screen_location.size=*requested_size;
+	    }
+	    if (text) {
+		        if (!frame->text) frame->text = calloc(50, sizeof(char));
+		        strcpy(frame->text, *text);
+	    }
+	    if (text_font) frame->text_font = *text_font;
+	    if (text_color) frame->text_color = *text_color;
+	    if (text_anchor) frame->text_anchor = *text_anchor;
+	    if (img_rect){
+		        frame->rect_image = calloc(1,sizeof(ei_rect_t));
+		        frame->rect_image->top_left = (*img_rect)->top_left;
+		        frame->rect_image->size = (*img_rect)->size;
+	    }
+	    if (img){
+	            if (!img_rect && !frame->rect_image){
+		                frame->rect_image = calloc(1,sizeof(ei_rect_t));
+		                ei_rect_t rect = hw_surface_get_rect(*img);
+		                frame->rect_image->top_left=rect.top_left;
+		                frame->rect_image->size=rect.size;
+	            }
+	            if (!frame->image) frame->image = hw_surface_create(ei_app_root_surface(),
+	            	frame->rect_image->size,false);
+	            else
+	            {
+		                if (*img == NULL) {
+			                    hw_surface_free(frame->image);
+			                    frame->image=NULL;
+	                    }
 
-    if (img_rect){
-        frame->rect_image = calloc(1,sizeof(ei_rect_t));
-        frame->rect_image->top_left = (*img_rect)->top_left;
-        frame->rect_image->size = (*img_rect)->size;
-    }
-    if (img){
-            if (!img_rect && !frame->rect_image){
-                frame->rect_image = calloc(1,sizeof(ei_rect_t));
-                ei_rect_t rect = hw_surface_get_rect(*img);
-                frame->rect_image->top_left=rect.top_left;
-                frame->rect_image->size=rect.size;
-            }
-            if (!frame->image) frame->image = hw_surface_create(ei_app_root_surface(),frame->rect_image->size,false);
-            else {
-                if (*img == NULL) {
-                    hw_surface_free(frame->image);
-                    frame->image=NULL;
-
-                }
-
-            }
-            if (*img) {
-                hw_surface_lock(frame->image);
-                hw_surface_lock(*img);
-                ei_copy_surface(frame->image, &(ei_rect_t) {{0, 0}, frame->rect_image->size}, *img, frame->rect_image,
-                                false);
-                hw_surface_unlock(frame->image);
-                hw_surface_unlock(*img);
-            }
-    }
-    if (img_anchor) frame->image_anchor= *img_anchor;
-    ei_app_invalidate_rect(&widget->screen_location);
+	            }
+	            if (*img){
+		                hw_surface_lock(frame->image);
+		                hw_surface_lock(*img);
+		                ei_copy_surface(frame->image, &(ei_rect_t) {{0, 0},
+		                	frame->rect_image->size}, *img, frame->rect_image,
+		                                false);
+		                hw_surface_unlock(frame->image);
+		                hw_surface_unlock(*img);
+	            }
+	    }
+	    if (img_anchor) frame->image_anchor= *img_anchor;
+	    ei_app_invalidate_rect(&widget->screen_location);
 }
-
-
-
 
 
 /**
@@ -151,15 +146,15 @@ void			ei_button_configure		(ei_widget_t		widget,
 							 ei_anchor_t*		img_anchor,
 							 ei_callback_t*		callback,
 							 ei_user_param_t*	user_param){
+		ei_frame_configure(widget, requested_size, color,border_width,relief,
+			text,text_font,text_color,text_anchor,img,img_rect,img_anchor);
+		if (corner_radius) ((ei_impl_button_t*)widget)->rayon = *corner_radius;
+		if (callback) ((ei_impl_button_t*)widget)->callback = *callback;
+		if (user_param) ((ei_impl_button_t*)widget)->user_params = *user_param;
 
-        ei_frame_configure(widget, requested_size, color,border_width,relief,text,text_font,text_color,text_anchor,img,img_rect,img_anchor);
-        if (corner_radius) ((ei_impl_button_t*)widget)->rayon = *corner_radius;
-        if (callback) ((ei_impl_button_t*)widget)->callback = *callback;
-        if (user_param) ((ei_impl_button_t*)widget)->user_params = *user_param;
-
-        if (callback) ((ei_impl_button_t*)widget)->callback = *callback;
-        if (user_param) ((ei_impl_button_t*)widget)->user_params = *user_param;
-        ei_app_invalidate_rect(&widget->screen_location);
+		if (callback) ((ei_impl_button_t*)widget)->callback = *callback;
+		if (user_param) ((ei_impl_button_t*)widget)->user_params = *user_param;
+		ei_app_invalidate_rect(&widget->screen_location);
 }
 
 
@@ -185,6 +180,7 @@ void			ei_button_configure		(ei_widget_t		widget,
  *				If *min_size is NULL, this requires the min_size to be configured to
  *				the default size.
  */
+
 void			ei_toplevel_configure		(ei_widget_t		widget,
 							 ei_size_t*		requested_size,
 							 const ei_color_t*	color,
@@ -212,12 +208,13 @@ void			ei_toplevel_configure		(ei_widget_t		widget,
                 toplevel->widget.screen_location.size = *requested_size;
         }
 
-        if (toplevel->can_close==false){//on supprime le bouton pour fermer le toplevel
+        if (toplevel->can_close==false){//on supprime le bouton pour fermer la toplevel
                 if (toplevel->button->geom_params && toplevel->button->geom_params->manager)
                         (toplevel->button->geom_params->manager->releasefunc)(toplevel->button);
                 toplevel->button->geom_params = NULL;
         }
-        else{//on place le bouton pour fermer le toplevel
+        else
+        {//on place le bouton pour fermer la toplevel
                 ei_place(toplevel->button, &(ei_anchor_t){ei_anc_northwest},
                          &(int){6}, &(int){6}, NULL,
                          NULL, &(float){0.0}, &(float){0.0}, NULL, NULL);
@@ -229,9 +226,11 @@ void			ei_toplevel_configure		(ei_widget_t		widget,
             toplevel->frame->geom_params = NULL;
 
         }
-        else{//on place la frame pour redimenssionner
+        else
+        {//on place la frame pour redimenssionner
                 ei_place(toplevel->frame, &(ei_anchor_t){ei_anc_southeast},
-                         NULL, NULL, NULL, NULL, &(float){1.0}, &(float){1.0}, NULL, NULL);
+                         NULL, NULL, NULL, NULL, &(float){1.0},
+                         &(float){1.0}, NULL, NULL);
         }
 
         //on configure la frame qui va contenir les widgets que l'utilisateur va placer dans le toplevel

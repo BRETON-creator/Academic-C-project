@@ -12,7 +12,7 @@
 #include "ei_implementation.h"
 
 /**
- * on implémente une liste de toutes les widgetclass.
+ * On implémente une liste de toutes les widgetclass.
  */
 ei_widgetclass_t* tete=NULL;
 
@@ -21,7 +21,7 @@ ei_widgetclass_t* tete=NULL;
  * 			(i.e. the size of \ref ei_impl_widget_t).
  */
 size_t		ei_widget_struct_size(){
-    return sizeof(ei_impl_widget_t);
+        return sizeof(ei_impl_widget_t);
 }
 
 /**
@@ -32,10 +32,10 @@ size_t		ei_widget_struct_size(){
  * @param	widgetclass	The structure describing the class.
  */
 void			ei_widgetclass_register		(ei_widgetclass_t* widgetclass){
-    //On ajoute en tete de la liste chainée des widgetclass le widget qu'on vient de creer.
-    ei_widgetclass_t * tmp = tete;
-    tete=widgetclass;
-    widgetclass->next=tmp;
+        //On ajoute en tete de la liste chainée des widgetclass le widget qu'on vient de creer.
+        ei_widgetclass_t * tmp = tete;
+        tete=widgetclass;
+        widgetclass->next=tmp;
 }
 
 
@@ -46,16 +46,12 @@ void			ei_widgetclass_register		(ei_widgetclass_t* widgetclass){
  *
  * @return			The structure describing the class.
  */
+
 ei_widgetclass_t*	ei_widgetclass_from_name	(ei_const_string_t name){
-    ei_widgetclass_t* current = tete;
-    while (current){
-        if (strcmp(current->name,name)==0) return current;
-        current=current->next;
-    }
-    return NULL;
+        ei_widgetclass_t* current = tete;
+        while (current){
+                if (strcmp(current->name,name)==0) return current;
+                current=current->next;
+        }
+        return NULL;
 }
-
-
-
-
-

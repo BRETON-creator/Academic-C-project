@@ -25,12 +25,12 @@ uint32_t next_pick_id = 0x00000FFF;
  * @return la couleur correspondant au pick id.
  */
 ei_color_t* give_color_pickid(uint32_t pickid){
-    ei_color_t* pickcolor = calloc(1,sizeof(ei_color_t));
-    pickcolor->alpha = pickid & 0xFF;
-    pickcolor->red = (pickid >> 24) & 0xFF;
-    pickcolor->green = (pickid >> 16) & 0xFF;
-    pickcolor->blue = (pickid >> 8) & 0xFF;
-    return pickcolor;
+        ei_color_t* pickcolor = calloc(1,sizeof(ei_color_t));
+        pickcolor->alpha = pickid & 0xFF;
+        pickcolor->red = (pickid >> 24) & 0xFF;
+        pickcolor->green = (pickid >> 16) & 0xFF;
+        pickcolor->blue = (pickid >> 8) & 0xFF;
+        return pickcolor;
 }
 
 /**
@@ -51,39 +51,35 @@ ei_widget_t		ei_widget_create		(ei_const_string_t	class_name,
 							 ei_widget_t		parent,
 							 ei_user_param_t	user_data,
 							 ei_widget_destructor_t destructor){
-    ei_widget_t new_widget = ei_widgetclass_from_name(class_name)->allocfunc();
-    new_widget->wclass = ei_widgetclass_from_name(class_name);
-    new_widget->wclass->setdefaultsfunc(new_widget);
+        ei_widget_t new_widget = ei_widgetclass_from_name(class_name)->allocfunc();
+        new_widget->wclass = ei_widgetclass_from_name(class_name);
+        new_widget->wclass->setdefaultsfunc(new_widget);
 
+        if (strcmp(parent->wclass->name, (ei_widgetclass_name_t){"toplevel\0"})==0) {
 
-    if (strcmp(parent->wclass->name, (ei_widgetclass_name_t){"toplevel\0"})==0) {
+                if (((ei_impl_toplevel_t*)parent)->contain_frame) {
 
-            if (((ei_impl_toplevel_t*)parent)->contain_frame) {
-
-                    parent=((ei_impl_toplevel_t*)parent)->contain_frame;
-            }
-    }
-
-    new_widget->parent=parent;
-    parent->children_tail = new_widget;
-    ei_widget_t prec = parent->children_head;
-    if (prec==NULL) {
-        parent->children_head=new_widget;
-    }else{
-        while (prec->next_sibling != NULL){
-            prec = prec -> next_sibling;
+                        parent=((ei_impl_toplevel_t*)parent)->contain_frame;
+                }
         }
-        prec->next_sibling = new_widget;
-    }
-    new_widget->next_sibling = NULL;
-
-    new_widget->user_data=user_data;
-    new_widget->destructor=destructor;
-    new_widget->pick_id = next_pick_id;
-    next_pick_id += 0x00000100;
-    new_widget->pick_color = give_color_pickid(new_widget->pick_id);
-
-    return new_widget;
+        new_widget->parent=parent;
+        parent->children_tail = new_widget;
+        ei_widget_t prec = parent->children_head;
+        if (prec==NULL) {
+                parent->children_head=new_widget;
+        }else
+        {
+                while (prec->next_sibling != NULL){
+                    prec = prec -> next_sibling;}
+                prec->next_sibling = new_widget;
+        }
+        new_widget->next_sibling = NULL;
+        new_widget->user_data=user_data;
+        new_widget->destructor=destructor;
+        new_widget->pick_id = next_pick_id;
+        next_pick_id += 0x00000100;
+        new_widget->pick_color = give_color_pickid(new_widget->pick_id);
+        return new_widget;
 }
 
 /**
@@ -96,18 +92,18 @@ ei_widget_t		ei_widget_create		(ei_const_string_t	class_name,
  * @param	widget		The widget that is to be destroyed.
  */
 void			ei_widget_destroy		(ei_widget_t		widget){
-    ei_widget_t child = widget->children_head;
-    ei_widget_t next_child;
-    while (child) {
-        next_child = child->next_sibling;
-        ei_widget_destroy(child);
-        child = next_child;
+        ei_widget_t child = widget->children_head;
+        ei_widget_t next_child;
+        while (child){
+                next_child = child->next_sibling;
+                ei_widget_destroy(child);
+                child = next_child;
 
-    }
-    free(widget->pick_color);
-    if (widget->destructor) (widget->destructor)(widget);
-    if (widget->geom_params && widget->geom_params->manager) (widget->geom_params->manager->releasefunc)(widget);
-    if (widget->wclass->releasefunc) (widget->wclass->releasefunc)(widget);
+        }
+        free(widget->pick_color);
+        if (widget->destructor) (widget->destructor)(widget);
+        if (widget->geom_params && widget->geom_params->manager) (widget->geom_params->manager->releasefunc)(widget);
+        if (widget->wclass->releasefunc) (widget->wclass->releasefunc)(widget);
 }
 
 
@@ -119,27 +115,27 @@ void			ei_widget_destroy		(ei_widget_t		widget){
  * @return			true if the widget is displayed, false otherwise.
  */
 bool	 		ei_widget_is_displayed		(ei_widget_t		widget){
-    return (widget->geom_params!=NULL && widget->geom_params->manager!=NULL);
+        return (widget->geom_params!=NULL && widget->geom_params->manager!=NULL);
 }
 
 
 uint32_t* get_pixel_point( ei_point_t point){
-    hw_surface_lock(pick_surface);
-    uint32_t *pixel_ptr = (uint32_t *) hw_surface_get_buffer(pick_surface);
-    //
-    //pixel_ptr == (0,0)
-    ei_size_t size = hw_surface_get_size(pick_surface);
-    int idx_point = point.x + point.y*size.width;
-    uint32_t * pixel_ptr_n = pixel_ptr+ idx_point;
-    //int x = ((pixel_ptr_n - pixel_ptr))%size.width; // \/ c'etait pour le debug
-    //int y = ((pixel_ptr_n - pixel_ptr))/size.width;
-    //printf("%u %u, x: %d, y: %d\n",pixel_ptr,pixel_ptr_n,x,y );
-    //ei_color_t *col = give_color_pickid(*pixel_ptr_n);
-    //printf("%08x\n",(*pixel_ptr_n)<<8 | 0xFF);
-    //printf("R:%02x G:%02x B:%02x A:%02x\n",col->red,col->green,col->blue,col->alpha);
-    //free(col);
-    hw_surface_unlock(pick_surface);
-    return pixel_ptr_n;
+        hw_surface_lock(pick_surface);
+        uint32_t *pixel_ptr = (uint32_t *) hw_surface_get_buffer(pick_surface);
+        //
+        //pixel_ptr == (0,0)
+        ei_size_t size = hw_surface_get_size(pick_surface);
+        int idx_point = point.x + point.y*size.width;
+        uint32_t * pixel_ptr_n = pixel_ptr+ idx_point;
+        //int x = ((pixel_ptr_n - pixel_ptr))%size.width; // \/ c'etait pour le debug
+        //int y = ((pixel_ptr_n - pixel_ptr))/size.width;
+        //printf("%u %u, x: %d, y: %d\n",pixel_ptr,pixel_ptr_n,x,y );
+        //ei_color_t *col = give_color_pickid(*pixel_ptr_n);
+        //printf("%08x\n",(*pixel_ptr_n)<<8 | 0xFF);
+        //printf("R:%02x G:%02x B:%02x A:%02x\n",col->red,col->green,col->blue,col->alpha);
+        //free(col);
+        hw_surface_unlock(pick_surface);
+        return pixel_ptr_n;
 }
 
 /**
@@ -150,15 +146,15 @@ uint32_t* get_pixel_point( ei_point_t point){
  * @return le widget qui correspond a la pick id ou NULL.
  */
 ei_widget_t widget_from_pickid(ei_widget_t current, uint32_t pick_id){
-    if (!current) return NULL;
-    if (current->pick_id == pick_id) return current;
-    ei_widget_t child = current->children_head;
-    ei_widget_t result = widget_from_pickid(child,pick_id);
-    while (child && !result){
-        child=child->next_sibling;
-        result = widget_from_pickid(child,pick_id);
-    }
-    return result;
+        if (!current) return NULL;
+        if (current->pick_id == pick_id) return current;
+        ei_widget_t child = current->children_head;
+        ei_widget_t result = widget_from_pickid(child,pick_id);
+        while (child && !result){
+            child=child->next_sibling;
+            result = widget_from_pickid(child,pick_id);
+        }
+        return result;
 }
 /**
  * @brief	Returns the widget that is at a given location on screen.
@@ -169,14 +165,14 @@ ei_widget_t widget_from_pickid(ei_widget_t current, uint32_t pick_id){
  *				at this location (except for the root widget).
  */
 ei_widget_t		ei_widget_pick			(ei_point_t*		where){
-    //on recupere le pick_id du widget du pixel sur lequel on se trouve
-    uint32_t pick_id= (*get_pixel_point(*where)) << 8 | 0xFF; // pourquoi ? idk
-    //on trouve a quel widget il appartient et on renvoit ce widget, si c'est la racine on renvoie NULL
-    ei_widget_t current = ei_app_root_widget();
-    current = widget_from_pickid(current,pick_id);
-    //printf("Je suis sur le widget %s %08x\n", current->wclass->name, current->pick_id);
-    if (current == ei_app_root_widget()) return NULL;
-    return current;
+        //on recupere le pick_id du widget du pixel sur lequel on se trouve
+        uint32_t pick_id= (*get_pixel_point(*where)) << 8 | 0xFF; // pourquoi ? idk
+        //on trouve a quel widget il appartient et on renvoit ce widget, si c'est la racine on renvoie NULL
+        ei_widget_t current = ei_app_root_widget();
+        current = widget_from_pickid(current,pick_id);
+        //printf("Je suis sur le widget %s %08x\n", current->wclass->name, current->pick_id);
+        if (current == ei_app_root_widget()) return NULL;
+        return current;
 }
 
 
