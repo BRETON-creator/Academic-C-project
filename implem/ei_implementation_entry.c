@@ -241,7 +241,7 @@ void ei_impl_draw_entry(ei_widget_t widget,ei_surface_t surface,ei_surface_t pic
                     (ei_point_t){rect.top_left.x,rect.top_left.y+ size.height }};
 
 
-    ei_draw_polygon(surface,bigger_frame,4, bg_color,&new_clipper);
+    ei_draw_polygon(surface,bigger_frame,4, black,&new_clipper);
     ei_draw_polygon(surface,white_frame,4, white ,&new_clipper);
     ei_draw_polygon(pick_surface,bigger_frame,4,*(widget->pick_color),&new_clipper);
 

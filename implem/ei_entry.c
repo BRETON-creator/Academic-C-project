@@ -33,7 +33,8 @@ void			ei_entry_configure		(ei_widget_t		widget,
 							 ei_color_t*		text_color){
     ei_impl_entry_t * entry = (ei_impl_entry_t*)widget;
     //if (requested_char_size) entry->requested_char_size = *requested_char_size;
-    if (border_width) entry->border_size= *border_width;
+    if (border_width) entry->border_size= *border_width;else entry->border_size = 1 ;
+
     if (text_font) entry->text_font = *text_font;
     if (text_color) entry->text_color = *text_color;
     //if (color) entry->color = color;
