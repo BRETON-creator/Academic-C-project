@@ -155,28 +155,30 @@ void ei_impl_draw_frame(ei_widget_t widget,ei_surface_t surface,ei_surface_t pic
             ei_draw_polygon(surface,upper_frame,23,dark_color,&new_clipper);
             break;
     }
+    ei_rect_t rect_smaller_frame = rect;
+    if (((ei_impl_frame_t*) widget)->frame_relief != ei_relief_none) {
+        rect_smaller_frame = (ei_rect_t) {{rect.top_left.x + border,     rect.top_left.y + border},
+                                             {rect.size.width - 2 * border, rect.size.height - 2 * border}};
+        clipper_smaller_frame = get_rect_intersection(rect_smaller_frame, new_clipper);
+
+        ei_draw_polygon(surface, smaller_frame, 40, color,
+                        &clipper_smaller_frame);
+    }
 
     if (((ei_impl_frame_t*)widget)->image){
             ei_surface_t surface_img = (((ei_impl_frame_t*)widget)->image);
             //ei_surface_t surface_img = hw_image_load("misc/klimt.jpg", ei_app_root_surface());
             ei_rect_t* rect_img = ((ei_impl_frame_t*)widget)->rect_image;
-
+            ei_point_t where_img = place_text(rect_smaller_frame,((ei_impl_frame_t*)widget)->image_anchor,rect_img->size);
             hw_surface_lock(surface_img);
-            ei_rect_t dst_rect = (ei_rect_t){{rect.top_left.x + border, rect.top_left.y + border},
+            ei_rect_t dst_rect = (ei_rect_t){where_img,
                                              rect_img->size};
             ei_copy_surface(surface, &dst_rect, surface_img, &(ei_rect_t){{0,0},rect_img->size}, false);
             hw_surface_unlock(surface_img);
     }
-    else{
-        if (((ei_impl_frame_t*) widget)->frame_relief != ei_relief_none) {
-            clipper_smaller_frame = (ei_rect_t) {{rect.top_left.x + border,     rect.top_left.y + border},
-                                                 {rect.size.width - 2 * border, rect.size.height - 2 * border}};
-            clipper_smaller_frame = get_rect_intersection(clipper_smaller_frame, new_clipper);
 
-            ei_draw_polygon(surface, smaller_frame, 40, color,
-                            &clipper_smaller_frame);
-        }
-    }
+
+
     //on dessine sur la pick surface aussi. pour afficher la pick surface decommenter la ligne du dessous
     //ei_draw_polygon(surface,rounded_frame,40,*(widget->pick_color),&new_clipper);
     ei_draw_polygon(pick_surface,rounded_frame,40,*(widget->pick_color),&new_clipper);

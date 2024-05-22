@@ -94,13 +94,23 @@ void			ei_frame_configure		(ei_widget_t		widget,
                 frame->rect_image->top_left=rect.top_left;
                 frame->rect_image->size=rect.size;
             }
-            frame->image = hw_surface_create(ei_app_root_surface(),frame->rect_image->size,false);
+            if (!frame->image) frame->image = hw_surface_create(ei_app_root_surface(),frame->rect_image->size,false);
+            else {
+                if (*img == NULL) {
+                    hw_surface_free(frame->image);
+                    frame->image=NULL;
 
-            hw_surface_lock(frame->image);
-            hw_surface_lock(*img);
-            ei_copy_surface(frame->image,&(ei_rect_t){{0,0},frame->rect_image->size}, *img, frame->rect_image, false);
-            hw_surface_unlock(frame->image);
-            hw_surface_unlock(*img);
+                }
+
+            }
+            if (*img) {
+                hw_surface_lock(frame->image);
+                hw_surface_lock(*img);
+                ei_copy_surface(frame->image, &(ei_rect_t) {{0, 0}, frame->rect_image->size}, *img, frame->rect_image,
+                                false);
+                hw_surface_unlock(frame->image);
+                hw_surface_unlock(*img);
+            }
     }
     if (img_anchor) frame->image_anchor= *img_anchor;
     ei_app_invalidate_rect(&widget->screen_location);
