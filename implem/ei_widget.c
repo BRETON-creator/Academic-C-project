@@ -107,7 +107,7 @@ void			ei_widget_destroy		(ei_widget_t		widget){
     free(widget->pick_color);
     if (widget->destructor) (widget->destructor)(widget);
     if (widget->geom_params && widget->geom_params->manager) (widget->geom_params->manager->releasefunc)(widget);
-    (widget->wclass->releasefunc)(widget);
+    if (widget->wclass->releasefunc) (widget->wclass->releasefunc)(widget);
 }
 
 

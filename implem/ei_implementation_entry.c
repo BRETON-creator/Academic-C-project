@@ -64,6 +64,8 @@ void ei_impl_setdefaults_entry(ei_widget_t widget){
     entry->text_color=ei_font_default_color;
     entry->text_anchor=ei_anc_center;
 
+    entry->position = 0;
+
 }
 
 
@@ -117,12 +119,14 @@ letter* from_string_to_list(const char* str) {
     return tab;
 }
 // Fonction pour insérer une lettre à une position donnée par le curseur
-void insert_at_cursor_position(letter** tab, int position, char data) {
+const char* insert_at_cursor_position(const char* text, int position, char data) {
+    letter** tab = from_string_to_list(text);
     letter* new_letter = create_letter(data);
     if (position == 0) {
         new_letter->next = *tab;
         *tab = new_letter;
-        return;
+        text = from_list_to_string(tab);
+        return text;
     }
 
     letter* current = *tab;
@@ -154,8 +158,7 @@ void delete_at_cursor_position(const char* text, int position) {
 }
 
 
-bool ei_callback_entry(ei_widget_t		widget, struct ei_event_t*	event, ei_user_param_t	user_param)
-{
+bool ei_callback_entry(ei_widget_t		widget, struct ei_event_t*	event, ei_user_param_t	user_param){
     if (!widget) return false;
     if (strcmp( widget->wclass->name, (ei_widgetclass_name_t){"entry\0"}) != 0 ){
         return false; //Si le widget n'est pas un entry on retourne false
@@ -163,14 +166,10 @@ bool ei_callback_entry(ei_widget_t		widget, struct ei_event_t*	event, ei_user_pa
     if (event->type == ei_ev_mouse_buttondown){
         ei_app_invalidate_rect(&widget->screen_location);
         ei_entry_give_focus(widget);
-
-       // tmp = ((ei_impl_entry_t*)widget)->text;
+        //return true;
     }
-    if (event->type == ei_ev_keydown)
-    {
-        ei_app_invalidate_rect(&widget->screen_location);
-     // switch ((event->type == ei_ev_keydown) && (event->param.key_code == SDLK_ESCAPE)
-        switch ((event->type == ei_ev_keydown) && (event->param.key_code == SDLK_a ||
+    if (event->type == ei_ev_keydown && current_entry_focus == (ei_impl_entry_t*)widget){
+        if ((event->param.key_code == SDLK_a ||
             event->param.key_code == SDLK_b ||
             event->param.key_code == SDLK_c ||
             event->param.key_code == SDLK_d ||
@@ -196,18 +195,21 @@ bool ei_callback_entry(ei_widget_t		widget, struct ei_event_t*	event, ei_user_pa
             event->param.key_code == SDLK_x ||
             event->param.key_code == SDLK_y ||
             event->param.key_code == SDLK_z)){
-
             ei_string_t letter = event->param.key_code;
-            insert_at_cursor_position( ((ei_impl_entry_t*)widget)->text , ((ei_impl_entry_t*)widget)->position , letter);
+            const char* new_text  = insert_at_cursor_position( ((ei_impl_entry_t*)widget)->text , ((ei_impl_entry_t*)widget)->position , letter);
+            ei_entry_set_text(widget , new_text);
+            ei_app_invalidate_rect(&widget->screen_location);
 
-            switch ((event->type == ei_ev_keydown) && (event->param.key_code == SDLK_DELETE)) {
-                delete_at_cursor_position( ((ei_impl_entry_t*)widget)->text , ((ei_impl_entry_t*)widget)->position );
-
-            }
-
+            return true;
+        }
+        if ((event->type == ei_ev_keydown) && (event->param.key_code == SDLK_DELETE)) {
+            delete_at_cursor_position( ((ei_impl_entry_t*)widget)->text , ((ei_impl_entry_t*)widget)->position );
+            ei_app_invalidate_rect(&widget->screen_location);
+            return true;
         }
 
     }
+
 }
 
 
