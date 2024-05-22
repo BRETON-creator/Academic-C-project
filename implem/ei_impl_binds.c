@@ -9,12 +9,22 @@
 //definit les binds
 ei_bind_t* binds = NULL;
 
-ei_linked_tag_t* linked_tag = &(ei_linked_tag_t){"all\0",NULL};
-
+/**
+ * @brief Fonction qui return la variable globale qui pointe sur les binds
+ * @return variable globale pointant sur le dernier bind implémenté.
+ */
 ei_bind_t* ei_get_head_binds(){
     return binds;
 }
 
+/**
+ * @brief Fonction retournant le premier bind correspondant au type d'evennement de event
+ *
+ * @param event l'évenement
+ * @param current_bind le bind suivant de celui qui vient d'être executé
+ *
+ * @return le bind correspondant au type d'evennemebt de event.
+ */
 ei_bind_t* ei_bind_from_event(ei_event_t* event, ei_bind_t* current_bind){
     ei_bind_t* cur_bind = current_bind;
     while (cur_bind){
@@ -26,6 +36,14 @@ ei_bind_t* ei_bind_from_event(ei_event_t* event, ei_bind_t* current_bind){
     return NULL;
 }
 
+/**
+ * @brief creer un bind (et le link au autre binds de la variable globale
+ * @param eventtype
+ * @param widget
+ * @param tag
+ * @param callback
+ * @param user_param
+ */
 void ei_create_bind(ei_eventtype_t		eventtype,
                     ei_widget_t		widget,
                     ei_tag_t		tag,
@@ -48,6 +66,15 @@ void ei_create_bind(ei_eventtype_t		eventtype,
     new_bind->user_param= user_param;
 }
 
+
+/**
+ * @brief supprime un bind
+ * @param eventtype
+ * @param widget
+ * @param tag
+ * @param callback
+ * @param user_param
+ */
 void ei_delete_bind(ei_eventtype_t		eventtype,
                     ei_widget_t		widget,
                     ei_tag_t		tag,

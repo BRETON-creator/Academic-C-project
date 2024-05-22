@@ -54,16 +54,12 @@ void			ei_geometry_run_finalize(ei_widget_t widget, ei_rect_t* new_screen_locati
             //on met a jour la screen location
             widget->screen_location = *new_screen_location;
             //on prevoie un redraw (si le widget est manager par un geometrymanager)
-            //1) supprimer le dessin sur l'ancienne location
-
-            //2) redessiner le widget sur la nouvelle location
-
             //on notifie le widget qu'on a changé sa géométrie
             if (widget->wclass->geomnotifyfunc)(widget->wclass->geomnotifyfunc)(widget);
             //on recalcule la géométrie des enfants
             ei_widget_t child = widget->children_head;
             while (child){
-                (child->geom_params->manager->runfunc)(child);
+                if ((child->geom_params) && (child->geom_params->manager)) (child->geom_params->manager->runfunc)(child);
                 child=child->next_sibling;
             }
 
@@ -123,11 +119,11 @@ ei_geometrymanager_t*	ei_geometrymanager_from_name	(ei_geometrymanager_name_t na
  * @param	widget		The widget to unmap from the screen.
  */
 void			ei_geometrymanager_unmap	(ei_widget_t widget){
-
+    if (!widget->geom_params || !widget->geom_params->manager) return;
     (widget->geom_params->manager->releasefunc)(widget);
-    //if (widget->geom_params) free((ei_placer_t*)widget->geom_params);
-    (widget->wclass->geomnotifyfunc)(widget);
+    if ((widget->wclass->geomnotifyfunc))(widget->wclass->geomnotifyfunc)(widget);
     widget->screen_location = (ei_rect_t){{0,0},{0,0}};
+    widget->geom_params=NULL;
 }
 
 

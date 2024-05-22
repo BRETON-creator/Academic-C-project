@@ -85,6 +85,8 @@ ei_widget_t ei_impl_alloc_frame(){
 void ei_impl_release_frame(ei_widget_t frame){
         supr_hierachy(frame->parent, frame);
         if (((ei_impl_frame_t*)frame)->text) free((((ei_impl_frame_t*)frame)->text));
+        if (((ei_impl_frame_t*)frame)->image) hw_surface_free((((ei_impl_frame_t*)frame)->image));
+        if (((ei_impl_frame_t*)frame)->rect_image) free(((ei_impl_frame_t*)frame)->rect_image);
         free((ei_impl_frame_t*)frame);
 }
 
@@ -103,7 +105,7 @@ void ei_impl_draw_frame(ei_widget_t widget,ei_surface_t surface,ei_surface_t pic
     hw_surface_unlock(surface);
     int h;
     ei_color_t color  = ((ei_impl_frame_t*)widget)->frame_color;
-    ei_size_t size= widget->requested_size;
+    ei_size_t size= widget->screen_location.size;
     ei_rect_t rect= widget->screen_location;
     ei_rect_t new_clipper = get_rect_intersection(rect,*clipper);
     h = size.height < size.width ? size.height /2 : size.width /2;
@@ -125,14 +127,23 @@ void ei_impl_draw_frame(ei_widget_t widget,ei_surface_t surface,ei_surface_t pic
     give_rounded_frame(smaller_frame,(ei_rect_t){(ei_point_t){rect.top_left.x+border,rect.top_left.y+border},
                                                  (ei_size_t){rect.size.width - 2*border, rect.size.height - 2*border}},radius-border);
 
-    ei_color_t light_color  = (ei_color_t){color.red + 20, color.green +20, color.blue +20, color.alpha};
+    ei_color_t light_color  = (ei_color_t){color.red + 50 < 255 ? color.red + 50 : 255,
+                                           color.green + 50 < 255 ? color.green + 50 : 255,
+                                           color.blue + 50 < 255 ? color.blue + 50 : 255,
+                                           color.alpha};
 
-    ei_color_t dark_color  = (ei_color_t){abs(color.red -20), abs(color.green -20), abs(color.blue -20), color.alpha};
+    ei_color_t dark_color  = (ei_color_t){color.red - 50 > 0 ? color.red - 50 : 0,
+                                          color.green - 50 > 0 ? color.green - 50 : 0,
+                                          color.blue - 50 > 0 ? color.blue - 50 : 0,
+                                          color.alpha};
+    ei_rect_t clipper_smaller_frame;
+
     switch (((ei_impl_frame_t*) widget)->frame_relief){
         case ei_relief_none:
             //ei_draw_polygon(surface,lower_frame,23, color,&new_clipper); //
             //ei_draw_polygon(surface,upper_frame,23,color,&new_clipper);
             ei_fill(surface,&color,&new_clipper);
+            clipper_smaller_frame=new_clipper;
             break;
         case ei_relief_raised:
             ei_draw_polygon(surface,lower_frame,23, dark_color,&new_clipper);
@@ -157,8 +168,14 @@ void ei_impl_draw_frame(ei_widget_t widget,ei_surface_t surface,ei_surface_t pic
             hw_surface_unlock(surface_img);
     }
     else{
-        if (((ei_impl_frame_t*) widget)->frame_relief != ei_relief_none)
-            ei_draw_polygon(surface, smaller_frame, 40, color, &new_clipper);
+        if (((ei_impl_frame_t*) widget)->frame_relief != ei_relief_none) {
+            clipper_smaller_frame = (ei_rect_t) {{rect.top_left.x + border,     rect.top_left.y + border},
+                                                 {rect.size.width - 2 * border, rect.size.height - 2 * border}};
+            clipper_smaller_frame = get_rect_intersection(clipper_smaller_frame, new_clipper);
+
+            ei_draw_polygon(surface, smaller_frame, 40, color,
+                            &clipper_smaller_frame);
+        }
     }
     //on dessine sur la pick surface aussi. pour afficher la pick surface decommenter la ligne du dessous
     //ei_draw_polygon(surface,rounded_frame,40,*(widget->pick_color),&new_clipper);
@@ -176,7 +193,7 @@ void ei_impl_draw_frame(ei_widget_t widget,ei_surface_t surface,ei_surface_t pic
             where = (ei_point_t){where.x,where.y + 2};
         ei_draw_text(surface, &where, ((ei_impl_frame_t *) widget)->text,
                      ((ei_impl_frame_t *) widget)->text_font, ((ei_impl_frame_t *) widget)->text_color,
-                     &widget->screen_location);
+                     &new_clipper);
         hw_surface_free(surface_text);
     }
 
@@ -185,7 +202,6 @@ void ei_impl_draw_frame(ei_widget_t widget,ei_surface_t surface,ei_surface_t pic
 
 /**
  * \brief Fonction pour mettre les valeurs par defauts d'un widget frame
- * TODO : completer cette fonction avec les bonnes valeures
  */
 void ei_impl_setdefaults_frame(ei_widget_t widget){
     ei_impl_frame_t* frame = (ei_impl_frame_t*)widget;
@@ -247,6 +263,9 @@ void ei_impl_release_button(ei_widget_t button){
             current_button_down = NULL;
         supr_hierachy(button->parent, button);
         if (((ei_impl_frame_t*)button)->text) free((((ei_impl_frame_t*)button)->text));
+        if (((ei_impl_frame_t*)button)->image) hw_surface_free((((ei_impl_frame_t*)button)->image));
+        if (((ei_impl_frame_t*)button)->rect_image) free(((ei_impl_frame_t*)button)->rect_image);
+
         free((ei_impl_button_t*)button);
 }
 
@@ -263,11 +282,18 @@ void ei_impl_setdefaults_button(ei_widget_t widget){
         button->callback=NULL;
 }
 
+/**
+ * @brief Fonction callback interne de lorsqu'on clique sur un bouton
+ * @param widget
+ * @param event
+ * @param user_param
+ * @return si le callback a été effectué.
+ */
 bool ei_callback_clickbutton(ei_widget_t		widget, struct ei_event_t*	event, ei_user_param_t	user_param){
     // cas ou on relache le clic en dehors du button
     if (current_button_down && event->type==ei_ev_mouse_buttonup && widget!=current_button_down){
         ((ei_impl_button_t*)current_button_down)->frame.frame_relief = ei_relief_raised;
-        ei_impl_draw_button(current_button_down,ei_app_root_surface(), pick_surface,&current_button_down->parent->screen_location);
+        ei_app_invalidate_rect(&current_button_down->screen_location);
         current_button_down = NULL;
         return true;
     }
@@ -306,16 +332,25 @@ bool ei_callback_clickbutton(ei_widget_t		widget, struct ei_event_t*	event, ei_u
     }
 }
 
+/**
+ * Callback intern appele lorsque l'on clique sur un widget, cela le met en premier plan.
+ * @param widget
+ * @param event
+ * @param user_param
+ * @return false, on peut continuer d'utiliser l'eventtype buttondown pour un autre bind.
+ */
 bool ei_callback_buttondown (ei_widget_t		widget, struct ei_event_t*	event, ei_user_param_t	user_param){
     if (!widget) return false;
     modify_hierarchy(widget,widget->parent);
     ei_app_invalidate_rect(&ei_app_root_widget()->screen_location);
     return false;
 }
-int size = 1;
 
-
-
+/**
+ * @brief Supprime widget_supr des enfants de widget.
+ * @param widget
+ * @param widget_supr
+ */
 void supr_hierachy(ei_widget_t widget, ei_widget_t widget_supr){
         if (!widget) return;
         ei_widget_t prec= widget->children_head;

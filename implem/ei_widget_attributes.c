@@ -20,6 +20,7 @@
  * @return			The structure that describe the class of this widget.
  */
 ei_widgetclass_t*	ei_widget_get_class		(ei_widget_t		widget){
+    if (!widget) return ei_app_root_widget()->wclass;
     return widget->wclass;
 }
 

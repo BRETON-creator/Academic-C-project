@@ -73,7 +73,7 @@ void			ei_frame_configure		(ei_widget_t		widget,
         widget->screen_location.size=*requested_size;
     }
     if (text) {
-        frame->text = calloc(50, sizeof(char));
+        if (!frame->text) frame->text = calloc(50, sizeof(char));
         strcpy(frame->text, *text);
     }
     if (text_font) frame->text_font = *text_font;
@@ -88,6 +88,12 @@ void			ei_frame_configure		(ei_widget_t		widget,
         frame->rect_image->size = (*img_rect)->size;
     }
     if (img){
+            if (!img_rect && !frame->rect_image){
+                frame->rect_image = calloc(1,sizeof(ei_rect_t));
+                ei_rect_t rect = hw_surface_get_rect(*img);
+                frame->rect_image->top_left=rect.top_left;
+                frame->rect_image->size=rect.size;
+            }
             frame->image = hw_surface_create(ei_app_root_surface(),frame->rect_image->size,false);
 
             hw_surface_lock(frame->image);
@@ -97,6 +103,7 @@ void			ei_frame_configure		(ei_widget_t		widget,
             hw_surface_unlock(*img);
     }
     if (img_anchor) frame->image_anchor= *img_anchor;
+    ei_app_invalidate_rect(&widget->screen_location);
 }
 
 
@@ -142,6 +149,7 @@ void			ei_button_configure		(ei_widget_t		widget,
 
         if (callback) ((ei_impl_button_t*)widget)->callback = *callback;
         if (user_param) ((ei_impl_button_t*)widget)->user_params = *user_param;
+        ei_app_invalidate_rect(&widget->screen_location);
 }
 
 
@@ -219,9 +227,10 @@ void			ei_toplevel_configure		(ei_widget_t		widget,
         if (toplevel->resizable_axis==ei_axis_none){
             (toplevel->frame->geom_params->manager->releasefunc)(toplevel->frame);
             toplevel->frame->geom_params = NULL;
-            ei_impl_release_frame(toplevel->frame);
+            ei_widget_destroy(toplevel->frame);
             toplevel->frame=NULL;
         }
+    ei_app_invalidate_rect(&widget->screen_location);
 }
 
 

@@ -166,6 +166,9 @@ typedef struct ei_impl_geom_param_t {
 	ei_geometrymanager_t*		manager;	///< The geometry managers that manages this widget.
 } ei_impl_geom_param_t;
 
+/**
+ * @brief Structure definissant le geom_param de type placer, il prend en memoire les parametres de position du widget
+ */
 typedef struct {
     ei_impl_geom_param_t geom_param;
     int x, y, height, width;
@@ -244,9 +247,21 @@ void ei_impl_draw_button(ei_widget_t widget,ei_surface_t surface,ei_surface_t pi
  */
 bool ei_callback_clickbutton(ei_widget_t		widget, struct ei_event_t*	event, ei_user_param_t	user_param);
 
-bool ei_callback_buttondown(ei_widget_t		widget, struct ei_event_t*	event, ei_user_param_t	user_param);
 
-bool ei_callback_entry(ei_widget_t		widget, struct ei_event_t*	event, ei_user_param_t	user_param);
+/**
+ * Callback intern appele lorsque l'on clique sur un widget, cela le met en premier plan.
+ * @param widget
+ * @param event
+ * @param user_param
+ * @return false, on peut continuer d'utiliser l'eventtype buttondown pour un autre bind.
+ */
+bool ei_callback_buttondown (ei_widget_t		widget, struct ei_event_t*	event, ei_user_param_t	user_param);
 
+/**
+ * @brief Supprime widget_supr des enfants de widget.
+ * @param widget
+ * @param widget_supr
+ */
 void supr_hierachy(ei_widget_t widget, ei_widget_t widget_supr);
+
 #endif

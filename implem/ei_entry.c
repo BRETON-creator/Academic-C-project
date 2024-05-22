@@ -6,6 +6,7 @@
 #include "ei_entry.h"
 #include "ei_implementation.h"
 
+//variable globale designant l'entry qui possède le focus.
 ei_impl_entry_t *current_entry_focus = NULL;
 
 /**
@@ -37,6 +38,7 @@ void			ei_entry_configure		(ei_widget_t		widget,
     if (text_color) entry->text_color = *text_color;
     //if (color) entry->color = color;
     //TODO : modif entry pour que ca corresponde
+    ei_app_invalidate_rect(&widget->screen_location);
 }
 
 /**

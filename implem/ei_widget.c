@@ -13,8 +13,17 @@
 #include "var.h"
 #include "ei_widgetclass.h"
 
+/**
+ * @brief Definition de la variable globale permettant de donner les pick id aux widgets,
+ * elle est incrémentée au fur et a mesure d'ajout de widget.
+ */
 uint32_t next_pick_id = 0x00000FFF;
 
+/**
+ * @brief Donne la couleur equivalente au pick id, il faudra bien penser a free la couleur attribuée
+ * @param pickid le pick id du widget dont on souhaite la couleur
+ * @return la couleur correspondant au pick id.
+ */
 ei_color_t* give_color_pickid(uint32_t pickid){
     ei_color_t* pickcolor = calloc(1,sizeof(ei_color_t));
     pickcolor->alpha = pickid & 0xFF;
@@ -43,10 +52,14 @@ ei_widget_t		ei_widget_create		(ei_const_string_t	class_name,
 							 ei_user_param_t	user_data,
 							 ei_widget_destructor_t destructor){
     ei_widget_t new_widget = ei_widgetclass_from_name(class_name)->allocfunc();
-    ei_widgetclass_from_name(class_name)->setdefaultsfunc(new_widget);
+    new_widget->wclass = ei_widgetclass_from_name(class_name);
+    new_widget->wclass->setdefaultsfunc(new_widget);
+
 
     if (strcmp(parent->wclass->name, (ei_widgetclass_name_t){"toplevel\0"})==0) {
+
             if (((ei_impl_toplevel_t*)parent)->contain_frame) {
+
                     parent=((ei_impl_toplevel_t*)parent)->contain_frame;
             }
     }
@@ -106,7 +119,7 @@ void			ei_widget_destroy		(ei_widget_t		widget){
  * @return			true if the widget is displayed, false otherwise.
  */
 bool	 		ei_widget_is_displayed		(ei_widget_t		widget){
-    return !(widget->geom_params);
+    return (widget->geom_params!=NULL && widget->geom_params->manager!=NULL);
 }
 
 
@@ -129,6 +142,13 @@ uint32_t* get_pixel_point( ei_point_t point){
     return pixel_ptr_n;
 }
 
+/**
+ * @brief Donne le widget correspondant a la pickid dans les descendant de widget (fonction recursive)
+ *
+ * @param current widget racine
+ * @param pick_id pick id que l'on recherche
+ * @return le widget qui correspond a la pick id ou NULL.
+ */
 ei_widget_t widget_from_pickid(ei_widget_t current, uint32_t pick_id){
     if (!current) return NULL;
     if (current->pick_id == pick_id) return current;

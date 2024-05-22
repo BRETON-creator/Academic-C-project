@@ -60,6 +60,7 @@ void modify_hierarchy( ei_widget_t widget , ei_widget_t parent)
                 last_child = last_child->next_sibling;
 
         last_child->next_sibling = cur;
+        parent->children_tail = cur;
         modify_hierarchy(widget->parent, widget->parent->parent);
 }
 
@@ -71,7 +72,13 @@ ei_impl_frame_t* frame;
 ei_point_t mouse_point;
 ei_impl_toplevel_t* current_moving_toplevel = NULL;
 
-
+/**
+ * callback intern des toplevels permettant de deplacer la toplevel
+ * @param widget
+ * @param event
+ * @param user_param
+ * @return
+ */
 bool ei_callback_toplevel(ei_widget_t	widget, struct ei_event_t*	event, ei_user_param_t	user_param) {
 
         ei_point_t cur_point = event->param.mouse.where;
@@ -139,7 +146,13 @@ bool ei_callback_toplevel(ei_widget_t	widget, struct ei_event_t*	event, ei_user_
         return false;
 
 }
-
+/**
+ * Callback interne des toplevels permettant de redimensionner les toplevel l'autorisant.
+ * @param widget
+ * @param event
+ * @param user_param
+ * @return
+ */
 bool ei_resize_toplevel(ei_widget_t	widget, struct ei_event_t*	event, ei_user_param_t	user_param){
 
         if (event->type == ei_ev_mouse_buttonup && resize) {
@@ -168,35 +181,29 @@ bool ei_resize_toplevel(ei_widget_t	widget, struct ei_event_t*	event, ei_user_pa
                 rect.size.width++;
                 rect.size.height++;
 
-                int x = 0;
-                int y = 0;
+                int x = cur_point.x;
+                int y = cur_point.y;
+                ei_impl_frame_t *contain_frame = (ei_impl_frame_t *) toplevel->contain_frame;
 
                 if (toplevel->resizable_axis==ei_axis_both || toplevel->resizable_axis==ei_axis_x){
                         x = cur_point.x - mouse_point.x;
+                        x +=toplevel->widget.requested_size.width;
+                        if (toplevel->minimal_size.width>x) x=toplevel->minimal_size.width;
+                        toplevel->widget.screen_location.size.width = x;
+                        toplevel->widget.requested_size.width = x;
+                        contain_frame->widget.screen_location.size.width = x- 2*(toplevel->border_width);
+                        contain_frame->widget.requested_size.width = x- 2*(toplevel->border_width);
                 }
 
                 if (toplevel->resizable_axis==ei_axis_both || toplevel->resizable_axis==ei_axis_y){
                         y = cur_point.y - mouse_point.y;
+                        y +=toplevel->widget.requested_size.height;
+                        if (toplevel->minimal_size.height>y) y=toplevel->minimal_size.height;
+                        toplevel->widget.screen_location.size.height = y;
+                        toplevel->widget.requested_size.height = y;
+                        contain_frame->widget.screen_location.size.height = y- 2*(toplevel->border_width)-k_default_button_corner_radius*2;
+                        contain_frame->widget.requested_size.height = y- 2*(toplevel->border_width)-k_default_button_corner_radius*2;
                 }
-
-                x +=toplevel->widget.requested_size.width;
-                y +=toplevel->widget.requested_size.height;
-
-                if (toplevel->minimal_size.width>x) x=toplevel->minimal_size.width;
-                if (toplevel->minimal_size.height>y) y=toplevel->minimal_size.height;
-
-                toplevel->widget.screen_location.size.width = x;
-                toplevel->widget.screen_location.size.height = y;
-
-                toplevel->widget.requested_size.width = x;
-                toplevel->widget.requested_size.height = y;
-
-                ei_impl_frame_t *contain_frame = (ei_impl_frame_t *) toplevel->contain_frame;
-                contain_frame->widget.screen_location.size.width = x- 2*(toplevel->border_width);
-                contain_frame->widget.screen_location.size.height = y- 2*(toplevel->border_width)-k_default_button_corner_radius*2;
-
-                contain_frame->widget.requested_size.width = x- 2*(toplevel->border_width);
-                contain_frame->widget.requested_size.height = y- 2*(toplevel->border_width)-k_default_button_corner_radius*2;
 
                 mouse_point = cur_point;
 
@@ -208,7 +215,7 @@ bool ei_resize_toplevel(ei_widget_t	widget, struct ei_event_t*	event, ei_user_pa
 
                 child = contain_frame->widget.children_head;
                 while (child){
-                        (child->geom_params->manager->runfunc)(child);
+                        if ((child->geom_params) && (child->geom_params->manager)) (child->geom_params->manager->runfunc)(child);
                         child=child->next_sibling;
                 }
                 ei_app_invalidate_rect(&rect);
@@ -247,6 +254,13 @@ void ei_impl_release_toplevel(ei_widget_t toplevel){
         free((ei_impl_toplevel_t*)toplevel);
 }
 
+/**
+ * fonction de callback du bouton close des toplevels
+ * @param widget
+ * @param event
+ * @param user_param
+ * @return true
+ */
 bool toplevel_close(ei_widget_t	widget,
                     ei_event_t*	event,
                     ei_user_param_t user_param){
@@ -288,9 +302,9 @@ void ei_impl_setdefaults_toplevel(ei_widget_t widget){
 
 
         ei_widget_t button = ei_widget_create	("button", (ei_widget_t)(toplevel), NULL, NULL);
-        ei_button_configure		(button, &(ei_size_t){12, 12},
+        ei_button_configure		(button, &(ei_size_t){13, 13},
                                             &(ei_color_t){235, 20, 20, 255},
-                                            &(int){1}, &(int){5},
+                                            &(int){3}, &(int){6},
                                             &(ei_relief_t){ei_relief_raised},
                                             NULL, NULL,
                                             NULL, NULL, NULL, NULL, NULL,
@@ -404,6 +418,6 @@ void ei_impl_draw_toplevel(ei_widget_t widget, ei_surface_t surface, ei_surface_
         hw_surface_lock(surface);
 }
 
-void ei_impl_geomnotify_toplevel(ei_widget_t widget){
 
+void ei_impl_geomnotify_toplevel(ei_widget_t widget){
 }

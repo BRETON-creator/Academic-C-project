@@ -113,6 +113,7 @@ void		ei_place	(ei_widget_t		widget,
         else anc = *anchor;
 
         switch (anc){
+            case ei_anc_none:
             case ei_anc_northwest:
                 xpos = xpos;
                 ypos = ypos;
@@ -154,7 +155,7 @@ void		ei_place	(ei_widget_t		widget,
         if (xpos!= 0) widget->screen_location.top_left.x = xpos;
         if (ypos!= 0) widget->screen_location.top_left.y = ypos;
 
-        ei_placer_t *geom_param ;
+        ei_placer_t *geom_param =NULL;
         if (widget->geom_params==NULL){
                 geom_param = calloc(1,sizeof(ei_placer_t));
                 ei_widget_set_geom_params(widget,(ei_geom_param_t)geom_param);
@@ -180,8 +181,9 @@ void		ei_place	(ei_widget_t		widget,
         ei_app_invalidate_rect(&rect);
         ei_widget_t child = widget->children_head;
         while (child){
-            (child->geom_params->manager->runfunc)(child);
+            if ((child->geom_params) && (child->geom_params->manager)) (child->geom_params->manager->runfunc)(child);
             child=child->next_sibling;
         }
+
 }
 

@@ -9,6 +9,7 @@
  */
 
 #include "ei_widgetclass.h"
+#include "ei_implementation.h"
 
 /**
  * on implémente une liste de toutes les widgetclass.
@@ -19,7 +20,9 @@ ei_widgetclass_t* tete=NULL;
  * \brief	Returns the size of the opaque struct that is pointed to by \ref ei_widget_t
  * 			(i.e. the size of \ref ei_impl_widget_t).
  */
-size_t		ei_widget_struct_size(){}
+size_t		ei_widget_struct_size(){
+    return sizeof(ei_impl_widget_t);
+}
 
 /**
  * @brief	Registers a class to the program so that widgets of this class can be created

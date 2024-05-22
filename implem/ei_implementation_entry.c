@@ -49,7 +49,7 @@ void ei_impl_setdefaults_entry(ei_widget_t widget){
     entry->widget.next_sibling=NULL;	///< Pointer to the next child of this widget's parent widget.
 
     /* Geometry Management */
-    entry->widget.geom_params = (ei_geom_param_t){NULL};	///< Pointer to the geometry management parameters for this widget. If NULL, the widget is not currently managed and thus, is not displayed on the screen.
+    entry->widget.geom_params = NULL;	///< Pointer to the geometry management parameters for this widget. If NULL, the widget is not currently managed and thus, is not displayed on the screen.
     entry->widget.requested_size=(ei_size_t){40,30} ;	///< See \ref ei_widget_get_requested_size.
     entry->widget.screen_location=(ei_rect_t){(ei_point_t){0,0},(ei_size_t){40,30}};///< See \ref ei_widget_get_screen_location.
     //frame->widget.content_rect;	///< See ei_widget_get_content_rect. By defaults, points to the screen_location.

@@ -71,6 +71,12 @@ ei_rect_t get_rect_intersection( ei_rect_t old_rect , ei_rect_t new_rect){
     return intersection_rect;
 }
 
+/**
+ * fonction permettant qui ecrit dans circle l'ensemble des points pour creer une frame arrondie aux bords.
+ * @param circle
+ * @param rect
+ * @param radius
+ */
 void give_rounded_frame(ei_point_t* circle, ei_rect_t rect, int radius) {
     float pi = 355./113.;
     float xpos, ypos;
@@ -88,12 +94,19 @@ void give_rounded_frame(ei_point_t* circle, ei_rect_t rect, int radius) {
                                    (rect.top_left.y) + (rect.size.height) - radius};
         circle[i] = (ei_point_t) {(center.x) + (xpos * radius), (center.y) - (ypos * radius)};
     }
+    //minimiser les erreurs d'arrondis
     circle[9].y = circle[10].y;
     circle[19].x = circle[20].x;
     circle[29].y = circle[30].y;
     circle[39].x = circle[0].x;
 }
-
+/**
+ * Fonction qui ecrit dans lower_frame la partie basse du relief d'un bouton/frame
+ * @param rounded_frame
+ * @param rect
+ * @param h
+ * @param lower_frame
+ */
 void give_lower_frame(ei_point_t* rounded_frame,ei_rect_t rect, int h, ei_point_t* lower_frame){
     for (int i=0; i<15; i++){
         lower_frame[i] = rounded_frame[25+i];
@@ -104,7 +117,13 @@ void give_lower_frame(ei_point_t* rounded_frame,ei_rect_t rect, int h, ei_point_
     lower_frame[21] = (ei_point_t){rect.top_left.x +rect.size.width -h, rect.top_left.y + h};
     lower_frame[22] = (ei_point_t){rect.top_left.x + h                , rect.top_left.y + h};
 }
-
+/**
+ * Fonction qui ecrit dans upper_frame la partie haute du relief d'un bouton/frame
+ * @param rounded_frame
+ * @param rect
+ * @param h
+ * @param upper_frame
+ */
 void give_upper_frame(ei_point_t* rounded_frame,ei_rect_t rect, int h, ei_point_t* upper_frame){
     for (int i=0; i<21; i++){
         upper_frame[i] = rounded_frame[5+i];
@@ -113,6 +132,13 @@ void give_upper_frame(ei_point_t* rounded_frame,ei_rect_t rect, int h, ei_point_
     upper_frame[22] = (ei_point_t){rect.top_left.x +rect.size.width -h, rect.top_left.y + h};
 }
 
+/**
+ * Donne le coin topleft pour placer un rectangle de texte de taille size_text
+ * @param rect
+ * @param anchor
+ * @param size_text
+ * @return
+ */
 ei_point_t place_text(ei_rect_t rect, ei_anchor_t anchor, ei_size_t size_text){
     switch (anchor){
         case ei_anc_northwest:
@@ -123,8 +149,7 @@ ei_point_t place_text(ei_rect_t rect, ei_anchor_t anchor, ei_size_t size_text){
             return (ei_point_t){rect.top_left.x + rect.size.width - size_text.width, rect.top_left.y};
         case ei_anc_west:
             return (ei_point_t){rect.top_left.x, rect.top_left.y + rect.size.height/2 - size_text.height/2};
-        case ei_anc_none:
-        case ei_anc_center:
+        case ei_anc_none: case ei_anc_center:
             return (ei_point_t){rect.top_left.x + rect.size.width/2 - size_text.width/2,rect.top_left.y + rect.size.height/2 - size_text.height/2};
         case ei_anc_east:
             return (ei_point_t){rect.top_left.x + rect.size.width/2 - size_text.width/2,rect.top_left.y + rect.size.height/2 - size_text.height/2};

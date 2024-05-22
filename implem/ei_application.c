@@ -18,11 +18,15 @@
 #include "ei_impl_placer.h"
 #include "var.h"
 
-
+//variable globale designant la surface offscreen de picking
 ei_surface_t pick_surface;
+//variable globale designant le widget root
 ei_impl_widget_t* root = NULL;
+//variable globale qui indique lorsque l'on quitte le programme (elle sera mis a jour dans ei_app_quit_request)
 bool quit              = false;
+//variable globale designant la surface root
 ei_surface_t root_surface;
+//variable globale designant la liste chainée des rectangles a update sur la root_surface
 ei_linked_rect_t* rects = NULL;
 
 
@@ -139,9 +143,6 @@ void ei_app_free(void){
      *
     */
 
-    //free la surface offscreen
-    //hw_surface_free(??)
-    //free tous les widgets (parcours suffixe de l'arbre des widgets
     ei_widget_destroy(root);
 
     //free les widgets_class (on en a que 3...
@@ -155,10 +156,26 @@ void ei_app_free(void){
     free(tmp);
     //free les geometrymanager (on en a qu'un pour le moment...
     free(ei_geometrymanager_from_name("placer\0"));
-
+    //on supprime nos 2 surfaces
+    hw_surface_free(root_surface);
+    hw_surface_free(pick_surface);
+    //on supprime les binds qui restent
+    ei_bind_t* current = ei_get_head_binds();
+    ei_bind_t* tmp_bind;
+    while (current){
+        tmp_bind = current->next_bind;
+        if(!current->bind_isWidget)
+            free(current->object.tag);
+        free(current);
+        current= tmp_bind;
+    }
     hw_quit();
 }
 
+/**
+ * @brief free la liste chainée des rectangles à update !
+ * @param list la liste chainée des rectangles
+ */
 void release_linked_rect(ei_linked_rect_t* list){
     ei_linked_rect_t *tmp;
     while(list){
@@ -168,15 +185,6 @@ void release_linked_rect(ei_linked_rect_t* list){
     }
 }
 
-void update_place(ei_widget_t widget){
-        if (widget->geom_params) ei_impl_placer_runfunc(widget);
-        ei_widget_t child = widget->children_head;
-        while (child){
-                update_place(child);
-                child = child->next_sibling;
-        }
-}
-
 
 /**
  * \brief	Runs the application: enters the main event loop. Exits when
@@ -184,10 +192,9 @@ void update_place(ei_widget_t widget){
  */
 void ei_app_run(void){
 
-    update_place(root);
-
     ei_rect_t clipper           = hw_surface_get_rect(ei_app_root_surface());
     ei_impl_widget_draw_children(root, root_surface, pick_surface, &clipper);
+    hw_surface_unlock(root_surface);
     //boucle principale
 
     //binds interns
@@ -237,19 +244,14 @@ void ei_app_run(void){
 
 
     }
-    ei_unbind(ei_ev_mouse_buttondown, NULL,"button\0",ei_callback_clickbutton,NULL);
-    ei_unbind(ei_ev_mouse_buttonup,NULL,"button\0",ei_callback_clickbutton,NULL);
-
-    ei_unbind(ei_ev_mouse_buttondown, NULL, "all\0", ei_callback_buttondown,NULL);
-
-    ei_unbind(ei_ev_mouse_buttondown, NULL,"toplevel\0",ei_callback_toplevel,NULL);
-    ei_unbind(ei_ev_mouse_move, NULL,"toplevel\0",ei_callback_toplevel,NULL);
-    ei_unbind(ei_ev_mouse_buttonup, NULL,"toplevel\0",ei_callback_toplevel,NULL);
     free(event);
 }
 
 
-
+/**
+ * @brief ajoute a la tete de la liste de rectangle a update un rectangle
+ * @param rect
+ */
 void add_head_rects(const ei_rect_t* rect){
     ei_linked_rect_t* new_rect = calloc(1,sizeof(ei_linked_rect_t));
     ei_rect_t rect_correction = get_rect_intersection(*rect, root->screen_location);
@@ -268,7 +270,7 @@ void add_head_rects(const ei_rect_t* rect){
  *				A copy is made, so it is safe to release the rectangle on return.
  */
 void ei_app_invalidate_rect(const ei_rect_t* rect){
-    ei_rect_t rect_correct = get_rect_intersection(*rect,root->screen_location);
+    ei_rect_t rect_correct = get_rect_intersection(*(ei_rect_t*)rect,root->screen_location);
     if (!rects) {
             add_head_rects(&rect_correct);
             return;
