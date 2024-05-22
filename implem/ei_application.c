@@ -234,7 +234,7 @@ void ei_app_run(void){
 
 
         }while(!change_event && bind);
-        if (rects) {
+        if (rects) {//on updates les rects qui ont changé dans la fenêtre
             hw_surface_unlock(root_surface);
             clipper = get_smallest_containing_rect(rects);
             ei_impl_widget_draw_children(root, root_surface, pick_surface, &clipper);
