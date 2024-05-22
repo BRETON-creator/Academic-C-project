@@ -307,8 +307,8 @@ bool ei_callback_clickbutton(ei_widget_t		widget, struct ei_event_t*	event, ei_u
                     ((ei_impl_button_t*) widget)->frame.frame_relief = ei_relief_sunken;
                     ei_app_invalidate_rect(&widget->screen_location);
                     //il manque la modification de l'ancrage du texte
-                    current_button_down = widget;
                 }
+                current_button_down = widget;
                 break;
             case ei_ev_mouse_buttonup:
                 //si on relache le bouton on modifie l'apparance du bouton down -> up
@@ -316,11 +316,11 @@ bool ei_callback_clickbutton(ei_widget_t		widget, struct ei_event_t*	event, ei_u
                 if (((ei_impl_frame_t*) widget)->frame_relief ==  ei_relief_sunken) {
                     ((ei_impl_frame_t*) widget)->frame_relief =  ei_relief_raised;
 
-                    ei_app_invalidate_rect(&widget->screen_location);
-                    //on appel la fonction associee au bouton
-                    if (((ei_impl_button_t*)widget)->callback) ((ei_impl_button_t*)widget)->callback(widget,event,((ei_impl_button_t*)widget)->user_params);
-                    current_button_down = NULL;
                 }
+                ei_app_invalidate_rect(&widget->screen_location);
+                //on appel la fonction associee au bouton
+                if (((ei_impl_button_t*)widget)->callback) ((ei_impl_button_t*)widget)->callback(widget,event,((ei_impl_button_t*)widget)->user_params);
+                current_button_down = NULL;
                 break;
             default:
                 break;
