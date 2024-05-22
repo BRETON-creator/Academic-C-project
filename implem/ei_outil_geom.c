@@ -10,7 +10,7 @@
  * @return renvoie le plus petit rectangle contenant tout les rectangles de la liste
  */
 ei_rect_t get_smallest_containing_rect(ei_linked_rect_t* list){
-    if (!list) return ei_app_root_widget()->screen_location ;
+    if (!list) return hw_surface_get_rect(ei_app_root_surface()) ;
     int max_x, max_y, min_x, min_y;
     ei_linked_rect_t* current= list;
     max_x = current->rect.top_left.x + current->rect.size.width;

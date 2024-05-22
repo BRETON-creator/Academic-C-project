@@ -236,7 +236,6 @@ void ei_app_run(void){
         }while(!change_event && bind);
         if (rects) {
             hw_surface_unlock(root_surface);
-            //TODO utiliser rects à la place de clipper (il faut calculer l'union de tout les rects)
             clipper = get_smallest_containing_rect(rects);
             ei_impl_widget_draw_children(root, root_surface, pick_surface, &clipper);
             hw_surface_update_rects(root_surface, rects);
@@ -307,7 +306,7 @@ void ei_app_invalidate_rect(const ei_rect_t* rect){
 
         }
         // si l'intersection entre le nouveau rectangle et current est le nouveau rectangle alors on ajoute pas le nouveau rectangle(current contient le nouveau rect)
-        if (inter.size.width == (rect_correct).size.width &&
+        else if (inter.size.width == (rect_correct).size.width &&
             inter.size.height == (rect_correct).size.height &&
             inter.top_left.x == (rect_correct).top_left.x &&
             inter.top_left.y == (rect_correct).top_left.y){
